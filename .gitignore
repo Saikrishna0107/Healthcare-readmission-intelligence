@@ -1,0 +1,30 @@
+# Downloaded and generated data: rebuilt from the CMS/CDC APIs by the pipeline,
+# so it is never committed.
+data/
+*.duckdb
+*.duckdb.wal
+
+# dbt build output
+target/
+dbt_packages/
+logs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Jupyter autosave copies
+.ipynb_checkpoints/
+
+# Secrets (API keys for the LLM step)
+.env
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
