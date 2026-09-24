@@ -28,3 +28,6 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# marimo session cache (regenerated on every run)
+__marimo__/
