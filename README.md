@@ -30,7 +30,9 @@ when the project reaches the step that needs them.
 
 ## What the data shows so far
 
-From [notebooks/01_data_exploration.ipynb](notebooks/01_data_exploration.ipynb):
+From the data exploration notebook
+([read it with results](https://saikrishna0107.github.io/Healthcare-readmission-intelligence/notebooks/01_data_exploration.html)
+· [source](notebooks/01_data_exploration.py)):
 
 - **Small differences decide penalties.** Half of all hospital-condition scores fall between an
   Excess Readmission Ratio of 0.96 and 1.04.
@@ -79,8 +81,19 @@ python -m venv .venv
 .venv/Scripts/pip install -r requirements.txt       # macOS/Linux: .venv/bin/pip
 ```
 
-Then open `notebooks/01_data_exploration.ipynb` in Jupyter or VS Code and select the `.venv`
-interpreter. The notebook downloads the public data itself (about 110 MB, cached in `data/raw/`).
+Notebooks use [marimo](https://marimo.io) and are plain `.py` files:
+
+```bash
+.venv/Scripts/marimo edit notebooks/01_data_exploration.py     # open as an interactive notebook
+.venv/Scripts/python notebooks/01_data_exploration.py          # or run it as a script
+```
+
+The notebook downloads the public data itself (about 110 MB, cached in `data/raw/`).
+After changing a notebook, refresh its published page:
+
+```bash
+.venv/Scripts/marimo export html notebooks/01_data_exploration.py -o docs/notebooks/01_data_exploration.html
+```
 
 ## Following the progress
 

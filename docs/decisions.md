@@ -209,7 +209,7 @@ are compared by money at stake instead.
 
 ---
 
-## D-015 · Notebooks are committed with their outputs · Accepted (step 2)
+## D-015 · Notebooks are committed with their outputs · Superseded by D-016
 
 **Decision.** Exploration notebooks are run from start to finish on the project's own Python
 environment and committed with their outputs (tables and charts). Key charts are also saved to
@@ -221,3 +221,36 @@ works in order, not only in a lucky sequence of manually run cells.
 
 **Alternative considered.** Stripping outputs keeps diffs small, but then nobody can see the
 results on GitHub, which defeats the purpose of a portfolio notebook.
+
+---
+
+## D-016 · marimo instead of Jupyter for notebooks · Accepted (after step 2)
+
+**Context.** Step 2 was first written as a Jupyter notebook. Two problems showed up: `.ipynb`
+files are JSON with embedded outputs, so each commit's diff is unreadable, and Jupyter cells can
+run in any order, so a notebook can appear to work only because of the order cells happened to
+be run in.
+
+**Decision.** Write notebooks in [marimo](https://marimo.io). Each notebook is a plain `.py`
+file. A static HTML export (code, tables and charts) is published from `docs/notebooks/` with
+GitHub Pages so results can be read without installing anything.
+
+**Why.**
+- **Reactive:** when a cell changes, every cell that depends on it re-runs, so the outputs always
+  match the code. marimo also requires each variable to be defined in exactly one cell, which
+  rules out hidden state.
+- **Readable history:** a `.py` file diffs like normal code, so every commit shows exactly what
+  changed. This matters for a project built in public.
+- **One file, three uses:** the same notebook opens as an editable notebook (`marimo edit`), runs
+  as a script (`python notebook.py`) and can be served as an interactive app (`marimo run`).
+
+**Trade-off.** GitHub shows only the code of a `.py` notebook, not its outputs. The HTML export
+on GitHub Pages fixes this, at the cost of one export command per notebook. Key charts stay in
+`images/` for the README.
+
+**Alternatives considered.**
+- *Jupyter*: the most widely used, and GitHub renders outputs, but the diff and hidden-state
+  problems above remain.
+- *Quarto*: excellent for polished reports, less suited to exploration.
+- *Plain `.py` scripts with `# %%` cells*: diff-friendly, but not reactive and no app mode.
+- *Hex / Deepnote*: polished hosted notebooks, but the work would live outside this repository.

@@ -4,7 +4,6 @@ pandas>=2.2
 pyarrow>=17
 numpy>=1.26
 
-# Charts and notebooks
+# Charts and notebooks (marimo: reactive notebooks stored as .py files)
 matplotlib>=3.8
-jupyter>=1.0
-ipykernel>=6.29
+marimo>=0.25
