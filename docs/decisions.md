@@ -37,7 +37,8 @@ hospital × condition. ERR = predicted ÷ expected readmission rate; above 1.0 m
 expected.
 
 **Why.**
-- ERR is what drives the actual payment penalty, so it ties directly to money.
+- ERR is what drives the actual payment penalty, so it ties directly to money (the penalty
+  compares ERR with a peer-group median, see D-014).
 - CMS already adjusts it for how sick each hospital's patients are, so hospitals can be compared
   fairly.
 - HRRP only applies to acute care hospitals (critical access hospitals are exempt), so the
@@ -183,3 +184,40 @@ runs the same way on Windows, macOS and in CI.
 
 **Why.** One free tool runs the tests on every push and refreshes the data on a schedule.
 Airflow would be too heavy for a one-person project.
+
+---
+
+## D-014 · Penalties are judged against the peer-group median, not 1.0 · Accepted (step 2)
+
+**Context.** Found while exploring the data (step 2). An early version of the analysis treated
+ERR above 1.0 as "penalised". Since fiscal year 2019 (21st Century Cures Act), CMS places
+hospitals in five peer groups by their share of patients eligible for both Medicare and
+Medicaid, and compares each hospital's ERR with the **median ERR of its peer group**:
+penalty for a condition = neutrality modifier × DRG payment ratio × (ERR − peer-group median ERR),
+capped at 3% of Medicare base payments.
+
+**Decision.** Ingest CMS's HRRP supplemental data (peer group and payment details) alongside the
+HRRP file, and define "penalised" and "dollars at risk" with the official formula.
+
+**Why.** Using 1.0 as the line would misclassify hospitals near the threshold, which is exactly
+where most hospitals are, and would ignore the adjustment CMS makes for hospitals that serve
+lower-income patients.
+
+**Also learned.** Because ERR is relative to an average hospital, about half of scored hospitals
+are above 1.0 for every condition. "Share above 1.0" therefore cannot rank conditions; conditions
+are compared by money at stake instead.
+
+---
+
+## D-015 · Notebooks are committed with their outputs · Accepted (step 2)
+
+**Decision.** Exploration notebooks are run from start to finish on the project's own Python
+environment and committed with their outputs (tables and charts). Key charts are also saved to
+`images/` for the README.
+
+**Why.** GitHub displays notebook outputs, so a reviewer can read the analysis and results
+without installing anything. Running from start to finish before each commit proves the notebook
+works in order, not only in a lucky sequence of manually run cells.
+
+**Alternative considered.** Stripping outputs keeps diffs small, but then nobody can see the
+results on GitHub, which defeats the purpose of a portfolio notebook.

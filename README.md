@@ -28,6 +28,24 @@ three questions a hospital or health plan would pay for:
 More sources (Medicare inpatient payments, complications, spending per beneficiary) are added
 when the project reaches the step that needs them.
 
+## What the data shows so far
+
+From [notebooks/01_data_exploration.ipynb](notebooks/01_data_exploration.ipynb):
+
+- **Small differences decide penalties.** Half of all hospital-condition scores fall between an
+  Excess Readmission Ratio of 0.96 and 1.04.
+- **Penalties are common.** 77% of HRRP hospitals are above 1.0 on at least one condition.
+  CMS judges each hospital against the median of its peer group (hospitals with a similar
+  share of low-income patients), not against 1.0.
+- **Missing is not zero.** 36% of scores are missing, mostly because a hospital had too few
+  cases. Treating them as zero would make small hospitals look perfect.
+- **A data-leakage trap.** The current patient survey was collected *after* the readmission
+  period it would explain, so archived survey releases are needed to line the periods up.
+- **A first driver.** Hospitals with the best discharge-information scores average a
+  heart-failure ratio of 0.98; those with the lowest average 1.02 (association, not causation).
+
+![Discharge information vs heart-failure readmissions](images/04_discharge_info_vs_hf_err.png)
+
 ## Planned architecture
 
 ```
@@ -42,7 +60,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 ## Roadmap
 
 - [x] 1. Project skeleton, README and decision log
-- [ ] 2. Data exploration: what each dataset contains and its traps
+- [x] 2. Data exploration: what each dataset contains and its traps
 - [ ] 3. Ingestion from the CMS and CDC APIs
 - [ ] 4. Cleaning (dbt staging models) and handling of missing-value footnotes
 - [ ] 5. Hospital-to-county join with a match-rate test
@@ -51,6 +69,18 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [ ] 8. LLM question-answering agent with an evaluation set
 - [ ] 9. Power BI dashboard
 - [ ] 10. CI and scheduled data refresh
+
+## Running it yourself
+
+Requires Python 3.12. From the project folder:
+
+```bash
+python -m venv .venv
+.venv/Scripts/pip install -r requirements.txt       # macOS/Linux: .venv/bin/pip
+```
+
+Then open `notebooks/01_data_exploration.ipynb` in Jupyter or VS Code and select the `.venv`
+interpreter. The notebook downloads the public data itself (about 110 MB, cached in `data/raw/`).
 
 ## Following the progress
 

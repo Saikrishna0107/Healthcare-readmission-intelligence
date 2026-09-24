@@ -1,0 +1,10 @@
+# Data access and analysis
+requests>=2.32
+pandas>=2.2
+pyarrow>=17
+numpy>=1.26
+
+# Charts and notebooks
+matplotlib>=3.8
+jupyter>=1.0
+ipykernel>=6.29
