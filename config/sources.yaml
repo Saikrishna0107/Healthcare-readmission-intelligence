@@ -1,0 +1,98 @@
+# Raw data sources ingested by `hri ingest`.
+#
+# Adding a source means adding an entry here, not writing new code. Each entry says:
+#   kind              which downloader to use (see src/hri/ingest/fetch.py)
+#   required_columns  columns that must exist, or the run stops (catches publisher schema changes)
+#   min_rows          fewer rows than this means a broken or partial file, so the run stops
+
+sources:
+  hrrp:
+    kind: cms_provider_data
+    dataset_id: 9n3s-kdb3
+    description: Hospital Readmissions Reduction Program, hospital x condition (target variable)
+    required_columns:
+      - Facility ID
+      - Measure Name
+      - Number of Discharges
+      - Footnote
+      - Excess Readmission Ratio
+      - Predicted Readmission Rate
+      - Expected Readmission Rate
+      - Start Date
+      - End Date
+    min_rows: 10000
+
+  hrrp_supplemental:
+    kind: cms_zip
+    # Published once per fiscal year with the IPPS final rule; not available through an API.
+    url: https://www.cms.gov/files/zip/fy2026-hospital-readmissions-reduction-program-supplemental-data-file.zip
+    release: FY2026
+    member: FR FY 2026.txt
+    read_options:
+      sep: "\t"
+      skiprows: 1          # first line is a title, not the header
+      encoding: cp1252
+    description: HRRP peer groups, peer-group median ERRs, penalty indicators and payment reductions
+    required_columns:
+      - Hospital CCN
+      - Payment adjustment factor
+      - Payment reduction percentage
+      - Dual proportion
+      - Peer group assignment
+      - Neutrality modifier
+      - ERR for HF
+      - Peer group median ERR for HF
+      - Penalty indicator for HF
+      - DRG payment ratio for HF
+    min_rows: 2500
+
+  hospital_info:
+    kind: cms_provider_data
+    dataset_id: xubh-q36u
+    description: Hospital General Information, one row per hospital (profile, county, star rating)
+    required_columns:
+      - Facility ID
+      - State
+      - ZIP Code
+      - County/Parish
+      - Hospital Type
+      - Hospital Ownership
+      - Emergency Services
+      - Hospital overall rating
+    min_rows: 4000
+
+  hcahps:
+    kind: cms_provider_data
+    dataset_id: dgck-syfz
+    description: Patient survey (HCAHPS), hospital x survey answer
+    required_columns:
+      - Facility ID
+      - HCAHPS Measure ID
+      - HCAHPS Linear Mean Value
+      - Number of Completed Surveys
+      - Start Date
+      - End Date
+    min_rows: 200000
+
+  footnotes:
+    kind: cms_provider_data
+    dataset_id: y9us-9xdf
+    description: Footnote Crosswalk, the meaning of each CMS footnote code
+    required_columns:
+      - Footnote
+      - Footnote Text
+    min_rows: 10
+
+  places_county:
+    kind: cdc_socrata
+    dataset_id: swc5-untb
+    description: CDC PLACES county-level health measures
+    required_columns:
+      - Year
+      - StateAbbr
+      - LocationName
+      - LocationID
+      - MeasureId
+      - Data_Value
+      - Data_Value_Type
+    min_rows: 100000
