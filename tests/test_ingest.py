@@ -88,6 +88,20 @@ def test_new_release_is_stored_next_to_the_old_one(tmp_path):
 
 
 @responses.activate
+def test_read_latest_returns_the_newest_release(tmp_path):
+    store = RawStore(tmp_path)
+    mock_cms("2026-01-26")
+    ingest_source(cms_source(), store, make_session())
+    responses.reset()
+    mock_cms("2026-07-22")
+    ingest_source(cms_source(), store, make_session())
+
+    assert set(store.read_latest("hrrp")["_release"]) == {"2026-07-22"}
+    with pytest.raises(KeyError, match="hri ingest --only hcahps"):
+        store.read_latest("hcahps")
+
+
+@responses.activate
 def test_missing_required_column_stops_and_stores_nothing(tmp_path):
     mock_cms(body="Facility ID,Renamed Column\n010001,1.02\n010005,0.98\n")
     store = RawStore(tmp_path)

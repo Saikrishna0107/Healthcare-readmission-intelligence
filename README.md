@@ -21,6 +21,7 @@ three questions a hospital or health plan would pay for:
 | Source | Grain (one row =) | Role in the project |
 |---|---|---|
 | [CMS Hospital Readmissions Reduction Program](https://data.cms.gov/provider-data/dataset/9n3s-kdb3) | hospital × condition | **Target**: Excess Readmission Ratio (ERR) |
+| [CMS HRRP Supplemental Data File](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/fy-2026-ipps-final-rule-home-page) (FY 2026) | hospital | Peer group, peer-group median ERRs, penalty indicators, actual payment reduction |
 | [CMS Patient Survey (HCAHPS) – Hospital](https://data.cms.gov/provider-data/dataset/dgck-syfz) | hospital × survey answer | Drivers: discharge information, communication scores |
 | [CMS Hospital General Information](https://data.cms.gov/provider-data/dataset/xubh-q36u) | hospital | Hospital profile: type, ownership, county, star rating |
 | [CDC PLACES – County Data](https://data.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-County-Data-20/swc5-untb) | county × health measure | Community context: chronic disease, insurance, transportation |
@@ -63,7 +64,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 
 - [x] 1. Project skeleton, README and decision log
 - [x] 2. Data exploration: what each dataset contains and its traps
-- [ ] 3. Ingestion from the CMS and CDC APIs
+- [x] 3. Ingestion from the CMS and CDC APIs
 - [ ] 4. Cleaning (dbt staging models) and handling of missing-value footnotes
 - [ ] 5. Hospital-to-county join with a match-rate test
 - [ ] 6. Archived data to align time periods (prevents data leakage)
@@ -83,6 +84,19 @@ python -m venv .venv
 
 This installs the project's own package (`src/hri`) plus the development tools (pytest, ruff).
 
+### Pipeline commands
+
+```bash
+.venv/Scripts/hri ingest                 # download new releases of every source (skips unchanged ones)
+.venv/Scripts/hri ingest --only hrrp     # just one source
+.venv/Scripts/hri status                 # what is stored, which release, how many rows
+.venv/Scripts/python -m pytest           # run the tests (no internet needed)
+```
+
+Sources are listed in [config/sources.yaml](config/sources.yaml). Each release is stored untouched
+as `data/raw/<source>/<release>.parquet`, with a download log in `data/raw/manifest.json`
+([why](docs/decisions.md#d-018--raw-layer-untouched-text-one-parquet-file-per-release--accepted-step-3)).
+
 Notebooks use [marimo](https://marimo.io) and are plain `.py` files:
 
 ```bash
@@ -90,7 +104,8 @@ Notebooks use [marimo](https://marimo.io) and are plain `.py` files:
 .venv/Scripts/python notebooks/01_data_exploration.py          # or run it as a script
 ```
 
-The notebook downloads the public data itself (about 110 MB, cached in `data/raw/`).
+The notebook runs `hri ingest` for the sources it needs, so the first run downloads the data
+(about 110 MB) and later runs reuse it.
 After changing a notebook, refresh its published page:
 
 ```bash

@@ -36,6 +36,12 @@ class RawStore:
         entry = self.load_manifest().get(source_name, {}).get("releases", {}).get(release_label)
         return entry is not None and self.path_for(source_name, release_label).exists()
 
+    def read_latest(self, source_name: str) -> pd.DataFrame:
+        entry = self.load_manifest().get(source_name)
+        if entry is None:
+            raise KeyError(f"{source_name} has not been ingested yet. Run: hri ingest --only {source_name}")
+        return pd.read_parquet(self.raw_dir / entry["releases"][entry["latest"]]["file"])
+
     def write(self, df: pd.DataFrame, source_name: str, release_label: str, record: dict) -> Path:
         path = self.path_for(source_name, release_label)
         path.parent.mkdir(parents=True, exist_ok=True)

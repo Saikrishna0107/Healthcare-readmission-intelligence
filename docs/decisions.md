@@ -197,7 +197,9 @@ penalty for a condition = neutrality modifier × DRG payment ratio × (ERR − p
 capped at 3% of Medicare base payments.
 
 **Decision.** Ingest CMS's HRRP supplemental data (peer group and payment details) alongside the
-HRRP file, and define "penalised" and "dollars at risk" with the official formula.
+HRRP file, and define "penalised" and "dollars at risk" with the official formula. *(Done in step 3:
+the FY 2026 supplemental file also contains each hospital's penalty indicators and actual payment
+reduction; about 78% of the 2,945 hospitals in it receive a reduction.)*
 
 **Why.** Using 1.0 as the line would misclassify hospitals near the threshold, which is exactly
 where most hospitals are, and would ignore the adjustment CMS makes for hospitals that serve
@@ -273,3 +275,46 @@ on GitHub Pages fixes this, at the cost of one export command per notebook. Key 
 
 **Alternative considered.** Loose scripts plus `requirements.txt`: quicker to start, but code
 gets duplicated between scripts and notebooks, and there is no single command to run the pipeline.
+
+---
+
+## D-018 · Raw layer: untouched text, one Parquet file per release · Accepted (step 3)
+
+**Decision.** `hri ingest` stores every source exactly as published:
+
+- **Sources are configuration.** `config/sources.yaml` lists each source with its downloader,
+  required columns and minimum row count. Adding a source is a config change, not new code.
+- **Every value stays text**, and markers such as `N/A`, `Not Available` or `.` are kept
+  literally. Converting to numbers and deciding what counts as missing happens in the staging
+  models (step 4), where it is visible and tested.
+- **One Parquet file per release** (`data/raw/<source>/<release>.parquet`), old releases kept, plus a
+  manifest recording download time, URL, SHA-256 fingerprint and row count. Each row also carries
+  lineage columns (`_source`, `_release`, `_ingested_at`).
+- **Skip unchanged releases.** Before downloading, ingestion asks the publisher for the current
+  version (CMS "modified" date, CDC "rows updated" date, or the fiscal year for yearly zip files).
+  A rerun with nothing new takes under two seconds.
+- **Fail loudly, fail alone.** Missing required columns or too few rows stop that source with a
+  clear error; retries handle brief outages; files are written under a temporary name and renamed
+  only when complete; one failing source does not stop the others.
+
+**Why.**
+- If a cleaning rule turns out to be wrong, it can be fixed and rebuilt from the raw layer without
+  downloading again, and nothing about the original data was lost.
+- Keeping releases makes results reproducible and supplies the history needed to align time
+  periods (D-008).
+- Parquet is compressed and columnar: the 101 MB HCAHPS CSV is 848 KB as Parquet, and DuckDB
+  reads it directly.
+- Silent schema changes are the most common way public-data pipelines break; stopping on them
+  turns a subtle wrong answer into an obvious error.
+
+**Known raw-data quirks for the staging step** (found on the first real run):
+`N/A`, `Not Available` and `Too Few to Report` in numeric columns; `.` for "no eligible
+discharges" and percentages stored as text (`0.12%`) in the supplemental file; and a footer row
+reading `End of worksheet` as the supplemental file's last line.
+
+**Alternatives considered.**
+- *Clean while downloading*: fewer steps, but mistakes in cleaning would be baked into the only
+  copy of the data.
+- *Overwrite with the latest file*: simpler storage, but history is lost and results cannot be
+  reproduced.
+- *CSV instead of Parquet*: readable in any editor, but large, slow and without column types.

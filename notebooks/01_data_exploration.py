@@ -42,8 +42,10 @@ def _():
     import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
-    import requests
-    return Path, mo, np, pd, plt, re, requests
+
+    from hri import PROJECT_ROOT
+    from hri.ingest import RawStore, ingest, load_sources
+    return PROJECT_ROOT, RawStore, ingest, load_sources, mo, np, pd, plt, re
 
 
 @app.cell(hide_code=True)
@@ -51,70 +53,58 @@ def _(mo):
     mo.md(r"""
     ## Setup
 
-    The data is downloaded straight from the public APIs, so anyone can rerun this notebook.
+    The data comes from the project's ingestion step (`hri ingest`, code in `src/hri/ingest/`).
+    The cell below runs it for the sources this notebook needs: releases that are already stored
+    are skipped, so after the first run this takes about a second.
 
-    **Why look up the download link every time?** CMS puts a changing code in each file's URL
+    **How ingestion finds the current file.** CMS puts a changing code in each file's URL
     (for example `.../a171bc36..._1770163617/FY_2026_...csv`) and the code changes with every
-    refresh. Hard-coding the link would break at the next quarterly update. Instead we ask the
-    CMS *metastore* API for the current link, using the dataset's permanent ID (e.g. `9n3s-kdb3`).
-
-    Files are cached in `data/raw/` (ignored by Git) so reruns don't download again.
+    refresh. Hard-coding the link would break at the next quarterly update. Instead ingestion asks
+    the CMS *metastore* API for the current link, using the dataset's permanent ID (e.g. `9n3s-kdb3`),
+    and stores each release as a Parquet file in `data/raw/` (ignored by Git).
     """)
     return
 
 
 @app.cell
-def _(mo, pd, requests):
-    ROOT = mo.notebook_dir().parent
-    RAW = ROOT / "data" / "raw"
-    RAW.mkdir(parents=True, exist_ok=True)
-    IMAGES = ROOT / "images"
+def _(PROJECT_ROOT, RawStore, ingest, load_sources):
+    IMAGES = PROJECT_ROOT / "images"
     IMAGES.mkdir(exist_ok=True)
 
-    CMS_METASTORE = "https://data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items"
-
-    CMS_DATASETS = {                      # permanent dataset IDs on data.cms.gov
-        "hrrp": "9n3s-kdb3",              # Hospital Readmissions Reduction Program
-        "hospital_info": "xubh-q36u",     # Hospital General Information
-        "hcahps": "dgck-syfz",            # Patient survey (HCAHPS) - Hospital
-        "footnotes": "y9us-9xdf",         # Footnote Crosswalk (what each footnote code means)
-    }
-
-
-    def load_cms(name: str) -> tuple[pd.DataFrame, dict]:
-        # Look up the current download link, download once, and read every column as text.
-        meta = requests.get(f"{CMS_METASTORE}/{CMS_DATASETS[name]}", timeout=60).json()
-        path = RAW / f"{name}.csv"
-        if not path.exists():
-            with requests.get(meta["distribution"][0]["downloadURL"], stream=True, timeout=300) as r:
-                r.raise_for_status()
-                with open(path, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=1 << 20):
-                        f.write(chunk)
-        return pd.read_csv(path, dtype=str), {"dataset": meta["title"], "last updated": meta["modified"]}
-    return IMAGES, load_cms
+    _sources = load_sources()
+    _needed = ["hrrp", "hospital_info", "hcahps", "footnotes", "places_county"]
+    ingest([_sources[name] for name in _needed])  # downloads only releases not stored yet
+    store = RawStore()
+    return IMAGES, store
 
 
 @app.cell
-def _(load_cms, mo, pd):
-    hrrp, _m1 = load_cms("hrrp")
-    hospital_info, _m2 = load_cms("hospital_info")
-    hcahps, _m3 = load_cms("hcahps")
-    footnotes, _m4 = load_cms("footnotes")
-    mo.plain(pd.DataFrame([_m1, _m2, _m3, _m4]))
-    return footnotes, hcahps, hospital_info, hrrp
+def _(mo, pd, store):
+    hrrp = store.read_latest("hrrp")
+    hospital_info = store.read_latest("hospital_info")
+    hcahps = store.read_latest("hcahps")
+    footnotes = store.read_latest("footnotes")
+    places = store.read_latest("places_county")
+
+    _manifest = store.load_manifest()
+    mo.plain(pd.DataFrame([
+        {"source": name, "release": _manifest[name]["latest"],
+         "rows": _manifest[name]["releases"][_manifest[name]["latest"]]["rows"]}
+        for name in ["hrrp", "hospital_info", "hcahps", "footnotes", "places_county"]
+    ]))
+    return footnotes, hcahps, hospital_info, hrrp, places
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    **Why read every column as text (`dtype=str`)?** Two reasons:
+    **Why is every column stored as text?** The raw layer keeps values exactly as published:
 
     - **Hospital IDs have leading zeros.** `010001` is a real ID; read as a number it becomes
       `10001` and no longer joins to other files.
     - **Number columns contain words.** `Number of Readmissions` contains values like
-      `Too Few to Report`. We convert to numbers deliberately, one column at a time, so every
-      conversion is visible.
+      `Too Few to Report`, and missing values appear as `N/A` or `Not Available`. We convert to
+      numbers deliberately, one column at a time, so every conversion is visible.
     """)
     return
 
@@ -311,7 +301,7 @@ def _(footnotes, hrrp_scored, mo):
     mo.vstack([
         mo.md(f"**rows without an ERR:** {len(_missing):,} of {len(hrrp_scored):,} "
               f"({len(_missing) / len(hrrp_scored):.0%})"),
-        mo.plain(_missing["Footnote"].fillna("(none)").value_counts().rename("rows").to_frame()
+        mo.plain(_missing["Footnote"].replace("", "(none)").value_counts().rename("rows").to_frame()
                  .assign(meaning=lambda d: d.index.map(_fn_text))),
     ])
     return
@@ -525,13 +515,12 @@ def _(joined, mo):
 
 
 @app.cell
-def _(in_hrrp, mo, pd, re, requests):
-    places_counties = pd.DataFrame(requests.get(
-        "https://data.cdc.gov/resource/swc5-untb.json",
-        params={"$select": "stateabbr,locationname,locationid",
-                "$group": "stateabbr,locationname,locationid", "$limit": 10000},
-        timeout=60,
-    ).json())
+def _(in_hrrp, mo, places, re):
+    places_counties = (
+        places[["StateAbbr", "LocationName", "LocationID"]]
+        .drop_duplicates()
+        .rename(columns={"StateAbbr": "stateabbr", "LocationName": "locationname", "LocationID": "locationid"})
+    )
 
 
     def clean_county(name: str) -> str:
