@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hri"
+version = "0.1.0"
+description = "Hospital Readmission Intelligence: CMS/CDC data pipeline, penalty-risk model and LLM assistant"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # Data access and storage
+    "requests>=2.32",
+    "pandas>=2.2",
+    "pyarrow>=17",
+    "numpy>=1.26",
+    "pyyaml>=6",
+    # Charts and notebooks (marimo: reactive notebooks stored as .py files)
+    "matplotlib>=3.8",
+    "marimo>=0.25",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "responses>=0.25",   # fakes HTTP responses so tests never call the real APIs
+    "ruff>=0.6",
+]
+
+[project.scripts]
+hri = "hri.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hri"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

@@ -1,9 +1,0 @@
-# Data access and analysis
-requests>=2.32
-pandas>=2.2
-pyarrow>=17
-numpy>=1.26
-
-# Charts and notebooks (marimo: reactive notebooks stored as .py files)
-matplotlib>=3.8
-marimo>=0.25

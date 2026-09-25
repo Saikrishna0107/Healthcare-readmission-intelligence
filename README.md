@@ -78,8 +78,10 @@ Requires Python 3.12. From the project folder:
 
 ```bash
 python -m venv .venv
-.venv/Scripts/pip install -r requirements.txt       # macOS/Linux: .venv/bin/pip
+.venv/Scripts/pip install -e ".[dev]"      # macOS/Linux: .venv/bin/pip
 ```
+
+This installs the project's own package (`src/hri`) plus the development tools (pytest, ruff).
 
 Notebooks use [marimo](https://marimo.io) and are plain `.py` files:
 

@@ -173,7 +173,7 @@ plans. Power BI can't host a chat interface, so the agent gets a small Streamlit
 
 ---
 
-## D-012 · Python command-line runner instead of a Makefile · Proposed (step 3)
+## D-012 · Python command-line runner instead of a Makefile · Accepted (step 3)
 
 **Why.** `make` isn't available on Windows by default. A small Python CLI (`python -m hri ...`)
 runs the same way on Windows, macOS and in CI.
@@ -254,3 +254,22 @@ on GitHub Pages fixes this, at the cost of one export command per notebook. Key 
 - *Quarto*: excellent for polished reports, less suited to exploration.
 - *Plain `.py` scripts with `# %%` cells*: diff-friendly, but not reactive and no app mode.
 - *Hex / Deepnote*: polished hosted notebooks, but the work would live outside this repository.
+
+---
+
+## D-017 · Installable package with `pyproject.toml` and a `src/` layout · Accepted (step 3)
+
+**Decision.** The pipeline code lives in an installable package, `src/hri/`, described by
+`pyproject.toml` and installed with `pip install -e ".[dev]"`. `pyproject.toml` replaces
+`requirements.txt`.
+
+**Why.**
+- **One copy of every function.** The pipeline, notebooks and tests all `import hri`, so logic
+  such as "download the current CMS file" is written once instead of being copied into notebooks.
+- **One source of truth for setup.** Dependencies, development tools (pytest, ruff), lint rules
+  and the `hri` command are all declared in one standard file.
+- **The `src/` layout** means tests run against the installed package, not against whatever
+  happens to be in the current folder, which catches packaging mistakes early.
+
+**Alternative considered.** Loose scripts plus `requirements.txt`: quicker to start, but code
+gets duplicated between scripts and notebooks, and there is no single command to run the pipeline.
