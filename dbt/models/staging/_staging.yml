@@ -1,0 +1,135 @@
+version: 2
+
+# Staging: one cleaned table per raw source (latest release). Only renaming, type conversion,
+# recoding and removing non-data rows happen here; no joins or business logic (D-020).
+# Data tests are added in step 4c.
+
+models:
+  - name: stg_cms__hrrp
+    description: >
+      HRRP readmission results, one row per hospital x condition. Holds the target variable,
+      excess_readmission_ratio. Rows without a ratio are kept, with the reason in score_status.
+    columns:
+      - name: facility_id
+        description: CMS Certification Number (CCN). Six characters, text, leading zeros kept.
+      - name: condition
+        description: AMI, HF, PN, COPD, HIP_KNEE or CABG. Same codes in every model.
+      - name: discharges
+        description: >
+          Eligible discharges in the period. NULL in some rows that do have a ratio;
+          CMS does not publish it for every hospital.
+      - name: readmissions
+        description: 30-day readmissions. NULL when suppressed (see readmissions_suppressed) or not scored.
+      - name: readmissions_suppressed
+        description: True when CMS hides a count of 1-10 readmissions for privacy ("Too Few to Report").
+      - name: excess_readmission_ratio
+        description: >
+          ERR = predicted / expected readmission rate. Above 1 means more readmissions than
+          expected for this hospital's patients. NULL when not scored.
+      - name: predicted_readmission_rate
+        description: Risk-adjusted readmission rate for this hospital, in percent.
+      - name: expected_readmission_rate
+        description: Readmission rate an average hospital would have with these patients, in percent.
+      - name: footnote_code
+        description: CMS footnote code(s), text. See stg_cms__footnotes. NULL when there is none.
+      - name: score_status
+        description: >
+          scored (ratio present), too_few_cases (footnote 1, fewer than 25 cases),
+          not_available (footnote 5), no_cases (footnote 7), unknown (a code not seen before).
+      - name: period_start
+        description: First day of the performance period (discharges from this date).
+      - name: period_end
+        description: Last day of the performance period.
+      - name: source_release
+        description: Raw release this row came from (the publisher's "modified" date).
+
+  - name: stg_cms__hrrp_payment_adjustments
+    description: >
+      The FY 2026 HRRP penalty per hospital, from the Supplemental Data File. One row per hospital
+      that HRRP applies to. The file's "End of worksheet" footer row is removed.
+    columns:
+      - name: facility_id
+        description: CMS Certification Number (CCN).
+      - name: fiscal_year
+        description: Federal fiscal year the payment adjustment applies to (FY2026 = Oct 2025 - Sep 2026).
+      - name: payment_adjustment_factor
+        description: Multiplier on Medicare base payments, between 0.97 and 1.
+      - name: payment_reduction_pct
+        description: Penalty in percent units (0.12 = 0.12%). Equals (1 - payment_adjustment_factor) x 100.
+      - name: is_penalized
+        description: True when payment_reduction_pct is above 0.
+      - name: dual_proportion
+        description: Share of the hospital's Medicare patients also on Medicaid (0-1). Decides the peer group.
+      - name: peer_group
+        description: 1-5, quintile of dual_proportion. Hospitals are compared with their peer group's median ERR.
+      - name: neutrality_modifier
+        description: Scaling factor CMS applies to keep total penalties budget neutral.
+
+  - name: stg_cms__hrrp_peer_comparisons
+    description: >
+      The condition columns of the Supplemental Data File reshaped to one row per hospital x
+      condition, so they line up with stg_cms__hrrp. Includes ratios for small hospitals that the
+      public HRRP file hides (fewer than 25 cases).
+    columns:
+      - name: eligible_discharges
+        description: Discharges counted for the penalty. 0 when the file shows '.' (none).
+      - name: excess_readmission_ratio
+        description: ERR used for the penalty. NULL when there were no eligible discharges.
+      - name: peer_group_median_err
+        description: Median ERR of the hospital's peer group for this condition; the penalty threshold.
+      - name: is_above_peer_median
+        description: CMS penalty indicator. True when the hospital's ERR is above its peer group median.
+      - name: drg_payment_ratio
+        description: This condition's share of the hospital's Medicare base payments; weights the penalty.
+
+  - name: stg_cms__hospitals
+    description: >
+      Hospital profile, one row per hospital, all hospital types (acute care, critical access,
+      psychiatric, VA, ...). HRRP covers acute care hospitals only; filtering happens in the marts.
+    columns:
+      - name: facility_id
+        description: CMS Certification Number (CCN).
+      - name: county_name
+        description: County name as CMS writes it. Matched to CDC county codes in step 5.
+      - name: has_emergency_services
+        description: True / false from "Yes" / "No".
+      - name: overall_star_rating
+        description: >
+          CMS overall star rating, 1-5, NULL when not rated. Includes readmission measures, so
+          it is not a valid input for predicting readmissions (target leakage).
+      - name: readm_measures_worse
+        description: >
+          Readmission measures worse than the national rate. Same leakage warning as
+          overall_star_rating. Mortality (mort_) and safety (safety_) counts follow the same pattern.
+
+  - name: stg_cms__hcahps
+    description: >
+      Patient survey results, one row per hospital x survey measure (68 per hospital), as
+      published. 'Not Applicable' values (a column that does not apply to that kind of row) and
+      'Not Available' values (missing for the hospital) are both NULL; measure_id tells which applies.
+    columns:
+      - name: measure_id
+        description: e.g. H_COMP_6_LINEAR_SCORE (discharge information, 0-100 score).
+      - name: linear_mean_score
+        description: 0-100 summary score of all answers to a question. Filled only on *_LINEAR_SCORE rows.
+      - name: star_rating
+        description: 1-5 stars. Filled only on *_STAR_RATING rows.
+      - name: completed_surveys
+        description: Surveys completed at the hospital in the period. Repeated on every row of the hospital.
+
+  - name: stg_cms__footnotes
+    description: CMS footnote codes and their meaning. One row per code.
+
+  - name: stg_cdc__places_county
+    description: >
+      CDC PLACES county health estimates. One row per county x measure x value type. The national
+      "US" row is removed. Measures come from BRFSS survey years 2022 or 2023 (data_year).
+    columns:
+      - name: county_fips
+        description: 5-digit county FIPS code (state + county). The join key to hospitals in step 5.
+      - name: value_type
+        description: CrdPrv (crude prevalence) or AgeAdjPrv (age-adjusted, for comparing counties).
+      - name: value_pct
+        description: Percent of adults. NULL when suppressed for a population under 50.
+      - name: is_suppressed
+        description: True when CDC suppressed the estimate.

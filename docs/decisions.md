@@ -336,9 +336,10 @@ reading `End of worksheet` as the supplemental file's last line.
 - **Every release, not only the latest.** The glob reads all stored releases together
   (`union_by_name`, so an added or reordered column in a new release does not break the read).
   Staging models filter to the release they need using the `_release` lineage column.
-- **Layers and materialization.** `staging` models are *views* (cheap, always reflect the raw
-  files); `marts` are *tables* (queried often by the model, the agent and Power BI). Each layer
-  gets its own DuckDB schema.
+- **Layers and materialization.** `staging` models were planned as *views* (cheap, always
+  reflect the raw files) and `marts` as *tables* (queried often by the model, the agent and
+  Power BI). Each layer gets its own DuckDB schema. Staging was changed to tables in step 4b;
+  see D-020.
 - **One way to run it.** `hri dbt <command>` runs dbt from inside `dbt/`, so the relative paths
   in `profiles.yml` and the `raw_dir` variable resolve the same way from any folder. Running plain
   `dbt` inside `dbt/` works too. `profiles.yml` is committed because a local DuckDB file has no
@@ -361,3 +362,52 @@ reading `End of worksheet` as the supplemental file's last line.
   source to reach the older releases.
 - *A `.dbt/profiles.yml` in the home folder* (dbt's default): standard for cloud warehouses with
   passwords, but a reviewer cloning the repo would have to create it by hand.
+
+---
+
+## D-020 · Staging conventions: strict conversion, tables, one naming scheme · Accepted (step 4)
+
+**Decision.**
+- **Layers.** `staging` (one model per raw source: rename, convert types, recode, drop
+  non-data rows; no joins), `intermediate` (reshaping and joining, e.g. pivoting the survey to one
+  row per hospital), `marts` (the star schema, from step 5). Names say the layer and the source:
+  `stg_cms__hrrp`, `int_hcahps__hospital_scores`.
+- **Staging tables pick the latest release** through the `latest_release()` macro.
+- **Missing markers become NULL; everything else must convert.** The `to_number()` macro maps the
+  known markers (`''`, `N/A`, `Not Available`, `Not Applicable`, `Too Few to Report`, `.`) to NULL,
+  removes `,` and `%`, and then uses a strict `CAST`. An unknown marker stops the build.
+- **The reason for a missing value is kept as data**: `score_status` in HRRP
+  (`scored` / `too_few_cases` / `not_available` / `no_cases`), `readmissions_suppressed`,
+  `is_suppressed` in PLACES, and the footnote codes.
+- **One set of condition codes everywhere**: AMI, HF, PN, COPD, HIP_KNEE, CABG. The supplemental
+  file's `pneumonia` and `THA/TKA` are recoded to match.
+- **Staging models are tables, not views.**
+- **Percentages stay in percent units** (`0.12%` becomes 0.12) and column names end in `_pct`.
+
+**Why.**
+- *Strict casts:* `TRY_CAST` would have turned the unexpected `Not Applicable` in HCAHPS into
+  NULL without a word. The strict cast stopped the first build and named the value, which is how
+  it was found and documented. Public data changes without notice; this is the cheapest defense.
+- *Tables:* a view only stores the query, so its conversions run when someone reads it, not when
+  dbt builds it. A bad value would pass `dbt build` and fail later in Power BI. A view also keeps
+  the relative path to `data/raw`, so it breaks when queried from another folder. The data is
+  about 580,000 rows and builds in about a second, so storing it costs nothing noticeable.
+- *Reasons as data:* D-003. Small hospitals are missing for a reason, and the model and
+  dashboard need to be able to tell "no data" from "good result".
+
+**Reconciliation at build time** (step 4b): 18,330 HRRP rows (3,055 hospitals x 6 conditions),
+11,720 scored and 6,610 missing, none with an unknown reason; ERR equals predicted / expected
+within rounding; 2,304 of 2,945 hospitals penalized, 15 at the 3% cap; the payment reduction
+percentage equals (1 - payment adjustment factor) x 100.
+
+**Found while building.** For 3,123 hospital x condition pairs the public HRRP file shows N/A but
+the supplemental file has the ratio (hospitals under the 25-case publishing threshold). Where both
+have a value they are identical. This can widen the training data in step 7, with care: ratios
+based on a handful of cases are noisy.
+
+**Alternatives considered.**
+- *`TRY_CAST` everywhere*: never fails, which is exactly the problem.
+- *Views for staging* (dbt's usual default): fine on a cloud warehouse where tables are loaded
+  first; here it moves failures to query time and ties results to the working folder.
+- *Clean in pandas before dbt*: puts the rules in Python where analysts cannot review them as SQL,
+  and loses dbt's lineage and tests.

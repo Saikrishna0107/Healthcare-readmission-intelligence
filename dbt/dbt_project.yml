@@ -22,11 +22,18 @@ vars:
 
 models:
   hri:
-    # Staging: one cleaned model per raw source. Views, because they are cheap to rebuild
-    # and always reflect the latest raw release.
+    # Staging: one cleaned model per raw source. Tables, not views (D-020): building a table runs
+    # every type conversion, so a bad raw value fails `dbt build` instead of a later query, and
+    # the stored data does not depend on the relative path to data/raw.
     staging:
-      +materialized: view
+      +materialized: table
       +schema: staging
+    # Intermediate: reshaping and joining between staging and marts (e.g. pivoting the survey
+    # to one row per hospital). Views: they only reshape staging tables, which already ran the
+    # type conversions, so there is nothing to fail at query time.
+    intermediate:
+      +materialized: view
+      +schema: intermediate
     # Marts: the star schema the model, the LLM agent and Power BI read (built in later steps).
     # Tables, because they are queried often and should be fast.
     marts:

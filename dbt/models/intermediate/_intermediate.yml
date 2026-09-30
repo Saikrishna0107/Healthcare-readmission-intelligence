@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: int_hcahps__hospital_scores
+    description: >
+      Patient survey scores pivoted to one row per hospital. For each topic, the 0-100 linear
+      score (<topic>_score) and the 1-5 star rating (<topic>_stars). The survey period is later
+      than the current HRRP period; step 6 lines them up before any modeling (D-008).
+    columns:
+      - name: facility_id
+        description: CMS Certification Number (CCN).
+      - name: discharge_information_score
+        description: >
+          0-100 score for "did staff explain what to do after leaving the hospital".
+          The strongest readmission signal found in the exploration notebook.
+      - name: summary_stars
+        description: HCAHPS summary star rating across all topics, 1-5.
+      - name: completed_surveys
+        description: Surveys completed. Scores from few surveys are less reliable.

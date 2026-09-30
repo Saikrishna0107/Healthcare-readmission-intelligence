@@ -100,6 +100,16 @@ This installs the project's own package (`src/hri`) plus the development tools (
 dbt reads the raw Parquet files in place through DuckDB
 ([why](docs/decisions.md#d-019--dbt-reads-the-raw-parquet-files-as-sources-all-releases-at-once--accepted-step-4)).
 
+The cleaned tables live in `data/hri.duckdb`, in the schemas `staging` and `intermediate`
+([conventions](docs/decisions.md#d-020--staging-conventions-strict-conversion-tables-one-naming-scheme--accepted-step-4)).
+Query them from Python or any DuckDB client:
+
+```python
+import duckdb
+con = duckdb.connect("data/hri.duckdb", read_only=True)
+con.sql("select score_status, count(*) from staging.stg_cms__hrrp group by 1").show()
+```
+
 Sources are listed in [config/sources.yaml](config/sources.yaml). Each release is stored untouched
 as `data/raw/<source>/<release>.parquet`, with a download log in `data/raw/manifest.json`
 ([why](docs/decisions.md#d-018--raw-layer-untouched-text-one-parquet-file-per-release--accepted-step-3)).
