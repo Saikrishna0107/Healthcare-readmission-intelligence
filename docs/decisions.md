@@ -74,7 +74,7 @@ name that says what it is. A reviewer should not have to dig through unrelated w
 
 ---
 
-## D-005 · DuckDB as the warehouse · Proposed (step 3–4)
+## D-005 · DuckDB as the warehouse · Accepted (step 4)
 
 **Decision.** Store and query the data in DuckDB, a single-file analytical database.
 
@@ -89,9 +89,12 @@ name that says what it is. A reviewer should not have to dig through unrelated w
   couldn't run the project. Because the transformations are written in dbt, moving to either
   later is mostly a configuration change.
 
+**Implemented.** The database is one file, `data/hri.duckdb` (gitignored, rebuilt by dbt).
+Raw Parquet files are not copied into it; DuckDB reads them in place.
+
 ---
 
-## D-006 · dbt for transformations · Proposed (step 4)
+## D-006 · dbt for transformations · Accepted (step 4)
 
 **Decision.** Write all cleaning and modeling as dbt models (SQL files) on top of DuckDB.
 
@@ -101,6 +104,9 @@ pipeline production-ready rather than a pile of scripts.
 
 **Alternatives considered.** Plain SQL scripts or pandas: faster to start, but no tests, no
 lineage and harder to maintain.
+
+**Implemented.** dbt-core with the `dbt-duckdb` adapter, in the `dbt/` folder. See D-019 for how
+it is wired to the raw layer.
 
 ---
 
@@ -318,3 +324,40 @@ reading `End of worksheet` as the supplemental file's last line.
 - *Overwrite with the latest file*: simpler storage, but history is lost and results cannot be
   reproduced.
 - *CSV instead of Parquet*: readable in any editor, but large, slow and without column types.
+
+---
+
+## D-019 · dbt reads the raw Parquet files as sources, all releases at once · Accepted (step 4)
+
+**Decision.**
+- **Raw files are dbt sources.** `dbt/models/staging/_sources.yml` declares the six raw tables.
+  Each one points DuckDB at `data/raw/<source>/*.parquet`, so `{{ source('raw', 'hrrp') }}` in a
+  model becomes a direct read of the Parquet files. Nothing is loaded or copied first.
+- **Every release, not only the latest.** The glob reads all stored releases together
+  (`union_by_name`, so an added or reordered column in a new release does not break the read).
+  Staging models filter to the release they need using the `_release` lineage column.
+- **Layers and materialization.** `staging` models are *views* (cheap, always reflect the raw
+  files); `marts` are *tables* (queried often by the model, the agent and Power BI). Each layer
+  gets its own DuckDB schema.
+- **One way to run it.** `hri dbt <command>` runs dbt from inside `dbt/`, so the relative paths
+  in `profiles.yml` and the `raw_dir` variable resolve the same way from any folder. Running plain
+  `dbt` inside `dbt/` works too. `profiles.yml` is committed because a local DuckDB file has no
+  secrets.
+- **A test keeps the two sides in sync**: every source in `config/sources.yaml` must be declared in
+  dbt, and the reverse.
+
+**Why.**
+- Reading Parquet in place means no extra load step and no second copy of the data to keep fresh.
+- Keeping all releases visible is what step 6 needs to line up time periods (D-008), without
+  changing the sources later.
+- Declaring sources (instead of hard-coding file paths in each model) puts them in dbt's lineage
+  graph and documentation, and gives one place to change if the storage location moves (for
+  example to S3, which DuckDB reads the same way).
+
+**Alternatives considered.**
+- *Load raw files into DuckDB tables with Python first*: a familiar "EL" step, but a duplicate
+  copy of the data and one more thing to keep in sync.
+- *Point sources only at the latest file*: simpler SQL, but step 6 would have to rewire every
+  source to reach the older releases.
+- *A `.dbt/profiles.yml` in the home folder* (dbt's default): standard for cloud warehouses with
+  passwords, but a reviewer cloning the repo would have to create it by hand.

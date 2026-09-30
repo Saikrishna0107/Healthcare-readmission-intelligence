@@ -90,8 +90,15 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest                 # download new releases of every source (skips unchanged ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
+.venv/Scripts/hri dbt build              # clean and test the data with dbt into data/hri.duckdb
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
+
+`hri dbt` passes its arguments to [dbt](https://docs.getdbt.com/) and runs it from the
+[dbt/](dbt/) folder, for example `hri dbt debug` (check the setup) or
+`hri dbt docs generate` then `hri dbt docs serve` (browse every table and the lineage graph).
+dbt reads the raw Parquet files in place through DuckDB
+([why](docs/decisions.md#d-019--dbt-reads-the-raw-parquet-files-as-sources-all-releases-at-once--accepted-step-4)).
 
 Sources are listed in [config/sources.yaml](config/sources.yaml). Each release is stored untouched
 as `data/raw/<source>/<release>.parquet`, with a download log in `data/raw/manifest.json`

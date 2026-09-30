@@ -1,0 +1,11 @@
+# Connection settings. DuckDB is a single local file, so there are no credentials and this
+# file is safe to commit. A cloud warehouse (Snowflake, BigQuery) would add a second target
+# here that reads its secrets from environment variables.
+
+hri:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../data/hri.duckdb      # relative to this dbt folder; data/ is gitignored
+      threads: 4

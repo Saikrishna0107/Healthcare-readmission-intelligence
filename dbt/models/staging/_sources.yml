@@ -1,0 +1,43 @@
+version: 2
+
+# The raw layer, declared as dbt sources.
+#
+# Each table reads every stored release of a source (data/raw/<source>/*.parquet), not only the
+# latest. Staging models pick the release they need: the latest by default, and older releases
+# when step 6 lines up time periods. `union_by_name` keeps the read working if CMS adds or
+# reorders columns between releases.
+#
+# Every value is still the text CMS/CDC published (D-018). Converting it is the job of staging.
+# Every table also carries the lineage columns _source, _release and _ingested_at.
+
+sources:
+  - name: raw
+    description: Untouched CMS and CDC releases written by `hri ingest`.
+    meta:
+      external_location: "read_parquet('{{ var('raw_dir') }}/{name}/*.parquet', union_by_name = true)"
+    tables:
+      - name: hrrp
+        description: >
+          Hospital Readmissions Reduction Program. One row per hospital x condition per release.
+          The target variable is "Excess Readmission Ratio". Missing values are text
+          ("N/A", "Too Few to Report") with a reason code in "Footnote".
+      - name: hrrp_supplemental
+        description: >
+          HRRP Supplemental Data File (FY 2026). One row per hospital. Peer group, peer-group
+          median ERR per condition, penalty indicators and the actual payment reduction.
+          Quirks: "." means no eligible discharges, percentages are text such as "0.12%",
+          and the last row is an "End of worksheet" footer.
+      - name: hospital_info
+        description: >
+          Hospital General Information. One row per hospital: location, county, type,
+          ownership, emergency services, overall star rating.
+      - name: hcahps
+        description: >
+          Patient survey (HCAHPS). One row per hospital x survey answer (long format), so it
+          has to be pivoted to one row per hospital before it can be joined.
+      - name: footnotes
+        description: Footnote Crosswalk. The meaning of each CMS footnote code.
+      - name: places_county
+        description: >
+          CDC PLACES county data. One row per county x health measure x value type
+          (crude or age-adjusted prevalence).

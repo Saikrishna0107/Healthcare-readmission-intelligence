@@ -1,0 +1,34 @@
+# dbt project: turns the raw Parquet layer (data/raw, written by `hri ingest`) into clean,
+# tested tables in a local DuckDB file (data/hri.duckdb). See docs/decisions.md D-005, D-006, D-019.
+#
+# Run it with `hri dbt <command>` from the project root (for example `hri dbt build`),
+# or from inside this folder with plain `dbt build`.
+
+name: hri
+version: "0.1.0"
+config-version: 2
+profile: hri
+
+flags:
+  send_anonymous_usage_stats: false   # dbt otherwise reports usage to dbt Labs
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+vars:
+  # Where `hri ingest` writes the raw layer, relative to this dbt folder.
+  raw_dir: "../data/raw"
+
+models:
+  hri:
+    # Staging: one cleaned model per raw source. Views, because they are cheap to rebuild
+    # and always reflect the latest raw release.
+    staging:
+      +materialized: view
+      +schema: staging
+    # Marts: the star schema the model, the LLM agent and Power BI read (built in later steps).
+    # Tables, because they are queried often and should be fast.
+    marts:
+      +materialized: table
+      +schema: marts

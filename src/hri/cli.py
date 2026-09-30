@@ -2,8 +2,15 @@
 
 import argparse
 import logging
+import shutil
+import subprocess
+import sys
+from pathlib import Path
 
+from hri import PROJECT_ROOT
 from hri.ingest import RawStore, ingest, load_sources
+
+DBT_DIR = PROJECT_ROOT / "dbt"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -17,7 +24,16 @@ def main(argv: list[str] | None = None) -> int:
 
     commands.add_parser("status", help="show the stored releases of each source")
 
+    dbt_cmd = commands.add_parser(
+        "dbt",
+        help="run a dbt command on the project's dbt folder, e.g. `hri dbt build`",
+        description="Passes everything after `dbt` to dbt, run from the dbt/ folder.",
+    )
+    dbt_cmd.add_argument("dbt_args", nargs=argparse.REMAINDER, help="arguments for dbt")
+
     args = parser.parse_args(argv)
+    if args.command == "dbt":
+        return run_dbt(args.dbt_args)
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(asctime)s %(levelname)-7s %(name)s: %(message)s",
@@ -43,6 +59,16 @@ def _ingest(args: argparse.Namespace) -> int:
         print(f"  {r.status:9s} {r.source:18s} {r.release or '-':12s} {detail}")
     failed = [r for r in results if r.status == "failed"]
     return 1 if failed else 0
+
+
+def run_dbt(dbt_args: list[str]) -> int:
+    """Run dbt from inside dbt/, so its relative paths (profiles.yml, raw_dir) resolve the same way
+    whichever folder `hri` is called from. Uses the dbt installed next to this Python interpreter."""
+    dbt = shutil.which("dbt", path=str(Path(sys.executable).parent))
+    if dbt is None:
+        print("dbt is not installed in this environment. Run: pip install -e .")
+        return 2
+    return subprocess.run([dbt, *(dbt_args or ["--help"])], cwd=DBT_DIR).returncode
 
 
 def _status() -> int:
