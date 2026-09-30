@@ -9,11 +9,28 @@ models:
     columns:
       - name: facility_id
         description: CMS Certification Number (CCN).
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_cms__hospitals')
+                field: facility_id
       - name: discharge_information_score
         description: >
           0-100 score for "did staff explain what to do after leaving the hospital".
           The strongest readmission signal found in the exploration notebook.
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
       - name: summary_stars
         description: HCAHPS summary star rating across all topics, 1-5.
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
       - name: completed_surveys
         description: Surveys completed. Scores from few surveys are less reliable.

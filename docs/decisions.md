@@ -411,3 +411,56 @@ based on a handful of cases are noisy.
   first; here it moves failures to query time and ties results to the working folder.
 - *Clean in pandas before dbt*: puts the rules in Python where analysts cannot review them as SQL,
   and loses dbt's lineage and tests.
+
+---
+
+## D-021 · Data tests: every staging rule is tested, known gaps warn · Accepted (step 4)
+
+**Decision.** `hri dbt build` builds each model and then runs its tests; a failing test stops the
+models that depend on it. 80 checks run in about 5 seconds:
+
+- **Structure**: primary keys are unique and not null, including combined keys
+  (hospital x condition, county x measure x value type).
+- **Allowed values**: condition codes, `score_status` (a new CMS footnote code makes it
+  `unknown`, which fails), peer groups 1-5, star ratings 1-5.
+- **Ranges**: ERR 0.3-3, rates and survey scores 0-100, penalty 0-3%, dual proportion 0-1.
+  Ranges catch unit changes (a percentage published as 0.12 one year and 12 the next).
+- **Relationships**: every survey hospital has a profile; every peer comparison has a payment row.
+- **Business rules**:
+  - ERR = predicted / expected readmission rate.
+  - Penalty reduction = (1 - payment adjustment factor) x 100.
+  - CMS flags a condition exactly when ERR is above the peer median *and* the hospital had at
+    least 25 eligible discharges (ties at 4 decimals allowed).
+  - **The published penalty of all 2,945 hospitals is recomputed from its inputs**
+    (neutrality modifier x sum of DRG ratio x (ERR - peer median), capped at 3%) and matches
+    within 0.01 percentage points (largest difference 0.0063, from rounding).
+  - Every raw row reaches staging except the rows removed on purpose.
+  - Each measure table covers exactly one performance period (guards D-008).
+- **Known gaps are warnings, not errors**, each explained where it is declared: 20 hospitals with
+  HRRP results but no profile in the newer hospital file, and 8 penalized hospitals missing from
+  the latest public HRRP release.
+- **Failing rows are stored** in the `dbt_test__audit` schema, so a failure can be inspected
+  with a query.
+- Three generic tests (`unique_combination_of_columns`, `accepted_range`, `expression_is_true`)
+  are written in the project (`dbt/tests/generic/`) instead of installing the `dbt_utils` package.
+
+**Why.**
+- Public data changes without notice. A test that fails is cheaper than a dashboard that is
+  quietly wrong.
+- Recomputing the penalty proves the project understands the program's formula exactly. The
+  dollar-impact estimates in later steps depend on that formula.
+- `warn` keeps real but understood gaps visible on every run without blocking it; an `error` for
+  them would train everyone to ignore failures.
+- Writing the three generic tests takes about 30 lines and shows how a test works: a SELECT that
+  returns the rows breaking the rule. It also avoids a package download before the first build.
+
+**Verified by breaking it.** Removing the footnote-7 mapping from `stg_cms__hrrp` made
+205 rows `unknown`; the `score_status` test failed, the build reported an error, and the stored
+failure row showed `('unknown', 205)`.
+
+**Alternatives considered.**
+- *`dbt_utils` / `dbt_expectations` packages*: more ready-made tests. Worth adding when the
+  project needs more than these three; for now they add a dependency for little gain.
+- *Great Expectations or Soda*: separate data-quality tools with their own config and reports;
+  more than a dbt project of this size needs, and the checks would live outside the models they test.
+- *Only row counts and not-null checks*: easy, but would miss every business-rule error above.

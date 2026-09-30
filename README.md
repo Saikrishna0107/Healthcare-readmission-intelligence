@@ -49,6 +49,15 @@ From the data exploration notebook
 
 ![Discharge information vs heart-failure readmissions](images/04_discharge_info_vs_hf_err.png)
 
+From the cleaned, tested data ([D-021](docs/decisions.md#d-021--data-tests-every-staging-rule-is-tested-known-gaps-warn--accepted-step-4)):
+
+- **The penalty formula is reproduced exactly.** Recomputing each hospital's FY 2026 payment
+  reduction from CMS's published inputs matches all 2,945 hospitals within 0.01 percentage points.
+  2,304 hospitals (78%) are penalized; 15 hit the 3% cap.
+- **Being above the median is not enough.** A condition counts toward the penalty only with at
+  least 25 eligible discharges; 1,547 hospital-condition pairs are above their peer median but
+  too small to be penalized.
+
 ## Planned architecture
 
 ```
@@ -65,7 +74,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 1. Project skeleton, README and decision log
 - [x] 2. Data exploration: what each dataset contains and its traps
 - [x] 3. Ingestion from the CMS and CDC APIs
-- [ ] 4. Cleaning (dbt staging models) and handling of missing-value footnotes
+- [x] 4. Cleaning (dbt staging models), missing-value reasons and 80 data tests
 - [ ] 5. Hospital-to-county join with a match-rate test
 - [ ] 6. Archived data to align time periods (prevents data leakage)
 - [ ] 7. Baseline model, then a three-model comparison
@@ -90,7 +99,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest                 # download new releases of every source (skips unchanged ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
-.venv/Scripts/hri dbt build              # clean and test the data with dbt into data/hri.duckdb
+.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 80 tests
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 

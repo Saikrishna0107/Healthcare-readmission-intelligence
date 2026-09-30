@@ -20,6 +20,12 @@ vars:
   # Where `hri ingest` writes the raw layer, relative to this dbt folder.
   raw_dir: "../data/raw"
 
+data_tests:
+  hri:
+    # A failing test saves the rows that broke the rule to a table in the `dbt_test__audit`
+    # schema, so the failure can be inspected with a query instead of re-running the test SQL.
+    +store_failures: true
+
 models:
   hri:
     # Staging: one cleaned model per raw source. Tables, not views (D-020): building a table runs
