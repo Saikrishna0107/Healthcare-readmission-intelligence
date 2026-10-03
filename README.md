@@ -58,11 +58,19 @@ From the cleaned, tested data ([D-021](docs/decisions.md#d-021--data-tests-every
 - **Being above the median is not enough.** A condition counts toward the penalty only with at
   least 25 eligible discharges; 1,547 hospital-condition pairs are above their peer median but
   too small to be penalized.
-- **Every HRRP hospital has a county.** Linking by ZIP code, checked against the county name,
-  reaches 100% of the 3,035 HRRP hospitals in US states, up from 95.9% by name alone. Names
+- **Every HRRP hospital with a profile has a county.** Linking by ZIP code, checked against the
+  county name, reaches all 3,035 HRRP hospitals that have a hospital profile (20 have none, so
+  no ZIP code), up from 95.9% by name alone. Names
   alone also matched 18 hospitals to *two* counties (Baltimore, St. Louis and Fairfax are each
   both a county and an independent city), which would have duplicated them in any analysis
   ([D-022](docs/decisions.md#d-022--link-hospitals-to-counties-by-zip-code-checked-against-the-county-name--accepted-step-5)).
+- **Community context matters, at first sight.** Hospitals in the quarter of counties where most
+  adults lack reliable transportation average a heart-failure ERR of 1.021; in the quarter where
+  fewest do, 0.986 (association, not causation; 1,880 hospitals with that measure).
+- **Community data has gaps.** Kentucky and Pennsylvania have no 2023 chronic disease estimates
+  in the current PLACES release (190 HRRP hospitals), and social needs measures cover 2,299 of
+  3,144 counties. They stay NULL, flagged, never filled in
+  ([D-007](docs/decisions.md#d-007--star-schema-for-the-marts--accepted-step-5)).
 
 ## Planned architecture
 
@@ -81,7 +89,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 2. Data exploration: what each dataset contains and its traps
 - [x] 3. Ingestion from the CMS and CDC APIs
 - [x] 4. Cleaning (dbt staging models), missing-value reasons and 80 data tests
-- [ ] 5. Hospital-to-county join with a match-rate test
+- [x] 5. Hospital-to-county join with a match-rate test, first star-schema tables
 - [ ] 6. Archived data to align time periods (prevents data leakage)
 - [ ] 7. Baseline model, then a three-model comparison
 - [ ] 8. LLM question-answering agent with an evaluation set
@@ -105,7 +113,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest                 # download new releases of every source (skips unchanged ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
-.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 107 checks
+.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 122 checks
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 
@@ -115,7 +123,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 dbt reads the raw Parquet files in place through DuckDB
 ([why](docs/decisions.md#d-019--dbt-reads-the-raw-parquet-files-as-sources-all-releases-at-once--accepted-step-4)).
 
-The cleaned tables live in `data/hri.duckdb`, in the schemas `staging` and `intermediate`
+The cleaned tables live in `data/hri.duckdb`, in the schemas `staging`, `intermediate` and `marts`
 ([conventions](docs/decisions.md#d-020--staging-conventions-strict-conversion-tables-one-naming-scheme--accepted-step-4)).
 Query them from Python or any DuckDB client:
 
@@ -123,6 +131,7 @@ Query them from Python or any DuckDB client:
 import duckdb
 con = duckdb.connect("data/hri.duckdb", read_only=True)
 con.sql("select score_status, count(*) from staging.stg_cms__hrrp group by 1").show()
+con.sql("select state, count(*), avg(diabetes_pct) from marts.dim_county group by 1").show()
 ```
 
 Sources are listed in [config/sources.yaml](config/sources.yaml). Each release is stored untouched

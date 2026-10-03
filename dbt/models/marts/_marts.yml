@@ -1,0 +1,78 @@
+version: 2
+
+# Marts: the star schema the dashboard, the model and the LLM agent read (D-007).
+# Dimensions describe things (hospital, county); facts (step 6 on) record measurements.
+
+models:
+  - name: dim_county
+    description: >
+      One row per county on the CDC PLACES map (3,144), with age-adjusted community health
+      measures as columns (percent of adults). NULL means CDC has no estimate: Kentucky and
+      Pennsylvania lack the 2023 chronic disease measures (has_chronic_measures), and the social
+      needs measures exist for 2,299 counties (has_social_measures).
+    columns:
+      - name: county_fips
+        description: 5-digit county FIPS code. The key hospitals join on.
+        data_tests:
+          - unique
+          - not_null
+      - name: diabetes_pct
+        description: Diagnosed diabetes among adults, age-adjusted %.
+      - name: copd_pct
+        description: COPD among adults, age-adjusted %. Also one of the six HRRP conditions.
+      - name: heart_disease_pct
+        description: Coronary heart disease among adults, age-adjusted %.
+      - name: uninsured_18_64_pct
+        description: Adults aged 18-64 without health insurance, %.
+      - name: lack_transportation_pct
+        description: >
+          Adults lacking reliable transportation in the past 12 months, %. A direct barrier to
+          follow-up visits after discharge.
+      - name: chronic_data_year
+        description: BRFSS survey year of the chronic disease measures (NULL in KY and PA).
+      - name: has_chronic_measures
+        data_tests:
+          - not_null
+      - name: has_social_measures
+        data_tests:
+          - not_null
+
+  - name: dim_hospital
+    description: >
+      One row per hospital mentioned by any CMS source (profile, HRRP, FY 2026 penalty file),
+      with its profile, its county (D-022) and program flags. Hospitals without a profile row
+      keep their HRRP name and state, county_link_method = 'no_hospital_profile'.
+    columns:
+      - name: facility_id
+        description: CMS Certification Number (CCN).
+        data_tests:
+          - unique
+          - not_null
+      - name: county_fips
+        description: County on the PLACES map; NULL for territories and hospitals without a profile.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_county')
+                field: county_fips
+      - name: county_link_method
+        description: How county_fips was found (see int_hospitals__county), or no_hospital_profile.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [zip_single_county, zip_name_agrees, zip_largest_area, ct_town,
+                         name_only, single_county_state, no_places_data, unmatched,
+                         no_hospital_profile]
+      - name: overall_star_rating
+        description: >
+          CMS overall star rating, 1-5. Includes readmission measures, so it must not be used
+          as a predictor of readmissions (leakage).
+      - name: is_hrrp_hospital
+        description: The hospital is in the current HRRP readmissions file.
+        data_tests:
+          - not_null
+      - name: is_in_penalty_calculation
+        description: The hospital is in the FY 2026 HRRP supplemental (penalty) file.
+        data_tests:
+          - not_null

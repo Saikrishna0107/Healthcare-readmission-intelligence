@@ -110,13 +110,32 @@ it is wired to the raw layer.
 
 ---
 
-## D-007 · Star schema for the marts · Proposed (step 4–5)
+## D-007 · Star schema for the marts · Accepted (step 5)
 
 **Decision.** Model the cleaned data as facts (readmissions, survey scores, community health)
-and dimensions (hospital, condition, county).
+and dimensions (hospital, condition, county). Step 5 builds the first two dimensions in the
+`marts` schema: `dim_county` and `dim_hospital`. Facts follow once step 6 has lined up the time
+periods.
 
 **Why.** Power BI performs best on a star schema, the LLM agent writes more accurate SQL against
 clean, well-named tables, and hospital BI job descriptions ask for dimensional modeling.
+
+**Choices made while building them.**
+- *County measures as columns, not rows.* PLACES arrives long (one row per county × measure).
+  `dim_county` pivots 17 chosen measures into named columns (`diabetes_pct`,
+  `lack_transportation_pct`, ...). A column name is self-explaining for a dashboard user and for
+  the LLM agent; the long form stays available in staging for anything else. A test checks the
+  pivot loses and invents no values.
+- *Age-adjusted, not crude, percentages.* Age-adjusted values compare counties fairly; crude
+  values would make counties with older residents look sicker. HRRP's ERR is already
+  risk-adjusted for patient age, so the community context should be too.
+- *Missing stays missing.* Kentucky and Pennsylvania have no 2023 survey data in this PLACES
+  release (190 HRRP hospitals), and the social needs measures exist for 2,299 of 3,144 counties.
+  These are NULL with `has_chronic_measures` / `has_social_measures` flags, never filled in.
+- *Every hospital any source mentions is in `dim_hospital`.* The key set is the union of the
+  hospital profile, HRRP and the penalty file. 20 HRRP hospitals have no profile row; building
+  the dimension from the profile alone would make their readmissions vanish from every join.
+  A test checks every source's hospitals reach the dimension.
 
 **Alternative considered.** One wide table: simpler, but repeats data and makes each metric
 harder to define in one place.
