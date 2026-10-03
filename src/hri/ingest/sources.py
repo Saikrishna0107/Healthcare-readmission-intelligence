@@ -8,7 +8,9 @@ import yaml
 from hri import PROJECT_ROOT
 
 SOURCES_FILE = PROJECT_ROOT / "config" / "sources.yaml"
-KINDS = {"cms_provider_data", "cdc_socrata", "cms_zip"}
+KINDS = {"cms_provider_data", "cdc_socrata", "cms_zip", "static_file"}
+# Kinds whose version cannot be looked up from an API: the release label is set in the config.
+FIXED_RELEASE_KINDS = {"cms_zip", "static_file"}
 
 
 @dataclass(frozen=True)
@@ -19,17 +21,19 @@ class Source:
     required_columns: tuple[str, ...]
     min_rows: int
     dataset_id: str | None = None  # cms_provider_data, cdc_socrata
-    url: str | None = None  # cms_zip
-    release: str | None = None  # cms_zip: fixed release label, e.g. "FY2026"
+    url: str | None = None  # cms_zip, static_file
+    release: str | None = None  # cms_zip, static_file: fixed release label, e.g. "FY2026"
     member: str | None = None  # cms_zip: file to read inside the zip
     read_options: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if self.kind not in KINDS:
             raise ValueError(f"{self.name}: unknown kind {self.kind!r} (expected one of {sorted(KINDS)})")
-        if self.kind == "cms_zip" and not (self.url and self.release and self.member):
-            raise ValueError(f"{self.name}: cms_zip sources need url, release and member")
-        if self.kind != "cms_zip" and not self.dataset_id:
+        if self.kind in FIXED_RELEASE_KINDS and not (self.url and self.release):
+            raise ValueError(f"{self.name}: {self.kind} sources need url and release")
+        if self.kind == "cms_zip" and not self.member:
+            raise ValueError(f"{self.name}: cms_zip sources need member")
+        if self.kind not in FIXED_RELEASE_KINDS and not self.dataset_id:
             raise ValueError(f"{self.name}: {self.kind} sources need a dataset_id")
 
 

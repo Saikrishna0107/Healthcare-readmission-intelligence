@@ -25,6 +25,7 @@ three questions a hospital or health plan would pay for:
 | [CMS Patient Survey (HCAHPS) – Hospital](https://data.cms.gov/provider-data/dataset/dgck-syfz) | hospital × survey answer | Drivers: discharge information, communication scores |
 | [CMS Hospital General Information](https://data.cms.gov/provider-data/dataset/xubh-q36u) | hospital | Hospital profile: type, ownership, county, star rating |
 | [CDC PLACES – County Data](https://data.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-County-Data-20/swc5-untb) | county × health measure | Community context: chronic disease, insurance, transportation |
+| [Census ZCTA–county relationship files](https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.html) (2020, plus Connecticut 2022) | ZIP area × county | Links each hospital's ZIP code to the county code PLACES uses ([why](docs/decisions.md#d-022--link-hospitals-to-counties-by-zip-code-checked-against-the-county-name--accepted-step-5)) |
 
 More sources (Medicare inpatient payments, complications, spending per beneficiary) are added
 when the project reaches the step that needs them.

@@ -464,3 +464,50 @@ failure row showed `('unknown', 205)`.
 - *Great Expectations or Soda*: separate data-quality tools with their own config and reports;
   more than a dbt project of this size needs, and the checks would live outside the models they test.
 - *Only row counts and not-null checks*: easy, but would miss every business-rule error above.
+
+---
+
+## D-022 · Link hospitals to counties by ZIP code, checked against the county name · Accepted (step 5)
+
+**Problem.** CDC PLACES is keyed by 5-digit county FIPS code; the CMS hospital file has only a
+county *name*. Matching names (step 2) reached 95.9% but cannot be trusted case by case:
+"Baltimore" is both a county (24005) and an independent city (24510); Connecticut's 8 counties
+were replaced in 2022 by 9 planning regions, which PLACES uses and CMS does not; spellings differ
+(ST. LOUIS / Saint Louis). Nothing in a name match says when it picked the wrong county.
+
+**Decision.**
+- **Sources** (new ingestion kind `static_file`: a fixed file at a fixed URL, release set in the
+  config, like `cms_zip` without the zip):
+  - `census_zcta_county`: Census 2020 ZIP Code Tabulation Area (ZCTA) to county relationship
+    file, with the land area of every overlap.
+  - `census_ct_zcta_cousub`: Census 2022 Connecticut ZCTA to town file. Town codes start with
+    the planning-region code, so it maps Connecticut ZIPs to the regions PLACES uses.
+- **A ladder of methods** (built in step 5b), best first, with the method recorded per hospital:
+  ZIP in one county → ZIP in several counties, pick the one whose name matches CMS → largest land
+  share → name only (ZIP is not a ZCTA; in Connecticut, the hospital's city is matched to its
+  town) → territory without PLACES data → unmatched.
+- **Disagreements are flagged, not hidden**: where the ZIP's county and the CMS name differ, the
+  row says so.
+
+**What the data showed before building** (3,035 HRRP hospitals in US states): the ZIP lies in one
+county for 2,139 (70%), spans several counties for 804 (26%), and is not a ZCTA for 92 (3%, e.g.
+PO-box or single-organization ZIPs). Nationally 30% of ZCTAs cross a county line, so the ZIP
+alone is not enough. 7 of 36 Connecticut hospitals have ZIPs outside the Connecticut file, which
+is why the Connecticut fallback uses the town.
+
+**Why.**
+- Two independent signals (ZIP and name) that agree are far more trustworthy than either one,
+  and where they disagree we know exactly which rows to review.
+- Census files are public and need no account, so anyone can rebuild the project.
+- Recording the method lets the model and dashboard treat medium-confidence links differently.
+
+**Alternatives considered.**
+- *HUD USPS ZIP-county crosswalk*: covers real ZIP codes including PO boxes and is updated
+  quarterly, but needs a registered API token; a reviewer could not rebuild without signing up.
+- *Name matching only*: simple, 95.9%, but silently wrong in the cases above.
+- *Geocoding each address*: most precise, but depends on an external service for ~5,400
+  addresses, which is more than the remaining few percent of hard cases justify.
+
+**Known limits.** ZCTAs approximate ZIP codes and the 2020 file has land area but no population,
+so "largest land share" can pick a large rural county over a smaller city where most people
+live. That is why the name check comes before the land-share rule.

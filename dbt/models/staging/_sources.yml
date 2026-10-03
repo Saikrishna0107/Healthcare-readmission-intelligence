@@ -41,3 +41,13 @@ sources:
         description: >
           CDC PLACES county data. One row per county x health measure x value type
           (crude or age-adjusted prevalence).
+      - name: census_zcta_county
+        description: >
+          Census 2020 relationship file. One row per ZIP Code Tabulation Area (ZCTA) x county
+          overlap, with the land area of the overlap (AREALAND_PART). Rows with an empty ZCTA are
+          parts of a county outside every ZCTA (often water). No population counts.
+      - name: census_ct_zcta_cousub
+        description: >
+          Census 2022 Connecticut file. One row per ZCTA x town (county subdivision) overlap.
+          The first 5 digits of GEOID_COUSUB_22 are the planning region, which is what CDC PLACES
+          uses as Connecticut's "county" since 2022.

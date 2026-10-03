@@ -61,7 +61,8 @@ def resolve_release(source: Source, session: requests.Session) -> Release:
             url=f"{CDC_VIEWS}/{source.dataset_id}/rows.csv?accessType=DOWNLOAD",
         )
 
-    # cms_zip: one fixed file per fiscal year, so the release is set in the config.
+    # cms_zip and static_file: a fixed file per release (a fiscal year, a census vintage),
+    # so the release is set in the config.
     return Release(label=source.release, url=source.url)
 
 

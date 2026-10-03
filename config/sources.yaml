@@ -96,3 +96,37 @@ sources:
       - Data_Value
       - Data_Value_Type
     min_rows: 100000
+
+  census_zcta_county:
+    kind: static_file
+    # Census 2020 relationship file: which counties each ZIP Code Tabulation Area (ZCTA) overlaps,
+    # with the land area of each overlap. Fixed vintage, so the release is set here (D-022).
+    url: https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta520_county20_natl.txt
+    release: "2020"
+    read_options:
+      sep: "|"
+      encoding: utf-8-sig   # the file starts with a byte-order mark
+    description: Census ZIP Code Tabulation Area to county relationship (2020 boundaries)
+    required_columns:
+      - GEOID_ZCTA5_20
+      - GEOID_COUNTY_20
+      - NAMELSAD_COUNTY_20
+      - AREALAND_PART
+    min_rows: 40000
+
+  census_ct_zcta_cousub:
+    kind: static_file
+    # Connecticut replaced its 8 counties with 9 planning regions in 2022, and CDC PLACES uses the
+    # regions. This file links ZCTAs to 2022 towns, whose code starts with the region code.
+    url: https://www2.census.gov/geo/docs/maps-data/data/rel2022/acs22_cousub22_zcta520_st09.txt
+    release: "2022"
+    read_options:
+      sep: "|"
+      encoding: utf-8-sig
+    description: Census Connecticut ZCTA to 2022 county subdivision relationship (planning regions)
+    required_columns:
+      - GEOID_COUSUB_22
+      - NAMELSAD_COUSUB_22
+      - GEOID_ZCTA5_20
+      - AREALAND_PART
+    min_rows: 400         # 443 rows in the 2022 file

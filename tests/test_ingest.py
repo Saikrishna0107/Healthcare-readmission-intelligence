@@ -160,6 +160,45 @@ def test_cms_zip_reads_member_skips_title_line_and_drops_trailing_empty_column(t
 
 
 @responses.activate
+def test_static_file_reads_pipe_delimited_text_with_byte_order_mark(tmp_path):
+    url = "https://www2.census.gov/geo/rel/zcta_county.txt"
+    body = "﻿GEOID_ZCTA5_20|GEOID_COUNTY_20|AREALAND_PART\n|01003|339765765\n02135|25025|9000\n"
+    responses.get(url, body=body.encode("utf-8"))
+    source = Source(
+        name="census_zcta_county",
+        kind="static_file",
+        url=url,
+        release="2020",
+        read_options={"sep": "|", "encoding": "utf-8-sig"},
+        description="test",
+        required_columns=("GEOID_ZCTA5_20", "GEOID_COUNTY_20"),
+        min_rows=2,
+    )
+    store = RawStore(tmp_path)
+
+    result = ingest_source(source, store, make_session())
+
+    assert (result.status, result.release) == ("ingested", "2020")
+    df = pd.read_parquet(store.path_for("census_zcta_county", "2020"))
+    # The byte-order mark is not glued to the first column name, and codes keep leading zeros.
+    assert df.columns[0] == "GEOID_ZCTA5_20"
+    assert df["GEOID_ZCTA5_20"].tolist() == ["", "02135"]
+    assert df["GEOID_COUNTY_20"].tolist() == ["01003", "25025"]
+
+
+def test_static_file_needs_url_and_release():
+    with pytest.raises(ValueError, match="need url and release"):
+        Source(
+            name="x",
+            kind="static_file",
+            url="https://example.org/f.txt",
+            description="",
+            required_columns=(),
+            min_rows=0,
+        )
+
+
+@responses.activate
 def test_cdc_release_label_is_the_rows_updated_date(tmp_path):
     responses.get(f"{CDC_VIEWS}/swc5-untb.json", json={"rowsUpdatedAt": 1764844506})
     source = Source(
