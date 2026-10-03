@@ -58,6 +58,11 @@ From the cleaned, tested data ([D-021](docs/decisions.md#d-021--data-tests-every
 - **Being above the median is not enough.** A condition counts toward the penalty only with at
   least 25 eligible discharges; 1,547 hospital-condition pairs are above their peer median but
   too small to be penalized.
+- **Every HRRP hospital has a county.** Linking by ZIP code, checked against the county name,
+  reaches 100% of the 3,035 HRRP hospitals in US states, up from 95.9% by name alone. Names
+  alone also matched 18 hospitals to *two* counties (Baltimore, St. Louis and Fairfax are each
+  both a county and an independent city), which would have duplicated them in any analysis
+  ([D-022](docs/decisions.md#d-022--link-hospitals-to-counties-by-zip-code-checked-against-the-county-name--accepted-step-5)).
 
 ## Planned architecture
 
@@ -100,7 +105,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest                 # download new releases of every source (skips unchanged ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
-.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 80 tests
+.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 107 checks
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 

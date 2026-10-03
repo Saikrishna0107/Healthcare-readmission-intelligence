@@ -34,3 +34,78 @@ models:
                 max_value: 5
       - name: completed_surveys
         description: Surveys completed. Scores from few surveys are less reliable.
+
+  - name: int_census__zcta_county
+    description: >
+      ZIP area (ZCTA) to county crosswalk on the county map CDC PLACES uses: the national 2020
+      file, with Connecticut replaced by the 2022 planning regions. Overlaps without land are
+      dropped. One row per ZCTA x county.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination: [zcta, county_fips]
+    columns:
+      - name: county_fips
+        data_tests:
+          - not_null
+      - name: land_share
+        description: The county's share of the ZCTA's land area. Sums to 1 per ZCTA.
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: zcta_county_count
+        description: How many counties the ZCTA overlaps. 30% of ZCTAs overlap more than one.
+
+  - name: int_hospitals__county
+    description: >
+      Each hospital's county FIPS code, from its ZIP code checked against the CMS county name
+      (D-022). One row per hospital. link_method records which rung of the ladder gave the
+      answer; name_disagrees flags hospitals whose CMS county name points elsewhere.
+    data_tests:
+      - expression_is_true:
+          name: hospital_county_name_agrees_with_zip
+          arguments:
+            expression: "not coalesce(name_disagrees, false)"
+          config:
+            # 4 hospitals today, 1 of them in HRRP (420110, SC: CMS says Dorchester, its ZIP lies
+            # in Berkeley). Two are in ZIPs entirely inside St. Louis city while CMS writes
+            # "ST. LOUIS" (the county). Kept as a warning so new disagreements show up on every
+            # run for review; see dbt_test__audit.hospital_county_name_agrees_with_zip.
+            severity: warn
+    columns:
+      - name: facility_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_cms__hospitals')
+                field: facility_id
+      - name: county_fips
+        description: 5-digit county code on the PLACES map. NULL in territories (no PLACES data).
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_cdc__places_county')
+                field: county_fips
+      - name: link_method
+        description: >
+          zip_single_county, zip_name_agrees (high confidence); zip_largest_area, ct_town,
+          name_only, single_county_state (medium); no_places_data (territories); unmatched.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [zip_single_county, zip_name_agrees, zip_largest_area, ct_town,
+                         name_only, single_county_state, no_places_data, unmatched]
+      - name: zip_land_share
+        description: Share of the ZIP area's land in the chosen county (ZIP methods only).
+      - name: name_county_fips
+        description: The county the CMS name alone points to; NULL when it matches no single county.
+      - name: name_disagrees
+        description: >
+          TRUE when the CMS name points to a different county than the one chosen. NULL when
+          there is nothing to compare (unresolvable name such as 'JEFFRSON DAVIS', Connecticut).

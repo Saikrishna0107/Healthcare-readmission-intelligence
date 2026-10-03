@@ -511,3 +511,26 @@ is why the Connecticut fallback uses the town.
 **Known limits.** ZCTAs approximate ZIP codes and the 2020 file has land area but no population,
 so "largest land share" can pick a large rural county over a smaller city where most people
 live. That is why the name check comes before the land-share rule.
+
+**Result (step 5b).** Models `stg_census__zcta_county`, `stg_census__ct_zcta_town`,
+`int_census__zcta_county` (crosswalk on the PLACES map) and `int_hospitals__county` (the ladder),
+plus the `clean_county_name()` macro.
+
+- All 3,035 HRRP hospitals in US states are linked (100%): 2,139 by a single-county ZIP,
+  798 by ZIP + agreeing name, 85 by name only, 6 by largest land share, 6 by Connecticut town,
+  1 by single-county state (DC). Every linked code exists in PLACES.
+- Against step 2's name matching: same county for 2,892; step 2 found no county for 124 and
+  **two counties for 18** (Baltimore, St. Louis, Fairfax: county vs independent city), which a
+  join would have turned into duplicate rows; it disagreed for 1.
+- Names are compared using Census names, which keep the type ("Baltimore city" vs "Baltimore
+  County"). CDC PLACES calls both "Baltimore", which is why step 2 could not tell them apart.
+- 4 hospitals (1 in HRRP) have a CMS county name pointing elsewhere than their ZIP; two are in
+  ZIPs entirely inside St. Louis city while CMS writes the county. They are a warning, for review.
+- Some CMS county names cannot be resolved at all ("JEFFRSON DAVIS", "E. BATON ROUGE",
+  "SCOTT BLUFF", "THE DISTRICT"); the ZIP links them anyway. No fuzzy matching was added: the
+  ZIP already covers these, and fuzzy rules would create new silent errors.
+- Tests: match rate at least 99.5% of HRRP hospitals (today 100%), golden records for five
+  hand-checked hospitals (Baltimore city, St. Louis city, two Virginia independent cities,
+  Yale-New Haven through the Connecticut fallback), crosswalk uniqueness and land shares.
+  Removing the Connecticut rung on purpose failed the golden-record test while the match-rate
+  test still passed (99.8%): a rate catches large breaks, golden records catch specific ones.

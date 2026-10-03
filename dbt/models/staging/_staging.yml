@@ -375,3 +375,54 @@ models:
                 max_value: 100
       - name: is_suppressed
         description: True when CDC suppressed the estimate.
+
+  - name: stg_census__zcta_county
+    description: >
+      Census 2020 ZIP Code Tabulation Area (ZCTA) to county relationship, as published. One row
+      per ZCTA x county overlap. zcta is NULL for parts of a county outside every ZCTA.
+      Connecticut appears with its pre-2022 counties here; see int_census__zcta_county.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination: [zcta, county_fips]
+    columns:
+      - name: zcta
+        description: 5-digit ZCTA, the Census approximation of a ZIP code area.
+      - name: county_fips
+        description: 5-digit county FIPS code (2020 boundaries).
+        data_tests:
+          - not_null
+          - expression_is_true:
+              arguments:
+                expression: "regexp_full_match(county_fips, '[0-9]{5}')"
+      - name: county_name
+        description: Full Census name including its type ('Baltimore County', 'Baltimore city').
+        data_tests:
+          - not_null
+      - name: land_area_part
+        description: Land area of the overlap in square meters.
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments:
+                min_value: 0
+
+  - name: stg_census__ct_zcta_town
+    description: >
+      Census 2022 Connecticut ZCTA to town relationship, as published. One row per ZCTA x town
+      overlap. planning_region_fips is the county-level code CDC PLACES uses for Connecticut.
+    columns:
+      - name: town_fips
+        data_tests:
+          - not_null
+      - name: planning_region_fips
+        description: First 5 digits of the town code, e.g. 09170 South Central Connecticut.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_cdc__places_county')
+                field: county_fips
+      - name: land_area_part
+        data_tests:
+          - not_null

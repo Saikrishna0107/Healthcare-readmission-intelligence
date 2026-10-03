@@ -15,7 +15,9 @@ with raw_counts as (
         (select count(*) from {{ latest_release('hospital_info') }})                          as hospitals,
         (select count(*) from {{ latest_release('hcahps') }})                                 as hcahps,
         (select count(*) from {{ latest_release('footnotes') }})                              as footnotes,
-        (select count(*) from {{ latest_release('places_county') }} where "StateAbbr" <> 'US') as places
+        (select count(*) from {{ latest_release('places_county') }} where "StateAbbr" <> 'US') as places,
+        (select count(*) from {{ latest_release('census_zcta_county') }})                     as zcta_county,
+        (select count(*) from {{ latest_release('census_ct_zcta_cousub') }})                  as ct_zcta_town
 ),
 
 comparison as (
@@ -39,6 +41,12 @@ comparison as (
     union all
     select 'stg_cdc__places_county', places,
            (select count(*) from {{ ref('stg_cdc__places_county') }}) from raw_counts
+    union all
+    select 'stg_census__zcta_county', zcta_county,
+           (select count(*) from {{ ref('stg_census__zcta_county') }}) from raw_counts
+    union all
+    select 'stg_census__ct_zcta_town', ct_zcta_town,
+           (select count(*) from {{ ref('stg_census__ct_zcta_town') }}) from raw_counts
 )
 
 select *
