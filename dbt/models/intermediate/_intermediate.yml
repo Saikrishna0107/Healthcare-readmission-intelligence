@@ -35,6 +35,26 @@ models:
       - name: completed_surveys
         description: Surveys completed. Scores from few surveys are less reliable.
 
+  - name: int_hospitals__profile
+    description: >
+      Latest known profile per hospital: the current file, or the last CMS archive snapshot for
+      hospitals that have left it (closed, merged, new CCN). profile_source says which.
+    columns:
+      - name: facility_id
+        data_tests:
+          - unique
+          - not_null
+      - name: profile_source
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [current, archive]
+      - name: profile_date
+        description: Release date of the current file, or the date of the archive snapshot.
+        data_tests:
+          - not_null
+
   - name: int_census__zcta_county
     description: >
       ZIP area (ZCTA) to county crosswalk on the county map CDC PLACES uses: the national 2020
@@ -62,7 +82,7 @@ models:
   - name: int_hospitals__county
     description: >
       Each hospital's county FIPS code, from its ZIP code checked against the CMS county name
-      (D-022). One row per hospital. link_method records which rung of the ladder gave the
+      (D-022). One row per hospital with a current or archived profile. link_method records which rung of the ladder gave the
       answer; name_disagrees flags hospitals whose CMS county name points elsewhere.
     data_tests:
       - expression_is_true:
@@ -82,7 +102,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('stg_cms__hospitals')
+                to: ref('int_hospitals__profile')
                 field: facility_id
       - name: county_fips
         description: 5-digit county code on the PLACES map. NULL in territories (no PLACES data).

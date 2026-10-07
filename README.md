@@ -74,6 +74,13 @@ From the cleaned, tested data ([D-021](docs/decisions.md#d-021--data-tests-every
 - **Community context matters, at first sight.** Hospitals in the quarter of counties where most
   adults lack reliable transportation average a heart-failure ERR of 1.021; in the quarter where
   fewest do, 0.986 (association, not causation; 1,880 hospitals with that measure).
+- **A driver that holds year after year, without leakage.** With each year's survey taken from
+  a window that ends before its readmission period does
+  ([D-008](docs/decisions.md#d-008--align-time-periods-to-prevent-data-leakage--accepted-implemented-at-step-6)),
+  hospitals in the lowest quarter of "care transition" scores (were the patient's needs
+  considered when planning discharge) average a heart-failure ERR of 1.020 - 1.032, the top
+  quarter 0.979 - 0.985, in every fiscal year from FY 2020 to FY 2026 (correlation about -0.25
+  each year; association, not causation).
 - **Community data has gaps.** Kentucky and Pennsylvania have no 2023 chronic disease estimates
   in the current PLACES release (190 HRRP hospitals), and social needs measures cover 2,299 of
   3,144 counties. They stay NULL, flagged, never filled in
@@ -97,7 +104,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 3. Ingestion from the CMS and CDC APIs
 - [x] 4. Cleaning (dbt staging models), missing-value reasons and 80 data tests
 - [x] 5. Hospital-to-county join with a match-rate test, first star-schema tables
-- [ ] 6. Archived data to align time periods (prevents data leakage)
+- [x] 6. Archived data to align time periods (prevents data leakage)
 - [ ] 7. Baseline model, then a three-model comparison
 - [ ] 8. LLM question-answering agent with an evaluation set
 - [ ] 9. Power BI dashboard
@@ -120,7 +127,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest                 # download new releases of every source (skips stored ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
-.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 156 checks
+.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 192 checks
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 
@@ -139,6 +146,7 @@ import duckdb
 con = duckdb.connect("data/hri.duckdb", read_only=True)
 con.sql("select score_status, count(*) from staging.stg_cms__hrrp group by 1").show()
 con.sql("select state, count(*), avg(diabetes_pct) from marts.dim_county group by 1").show()
+con.sql("select fiscal_year, avg(payment_reduction_pct) from marts.fct_hospital_year group by 1 order by 1").show()
 ```
 
 The first `hri ingest` also downloads every archived CMS snapshot since 2019 (about 500 MB,

@@ -1,5 +1,5 @@
 -- Each hospital's county, as the 5-digit FIPS code CDC PLACES uses (D-022).
--- Grain: one row per hospital (all hospital types).
+-- Grain: one row per hospital (all hospital types), current or past (int_hospitals__profile).
 --
 -- Two independent signals: the ZIP code (where the hospital is) and the county name CMS writes.
 -- The ladder below takes the best available answer, records which rung gave it (link_method),
@@ -23,7 +23,7 @@ with hospitals as (
         zip_code,
         county_name                                    as cms_county_name,
         {{ clean_county_name('county_name') }}         as name_key
-    from {{ ref('stg_cms__hospitals') }}
+    from {{ ref('int_hospitals__profile') }}
 ),
 
 -- State abbreviation <-> state FIPS code, and which states PLACES covers.

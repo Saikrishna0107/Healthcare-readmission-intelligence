@@ -114,8 +114,9 @@ it is wired to the raw layer.
 
 **Decision.** Model the cleaned data as facts (readmissions, survey scores, community health)
 and dimensions (hospital, condition, county). Step 5 builds the first two dimensions in the
-`marts` schema: `dim_county` and `dim_hospital`. Facts follow once step 6 has lined up the time
-periods.
+`marts` schema: `dim_county` and `dim_hospital`. Step 6c adds `dim_fiscal_year` and the facts
+`fct_readmissions` (hospital × condition × fiscal year) and `fct_hospital_year` (hospital ×
+fiscal year), once the time periods are lined up (D-008).
 
 **Why.** Power BI performs best on a star schema, the LLM agent writes more accurate SQL against
 clean, well-named tables, and hospital BI job descriptions ask for dimensional modeling.
@@ -154,6 +155,45 @@ as (or before) the readmissions they are used to explain.
 **Why.** Using information from after the outcome is **data leakage**: the model would look good
 in testing and fail in real use. Several archived years also make time-based validation
 possible (see D-009).
+
+**How it is implemented (step 6c).** `dim_fiscal_year` holds three clocks per year: the fiscal
+year of the penalty, the readmission period it is based on (starts July 1 five calendar years
+earlier), and the survey window used to explain it: **the latest window that ends on or before
+the readmission period ends.** The facts take survey scores only from that window.
+
+| Fiscal year | Readmission period | Survey window | Note |
+|---|---|---|---|
+| FY 2019 | Jul 2014 - Jun 2017 | none | archive starts with Apr 2017 - Mar 2018 |
+| FY 2020 | Jul 2015 - Jun 2018 | Jul 2017 - Jun 2018 | |
+| FY 2021 | Jul 2016 - Jun 2019 | Jul 2018 - Jun 2019 | |
+| FY 2022 | Jul 2017 - Dec 1, 2019 | Jul 2018 - Jun 2019 | period cut short for COVID-19; same window as FY 2021 |
+| FY 2023 | Jul 2018 - Jun 2021 | Jul 2020 - Mar 2021 | 9-month window (COVID-19) |
+| FY 2024 | Jul 2019 - Jun 2022 | Jul 2021 - Jun 2022 | |
+| FY 2025 | Jul 2020 - Jun 2023 | Jul 2022 - Jun 2023 | |
+| FY 2026 | Jul 2021 - Jun 2024 | Jul 2023 - Jun 2024 | |
+
+*Evidence the mapping is right:* the public ratio and the ratio in that year's penalty file
+agree for all 85,780 hospital-condition-years both publish (one differs by 0.0001, rounding).
+Shifted by one year, the same test fails on 87,426 rows.
+
+*Choices.*
+- *Window ends by the period end, not "overlaps the period".* Stricter, and the same rule works
+  for every year. Cost: FY 2022 uses a window ending 5 months before its period ends.
+- *FY 2022 ends 2019-12-01, as published.* CMS ended the period 30 days early so no 2020
+  follow-up claims count; it is not a typo, so it is not corrected.
+- *Hospital profile at the time:* type, ownership and emergency services come from the first
+  archive snapshot after the period (2019-03-04 for FY 2019 - FY 2021, before the archive
+  starts). These are structural and rarely change; the star rating is never used, because it
+  contains the readmission measures.
+
+*Tests:* the window rule on the dimension, the same rule on the fact table, the ratio match,
+the penalty recomputed from the facts for all hospital-years, survey coverage of at least 99%
+per year (99.8% - 100% today).
+
+*Known limit:* community health (CDC PLACES) is one current release, mostly 2022-2023 survey
+data. For early fiscal years it describes counties after the readmissions happened. County
+health changes slowly, but step 7 should check whether results hold when trained on later
+years only.
 
 ---
 

@@ -38,9 +38,10 @@ models:
                 field: facility_id
               config:
                 # 20 hospitals (120 rows) have HRRP results but no row in the newer Hospital
-                # General Information release. HRRP covers mid-2021 to mid-2024, so a hospital
-                # can close, merge or change type since then. Not checked one by one; see
-                # dbt_test__audit.hrrp_hospitals_have_a_profile for the list. Known gap.
+                # General Information release. The CMS archive shows all 20 in the profile file
+                # until February - May 2026, so they left it recently (closed, merged or changed
+                # type). int_hospitals__profile uses their archived profile, so dim_hospital and
+                # the county link still cover them. Known gap in this live pair of files.
                 severity: warn
       - name: condition
         description: AMI, HF, PN, COPD, HIP_KNEE or CABG. Same codes in every model.

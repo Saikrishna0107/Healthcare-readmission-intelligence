@@ -1,7 +1,8 @@
 version: 2
 
 # Marts: the star schema the dashboard, the model and the LLM agent read (D-007).
-# Dimensions describe things (hospital, county); facts (step 6 on) record measurements.
+# Dimensions describe things (hospital, county, fiscal year); facts record measurements per
+# hospital and fiscal year, lined up in time (D-008).
 
 models:
   - name: dim_county
@@ -39,9 +40,10 @@ models:
 
   - name: dim_hospital
     description: >
-      One row per hospital mentioned by any CMS source (profile, HRRP, FY 2026 penalty file),
-      with its profile, its county (D-022) and program flags. Hospitals without a profile row
-      keep their HRRP name and state, county_link_method = 'no_hospital_profile'.
+      One row per hospital mentioned by any CMS source, current or archived (profile, HRRP
+      results since FY 2019, penalty files since FY 2020), with its latest known profile, its
+      county (D-022) and program flags. Hospitals with no profile at all keep their HRRP name
+      and state, county_link_method = 'no_hospital_profile'.
     columns:
       - name: facility_id
         description: CMS Certification Number (CCN).
@@ -68,11 +70,153 @@ models:
         description: >
           CMS overall star rating, 1-5. Includes readmission measures, so it must not be used
           as a predictor of readmissions (leakage).
+      - name: profile_source
+        description: current (today's profile file), archive (last archived profile), or NULL (none).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [current, archive]
+      - name: is_active
+        description: In today's profile, readmissions or latest penalty file; false = history only.
+        data_tests:
+          - not_null
       - name: is_hrrp_hospital
         description: The hospital is in the current HRRP readmissions file.
         data_tests:
           - not_null
       - name: is_in_penalty_calculation
-        description: The hospital is in the FY 2026 HRRP supplemental (penalty) file.
+        description: The hospital is in the latest HRRP supplemental (penalty) file.
         data_tests:
           - not_null
+
+  - name: dim_fiscal_year
+    description: >
+      One row per HRRP fiscal year (FY 2019 - FY 2026): its readmission performance period and
+      the patient survey window lined up with it (D-008). The leakage rule lives here.
+    data_tests:
+      - expression_is_true:
+          name: survey_window_ends_by_readmission_period_end
+          arguments:
+            expression: "survey_period_end is null or survey_period_end <= readmission_period_end"
+    columns:
+      - name: fiscal_year
+        description: FY2026 = October 2025 - September 2026.
+        data_tests:
+          - unique
+          - not_null
+      - name: readmission_period_end
+        description: Last discharge date counted. 2019-12-01 for FY 2022 (COVID-19 exception).
+        data_tests:
+          - not_null
+      - name: readmission_results_published
+        description: First CMS archive snapshot that showed these results.
+      - name: survey_period_end
+        description: >
+          End of the survey window used for this year: the latest one ending on or before
+          readmission_period_end. NULL for FY 2019 (no window in the archive is that old).
+      - name: survey_period_months
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [6, 9, 12]
+                quote: false
+      - name: has_payment_file
+        description: A Supplemental Data File (penalty inputs) exists for the year (FY 2020 on).
+        data_tests:
+          - not_null
+
+  - name: fct_readmissions
+    description: >
+      One row per hospital x condition x fiscal year: public HRRP results joined with the
+      penalty inputs from that year's Supplemental Data File. Rows in only one of the two are
+      kept (in_public_file / in_payment_file).
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination: [facility_id, condition, fiscal_year]
+      # Where both files have a ratio they must agree: the proof that each public performance
+      # period is mapped to the right fiscal year (shifted by a year, nearly none would match).
+      # One FY 2020 pair differs by 0.0001 (rounding), hence the tolerance.
+      - expression_is_true:
+          name: supplemental_err_matches_public_err
+          arguments:
+            expression: >
+              excess_readmission_ratio is null or payment_excess_readmission_ratio is null
+              or abs(excess_readmission_ratio - payment_excess_readmission_ratio) < 0.00015
+    columns:
+      - name: facility_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_hospital')
+                field: facility_id
+      - name: fiscal_year
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_fiscal_year')
+                field: fiscal_year
+      - name: condition
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [AMI, HF, PN, COPD, HIP_KNEE, CABG]
+      - name: excess_readmission_ratio
+        description: Public ratio. NULL when CMS hides it (fewer than 25 cases) or the row is payment-only.
+      - name: payment_excess_readmission_ratio
+        description: Ratio CMS used for the penalty; published for small hospitals too.
+      - name: counts_toward_penalty
+        description: CMS flag. Ratio above the peer group median and at least 25 eligible discharges.
+      - name: penalty_contribution
+        description: >
+          DRG payment ratio x (ratio - peer median) when the condition counts, 0 when it does
+          not, NULL when the row is not in the payment file. Summed per hospital, x the
+          neutrality modifier x 100, capped at 3, it gives the payment reduction in percent.
+
+  - name: fct_hospital_year
+    description: >
+      One row per hospital x fiscal year: the penalty, the readmission results behind it, and
+      the patient survey scores and hospital profile from the matching time (D-008). The input
+      table for the step 7 models.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination: [facility_id, fiscal_year]
+      - expression_is_true:
+          name: penalty_recomputes_from_fct_readmissions
+          arguments:
+            expression: >
+              not in_payment_file
+              or abs(least(unadjusted_penalty * neutrality_modifier * 100, 3) - payment_reduction_pct) <= 0.01
+    columns:
+      - name: facility_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_hospital')
+                field: facility_id
+      - name: fiscal_year
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_fiscal_year')
+                field: fiscal_year
+      - name: in_payment_file
+        data_tests:
+          - not_null
+      - name: has_survey_scores
+        description: The hospital has scores in the survey window aligned with this year.
+        data_tests:
+          - not_null
+      - name: care_transition_score
+        description: >
+          0-100, "staff took my preferences into account when planning discharge". Not in the
+          current release, but present in every window used for FY 2020 - FY 2026.
+      - name: profile_snapshot_date
+        description: >
+          Archive snapshot the profile columns come from: the hospital's first one after the
+          readmission period ended (2019-03-04 for the years before the archive starts).
