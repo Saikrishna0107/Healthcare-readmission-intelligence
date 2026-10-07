@@ -54,9 +54,14 @@ From the data exploration notebook
 
 From the cleaned, tested data ([D-021](docs/decisions.md#d-021--data-tests-every-staging-rule-is-tested-known-gaps-warn--accepted-step-4)):
 
-- **The penalty formula is reproduced exactly.** Recomputing each hospital's FY 2026 payment
-  reduction from CMS's published inputs matches all 2,945 hospitals within 0.01 percentage points.
-  2,304 hospitals (78%) are penalized; 15 hit the 3% cap.
+- **The penalty formula is reproduced exactly, every year.** Recomputing each hospital's payment
+  reduction from CMS's published inputs matches all 21,263 hospital-years from FY 2020 to FY 2026
+  within 0.01 percentage points. In FY 2026, 2,304 hospitals (78%) are penalized; 15 hit the 3% cap.
+- **Penalties shrank after FY 2022 and stayed lower.** The average cut fell from 0.53% of
+  Medicare base payments (FY 2022) to 0.32% (FY 2023), when CMS left pneumonia out because of
+  COVID-19, and has stayed between 0.32% and 0.34% since; the share penalized went from 82% to
+  75-79%. Why it stayed low is a question for the time-aligned data in step 6c
+  ([D-023](docs/decisions.md#d-023--historical-releases-from-the-cms-archive-matched-by-period--accepted-step-6)).
 - **Being above the median is not enough.** A condition counts toward the penalty only with at
   least 25 eligible discharges; 1,547 hospital-condition pairs are above their peer median but
   too small to be penalized.
@@ -115,7 +120,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest                 # download new releases of every source (skips stored ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
-.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 122 checks
+.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 156 checks
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 

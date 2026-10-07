@@ -628,3 +628,26 @@ of ours; 2026-09-30 holds only complications data). Rows stored: 608,004 readmis
 datasets row for row (18,330 / 325,720 / 5,419), a check that archive and live data agree.
 The supplemental files gave 7 fiscal years (FY 2020 3,131 hospitals ... FY 2026 2,946). A second
 run downloads nothing.
+
+**Staging (step 6b).** Every archive snapshot holds exactly one performance period (tested),
+and CMS shows each period in 3 to 5 snapshots. Staging keeps, per period, the **latest snapshot
+whole** (`latest_snapshot_per_period` macro), and records when the period was first published.
+- *Readmissions:* the copies of a period are identical once footnotes are compared by code
+  (early 2019 spells them out), and a test keeps it that way, so the choice loses nothing.
+  8 periods, 2014-2017 to 2021-2024. The FY 2022 period is published as ending 2019-12-01;
+  kept as published, to be handled where periods are matched (6c).
+- *Surveys:* copies differ in up to 88 of about 53,000 values (CMS corrections), so the latest
+  copy is CMS's final word. 26 windows; 12 months each except 6 and 9 months around 2020.
+  Only summary scores (linear means, star ratings) are kept: 2.6 million rows instead of 13.6.
+- *Hospital profiles:* no period, so every snapshot is kept (the profile as of that date).
+- *Supplemental files:* the existing models now cover FY 2020 - FY 2026 (`is_latest_fiscal_year`
+  marks the current one). FY 2020-2021 publish no reduction percentage; it is computed from the
+  adjustment factor, which equals the published value exactly in every later year. FY 2023 has
+  no pneumonia columns because CMS suppressed that measure for COVID-19, so it gets no
+  pneumonia rows rather than rows that look like "no cases". The penalty formula test now
+  recomputes all 21,263 hospital-years (largest difference 0.0081 percentage points).
+
+*Alternatives for repeated periods:* keep every snapshot (608,004 readmission rows for 152,166
+distinct facts, and every later join would need to deduplicate); keep the first snapshot
+(what was known earliest, but misses CMS's survey corrections). Keeping the latest is simple
+and, for readmissions, provably the same data.

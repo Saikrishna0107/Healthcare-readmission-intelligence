@@ -1,5 +1,5 @@
--- Recompute every hospital's HRRP payment reduction from the inputs CMS publishes, and return
--- the hospitals where it does not match the published reduction.
+-- Recompute every hospital's HRRP payment reduction, in every fiscal year since FY 2020, from
+-- the inputs CMS publishes, and return the hospital-years where it does not match.
 --
 -- CMS formula (FY2019 onward):
 --   reduction = neutrality modifier x sum over penalized conditions of
@@ -14,22 +14,24 @@
 with condition_penalties as (
     select
         facility_id,
+        fiscal_year,
         coalesce(
             sum(drg_payment_ratio * (excess_readmission_ratio - peer_group_median_err))
                 filter (where is_above_peer_median),
             0
         ) as unadjusted_penalty
     from {{ ref('stg_cms__hrrp_peer_comparisons') }}
-    group by facility_id
+    group by facility_id, fiscal_year
 ),
 
 recomputed as (
     select
         a.facility_id,
+        a.fiscal_year,
         a.payment_reduction_pct                                                  as published_pct,
         least(p.unadjusted_penalty * a.neutrality_modifier * 100, 3)             as recomputed_pct
     from {{ ref('stg_cms__hrrp_payment_adjustments') }} as a
-    join condition_penalties as p using (facility_id)
+    join condition_penalties as p using (facility_id, fiscal_year)
 )
 
 select *

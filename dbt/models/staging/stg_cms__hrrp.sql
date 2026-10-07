@@ -35,12 +35,5 @@ cleaned as (
 
 select
     *,
-    -- Why the ratio is (or is not) there, in words instead of footnote codes (D-003).
-    case
-        when excess_readmission_ratio is not null then 'scored'
-        when footnote_code = '1' then 'too_few_cases'
-        when footnote_code = '5' then 'not_available'
-        when footnote_code = '7' then 'no_cases'
-        else 'unknown'
-    end as score_status
+    {{ hrrp_score_status('excess_readmission_ratio', 'footnote_code') }} as score_status
 from cleaned

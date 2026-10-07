@@ -5,8 +5,10 @@ select 'stg_cms__hospitals' as source, facility_id from {{ ref('stg_cms__hospita
 union
 select 'stg_cms__hrrp', facility_id from {{ ref('stg_cms__hrrp') }}
 union
+-- Latest fiscal year only, like dim_hospital (history comes with the fact tables, step 6c).
 select 'stg_cms__hrrp_payment_adjustments', facility_id
 from {{ ref('stg_cms__hrrp_payment_adjustments') }}
+where is_latest_fiscal_year
 except
 select s.source, d.facility_id
 from {{ ref('dim_hospital') }} as d

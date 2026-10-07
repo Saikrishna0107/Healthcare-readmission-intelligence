@@ -17,7 +17,10 @@ hrrp as (
 ),
 
 penalty_calc as (
-    select facility_id from {{ ref('stg_cms__hrrp_payment_adjustments') }}
+    -- The supplemental files hold every fiscal year since FY 2020; this flag is about the latest.
+    select facility_id
+    from {{ ref('stg_cms__hrrp_payment_adjustments') }}
+    where is_latest_fiscal_year
 ),
 
 all_hospitals as (

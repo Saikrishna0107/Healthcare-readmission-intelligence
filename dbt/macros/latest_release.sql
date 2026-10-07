@@ -2,7 +2,7 @@
     The rows of the newest stored release of a raw source.
 
     Raw sources hold every release side by side (D-019). Staging works on the newest one;
-    step 6 will read older releases on purpose to line up time periods.
+    the *_history models read older releases on purpose (latest_snapshot_per_period, D-023).
 
     Usage:  select * from {{ latest_release('hrrp') }}
 #}
