@@ -23,10 +23,11 @@ sources:
           ("N/A", "Too Few to Report") with a reason code in "Footnote".
       - name: hrrp_supplemental
         description: >
-          HRRP Supplemental Data File (FY 2026). One row per hospital. Peer group, peer-group
-          median ERR per condition, penalty indicators and the actual payment reduction.
-          Quirks: "." means no eligible discharges, percentages are text such as "0.12%",
-          and the last row is an "End of worksheet" footer.
+          HRRP Supplemental Data File, one release per fiscal year (FY2020-FY2026). One row per
+          hospital. Peer group, peer-group median ERR per condition, penalty indicators and the
+          payment adjustment. Quirks: "." means no eligible discharges, percentages are text such
+          as "0.12%", the last row is an "End of worksheet" footer (or empty rows), and column
+          capitalization differs by year ("Dual Proportion" in FY2020).
       - name: hospital_info
         description: >
           Hospital General Information. One row per hospital: location, county, type,
@@ -51,3 +52,17 @@ sources:
           Census 2022 Connecticut file. One row per ZCTA x town (county subdivision) overlap.
           The first 5 digits of GEOID_COUSUB_22 are the planning region, which is what CDC PLACES
           uses as Connecticut's "county" since 2022.
+      - name: hrrp_archive
+        description: >
+          CMS archive snapshots of the HRRP file, one release per snapshot date (D-023). Each
+          snapshot holds one HRRP fiscal year; consecutive snapshots repeat the same year.
+          Column names changed over time ("Provider ID" before late 2019, "Facility ID" after).
+      - name: hcahps_archive
+        description: >
+          CMS archive snapshots of the patient survey (HCAHPS), one release per snapshot date.
+          Each holds one 12-month survey window. Older releases name the dates
+          "Measure Start Date" / "Measure End Date".
+      - name: hospital_info_archive
+        description: >
+          CMS archive snapshots of Hospital General Information. Gives a ZIP code (and so a
+          county) to hospitals that have since closed and are missing from the current file.

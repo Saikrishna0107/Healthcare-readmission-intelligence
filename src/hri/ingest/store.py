@@ -36,9 +36,22 @@ class RawStore:
         entry = self.load_manifest().get(source_name, {}).get("releases", {}).get(release_label)
         return entry is not None and self.path_for(source_name, release_label).exists()
 
+    def is_known(self, source_name: str, release_label: str) -> bool:
+        """Stored, or checked before and found not to contain this source (see mark_absent)."""
+        absent = self.load_manifest().get(source_name, {}).get("absent", {})
+        return release_label in absent or self.has_release(source_name, release_label)
+
+    def mark_absent(self, source_name: str, release_label: str, record: dict) -> None:
+        """Remember that a release (an archive snapshot) does not contain this source, so later
+        runs do not download it again just to find out."""
+        manifest = self.load_manifest()
+        entry = manifest.setdefault(source_name, {"latest": None, "releases": {}})
+        entry.setdefault("absent", {})[release_label] = record
+        self._save_manifest(manifest)
+
     def read_latest(self, source_name: str) -> pd.DataFrame:
         entry = self.load_manifest().get(source_name)
-        if entry is None:
+        if entry is None or entry["latest"] is None:
             raise KeyError(f"{source_name} has not been ingested yet. Run: hri ingest --only {source_name}")
         return pd.read_parquet(self.raw_dir / entry["releases"][entry["latest"]]["file"])
 

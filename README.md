@@ -21,11 +21,13 @@ three questions a hospital or health plan would pay for:
 | Source | Grain (one row =) | Role in the project |
 |---|---|---|
 | [CMS Hospital Readmissions Reduction Program](https://data.cms.gov/provider-data/dataset/9n3s-kdb3) | hospital × condition | **Target**: Excess Readmission Ratio (ERR) |
-| [CMS HRRP Supplemental Data File](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/fy-2026-ipps-final-rule-home-page) (FY 2026) | hospital | Peer group, peer-group median ERRs, penalty indicators, actual payment reduction |
+| [CMS HRRP Supplemental Data Files](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/archived-supplemental-data-files) (FY 2020–2026) | hospital × fiscal year | Peer group, peer-group median ERRs, penalty indicators, actual payment reduction |
 | [CMS Patient Survey (HCAHPS) – Hospital](https://data.cms.gov/provider-data/dataset/dgck-syfz) | hospital × survey answer | Drivers: discharge information, communication scores |
 | [CMS Hospital General Information](https://data.cms.gov/provider-data/dataset/xubh-q36u) | hospital | Hospital profile: type, ownership, county, star rating |
 | [CDC PLACES – County Data](https://data.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-County-Data-20/swc5-untb) | county × health measure | Community context: chronic disease, insurance, transportation |
 | [Census ZCTA–county relationship files](https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.html) (2020, plus Connecticut 2022) | ZIP area × county | Links each hospital's ZIP code to the county code PLACES uses ([why](docs/decisions.md#d-022--link-hospitals-to-counties-by-zip-code-checked-against-the-county-name--accepted-step-5)) |
+
+| [CMS hospital data archive](https://data.cms.gov/provider-data/archived-data/hospitals) (quarterly snapshots since 2019) | snapshot × the rows above | Past releases of HRRP, the patient survey and hospital profiles, to line up time periods ([why](docs/decisions.md#d-023--historical-releases-from-the-cms-archive-matched-by-period--accepted-step-6)) |
 
 More sources (Medicare inpatient payments, complications, spending per beneficiary) are added
 when the project reaches the step that needs them.
@@ -110,7 +112,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 ### Pipeline commands
 
 ```bash
-.venv/Scripts/hri ingest                 # download new releases of every source (skips unchanged ones)
+.venv/Scripts/hri ingest                 # download new releases of every source (skips stored ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
 .venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 122 checks
@@ -134,6 +136,8 @@ con.sql("select score_status, count(*) from staging.stg_cms__hrrp group by 1").s
 con.sql("select state, count(*), avg(diabetes_pct) from marts.dim_county group by 1").show()
 ```
 
+The first `hri ingest` also downloads every archived CMS snapshot since 2019 (about 500 MB,
+a few minutes); later runs only fetch snapshots published since.
 Sources are listed in [config/sources.yaml](config/sources.yaml). Each release is stored untouched
 as `data/raw/<source>/<release>.parquet`, with a download log in `data/raw/manifest.json`
 ([why](docs/decisions.md#d-018--raw-layer-untouched-text-one-parquet-file-per-release--accepted-step-3)).

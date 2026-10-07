@@ -56,7 +56,7 @@ def _ingest(args: argparse.Namespace) -> int:
     print()
     for r in results:
         detail = f"{r.rows:,} rows" if r.rows else (r.error or "")
-        print(f"  {r.status:9s} {r.source:18s} {r.release or '-':12s} {detail}")
+        print(f"  {r.status:9s} {r.source:22s} {r.release or '-':12s} {detail}")
     failed = [r for r in results if r.status == "failed"]
     return 1 if failed else 0
 
@@ -78,12 +78,12 @@ def _status() -> int:
         return 0
     for name in load_sources():
         entry = manifest.get(name)
-        if not entry:
-            print(f"  {name:18s} not ingested")
+        if not entry or not entry["releases"]:
+            print(f"  {name:22s} not ingested")
             continue
         latest = entry["releases"][entry["latest"]]
         print(
-            f"  {name:18s} latest {entry['latest']:12s} {latest['rows']:>9,} rows  "
+            f"  {name:22s} latest {entry['latest']:12s} {latest['rows']:>9,} rows  "
             f"ingested {latest['ingested_at']}  ({len(entry['releases'])} release(s) stored)"
         )
     return 0

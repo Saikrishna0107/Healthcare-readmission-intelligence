@@ -553,3 +553,78 @@ plus the `clean_county_name()` macro.
   Yale-New Haven through the Connecticut fallback), crosswalk uniqueness and land shares.
   Removing the Connecticut rung on purpose failed the golden-record test while the match-rate
   test still passed (99.8%): a rate catches large breaks, golden records catch specific ones.
+
+---
+
+## D-023 · Historical releases from the CMS archive, matched by period · Accepted (step 6)
+
+**Problem.** One release of each CMS file covers one period, and the periods do not line up:
+in every snapshot, the survey (HCAHPS) window is newer than the readmission (HRRP) window it
+would explain (D-008). Lining them up, and validating a model on a later year (D-009), needs
+several years of both.
+
+**What exists** (checked before building, all public, no account):
+- **CMS archive snapshots.** A zip of every hospital dataset about once a quarter since March
+  2019 (34 snapshots, about 15 MB each), listed by the API
+  `provider-data/api/1/archive/aggregate/theme/hospitals/relative`. Each holds one HRRP fiscal
+  year and one 12-month survey window.
+- **HRRP supplemental files FY2020-FY2026** (peer groups, peer medians, penalties), one zip per
+  fiscal year on CMS's "archived supplemental data files" page.
+
+**Decision.**
+- **Ingest every snapshot**, not only the ones currently needed. New ingestion kind
+  `cms_archive`; sources `hrrp_archive`, `hcahps_archive`, `hospital_info_archive`, one release
+  per snapshot date. They are kept apart from the live sources (`hrrp`, `hcahps`,
+  `hospital_info`), which stay unchanged.
+- **Choose periods in SQL, not in the config.** Which survey window goes with which readmission
+  window is a rule in a dbt model (step 6c), where it is visible and tested, instead of a
+  hand-picked list of snapshot dates.
+- **`hrrp_supplemental` holds one release per fiscal year**, each with its own read options and
+  a title the file's first line must contain.
+- **Required columns may have several accepted names**, and the check ignores capitalization
+  and spacing. Raw keeps every release's own names; staging maps them (step 6b).
+
+**Traps found in the files, and how each is handled.**
+- *The wrong year behind the right link.* CMS's FY 2023 page links `...zip-0`, a byte-identical
+  copy of the FY 2024 file. The real FY 2023 file is at the same address without `-0`. Each
+  release now declares its title ("FY 2023 IPPS Final Rule") and ingestion rejects a file whose
+  first line does not contain it.
+- *File names change.* HRRP is `HOSPITAL_QUARTERLY_QUALITYMEASURE_RRP_HOSPITAL.csv` in 2019-20,
+  `9n3s-kdb3.csv` in late 2020, `FY_2025_Hospital_Readmissions_Reduction_Program_Hospital.csv`
+  from 2021. Each archive source lists every name; more than one match is an error.
+- *Column names change.* `Provider ID` → `Facility ID` (late 2019), `Measure Start Date` →
+  `Start Date`, `County Name` → `County/Parish` (2023), `Dual Proportion` → `Dual proportion`.
+- *Layouts change.* Supplemental files are tab- or comma-separated, start with 1 or 3 title
+  lines, and FY 2025 starts with a byte-order mark.
+- *Mac leftovers.* The August 2026 snapshot contains `__MACOSX/` copies of each file; ignored.
+- *Snapshots without our datasets.* July 2020 has none of them and September 2026 only holds
+  the files that changed. They are recorded as "absent" in the manifest so later runs do not
+  download them again.
+
+**Why.**
+- Every snapshot costs about 500 MB once; afterwards only new snapshots are downloaded. In
+  return the period rule can change (for example "survey from the year before") without new
+  downloads, and anyone can see which periods existed.
+- Keeping archive sources separate from live ones means the current pipeline, its tests and
+  its numbers do not move while history is added.
+
+**Alternatives considered.**
+- *Only the 7 snapshots the period rule needs today* (about 105 MB): faster, but the rule
+  would be hidden in a list of dates in the config.
+- *Store archives as extra releases of the live sources:* one source per dataset is simpler,
+  but archive labels (snapshot dates) and live labels (publisher's modified date) would mix,
+  and "latest" could silently switch to an archive copy.
+- *Read only the needed files from each zip with HTTP range requests:* saves little, because
+  the survey file is most of each zip.
+
+**Cost.** The first run downloads about 500 MB and keeps the snapshots in a temporary folder
+until the run ends, so one snapshot serves all three archive sources.
+Stored as Parquet, the result is small: 66 MB for all raw data.
+
+**Result (first run, October 2026).** Each archive source saw 34 snapshots (March 2019 to
+September 2026): 32 stored and 2 recorded as not containing the dataset (2020-07-04 holds none
+of ours; 2026-09-30 holds only complications data). Rows stored: 608,004 readmission rows,
+13,625,130 survey rows and 170,588 hospital-profile rows. The newest snapshot matches the live
+datasets row for row (18,330 / 325,720 / 5,419), a check that archive and live data agree.
+The supplemental files gave 7 fiscal years (FY 2020 3,131 hospitals ... FY 2026 2,946). A second
+run downloads nothing.

@@ -25,18 +25,55 @@ sources:
   hrrp_supplemental:
     kind: cms_zip
     # Published once per fiscal year with the IPPS final rule; not available through an API.
-    url: https://www.cms.gov/files/zip/fy2026-hospital-readmissions-reduction-program-supplemental-data-file.zip
-    release: FY2026
-    member: FR FY 2026.txt
+    # One release per fiscal year (D-023). Each year's file has its own layout, so read options
+    # are set per release on top of the defaults below. `title` guards against CMS linking the
+    # wrong year's file (its FY 2023 page links a copy of FY 2024).
     read_options:
-      sep: "\t"
+      sep: "	"
       skiprows: 1          # first line is a title, not the header
       encoding: cp1252
+    releases:
+      - release: FY2020
+        url: https://www.cms.gov/files/zip/fy-2020-ipps-final-rule-hospital-readmissions-reduction-program-supplemental-data-file.zip
+        member: FY2020_IPPS_Final_Rule_HRRP_Supplemental_File tab2.txt
+        title: FY 2020 IPPS Final Rule
+      - release: FY2021
+        url: https://www.cms.gov/files/zip/fy-2021-ipps-final-rule-hospital-readmissions-reduction-program-supplemental-data-file.zip
+        member: FY2021_Final_Rule_Supplemental_File_FR FY 2021.txt
+        title: FY 2021 IPPS Final Rule
+      - release: FY2022
+        url: https://www.cms.gov/files/zip/fy-2022-ipps-final-rule-hospital-readmissions-reduction-program-supplemental-data-file.zip
+        member: 508_Compliant_Version_of_FR FY 2022.csv
+        title: FY 2022 IPPS Final Rule
+        read_options:
+          sep: ","
+          skiprows: 3      # title, "blank row", table name
+      - release: FY2023
+        # Not the "...zip-0" the CMS page links: that one is the FY 2024 file.
+        url: https://www.cms.gov/files/zip/fy-2023-ipps-final-rule-hospital-readmissions-reduction-program-supplemental-data-file.zip
+        member: FY2023_FR_Supplemental_File FR FY 2023.txt
+        title: FY 2023 IPPS Final Rule
+      - release: FY2024
+        url: https://www.cms.gov/files/zip/fy-2024-ipps-final-rule-hospital-readmissions-reduction-program-supplemental-data-file.zip
+        member: 508 version of FY2024_Final_Rule_Supplemental_File Variations FR FY 2024 tab .txt
+        title: FY 2024 IPPS Final Rule
+      - release: FY2025
+        url: https://www.cms.gov/files/zip/fy-2025-ipps-final-rule-hospital-readmissions-reduction-program-supplemental-data-file.zip
+        member: 508-Version-FR-FY-2025.csv
+        title: FY 2025 IPPS/LTCH PPS Final Rule
+        read_options:
+          sep: ","
+          encoding: utf-8-sig   # starts with a byte-order mark
+      - release: FY2026
+        url: https://www.cms.gov/files/zip/fy2026-hospital-readmissions-reduction-program-supplemental-data-file.zip
+        member: FR FY 2026.txt
+        title: FY 2026 IPPS/LTCH PPS Final Rule
     description: HRRP peer groups, peer-group median ERRs, penalty indicators and payment reductions
+    # Names that exist in every year (capitalization differs; the check ignores it).
+    # "Payment reduction percentage" only exists from FY 2022.
     required_columns:
       - Hospital CCN
       - Payment adjustment factor
-      - Payment reduction percentage
       - Dual proportion
       - Peer group assignment
       - Neutrality modifier
@@ -130,3 +167,59 @@ sources:
       - GEOID_ZCTA5_20
       - AREALAND_PART
     min_rows: 400         # 443 rows in the 2022 file
+
+  # CMS archive snapshots (D-023): every hospital dataset, about once a quarter since 2019. Each
+  # snapshot is one release, labelled with its date. Kept apart from the live sources above so
+  # the current pipeline is unchanged; step 6 staging combines them to line up time periods.
+  # File names inside a snapshot changed over the years, so each source lists every name used.
+
+  hrrp_archive:
+    kind: cms_archive
+    archive_theme: hospitals
+    description: Archived HRRP releases, hospital x condition (one HRRP fiscal year per snapshot)
+    members:
+      - "HOSPITAL_QUARTERLY_QUALITYMEASURE_RRP_HOSPITAL.csv"    # 2019 - May 2020
+      - "9n3s-kdb3*.csv"                                        # late 2020: named by dataset ID
+      - "*Readmissions_Reduction_Program_Hospital.csv"          # 2021 on: FY_2025_Hospital_...
+    required_columns:
+      - [Facility ID, Provider ID]
+      - Measure Name
+      - Number of Discharges
+      - Excess Readmission Ratio
+      - Start Date
+      - End Date
+    min_rows: 10000
+
+  hcahps_archive:
+    kind: cms_archive
+    archive_theme: hospitals
+    description: Archived patient survey (HCAHPS) releases, hospital x survey answer
+    members:
+      - "HCAHPS - Hospital.csv"
+      - "dgck-syfz*.csv"
+      - "HCAHPS-Hospital.csv"
+    required_columns:
+      - [Facility ID, Provider ID]
+      - HCAHPS Measure ID
+      - HCAHPS Linear Mean Value
+      - Number of Completed Surveys
+      - [Start Date, Measure Start Date]
+      - [End Date, Measure End Date]
+    min_rows: 200000
+
+  hospital_info_archive:
+    kind: cms_archive
+    archive_theme: hospitals
+    description: Archived Hospital General Information releases (ZIP codes of hospitals since closed)
+    members:
+      - "Hospital General Information.csv"
+      - "xubh-q36u*.csv"
+      - "Hospital_General_Information.csv"
+    required_columns:
+      - [Facility ID, Provider ID]
+      - State
+      - ZIP Code
+      - [County Name, County/Parish]
+      - Hospital Type
+      - Hospital Ownership
+    min_rows: 4000
