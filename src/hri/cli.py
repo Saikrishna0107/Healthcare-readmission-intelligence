@@ -38,6 +38,22 @@ def main(argv: list[str] | None = None) -> int:
                            help="bootstrap resamples for the 95%% intervals (0 to skip)")
     train_cmd.add_argument("--seed", type=int, default=0, help="random seed for folds and resamples")
 
+    sl_cmd = commands.add_parser("sl", help="query the semantic layer: approved metrics, read-only")
+    sl_actions = sl_cmd.add_subparsers(dest="action", required=True)
+    list_cmd = sl_actions.add_parser("list", help="list the metrics, or one metric's dimensions")
+    list_cmd.add_argument("metric", nargs="?", help="show the definition and dimensions of this metric")
+    query_cmd = sl_actions.add_parser(
+        "query", help="query metrics, e.g. `hri sl query share_penalized --by hospital__state "
+                      "--where fiscal_year=FY2026 --order=-share_penalized --limit 10`")
+    query_cmd.add_argument("metrics", nargs="+", metavar="METRIC")
+    query_cmd.add_argument("--by", nargs="+", default=[], metavar="DIMENSION", help="break down by")
+    query_cmd.add_argument("--where", nargs="+", default=[], metavar="FILTER",
+                           help="filters such as fiscal_year=FY2026 or hospital__state!=MD")
+    query_cmd.add_argument("--order", default="", metavar="NAMES",
+                           help="comma-separated sort; write --order=-name for descending")
+    query_cmd.add_argument("--limit", type=int, default=50)
+    query_cmd.add_argument("--sql", action="store_true", help="also print the SQL MetricFlow wrote")
+
     args = parser.parse_args(argv)
     if args.command == "dbt":
         return run_dbt(args.dbt_args)
@@ -50,7 +66,61 @@ def main(argv: list[str] | None = None) -> int:
         return _ingest(args)
     if args.command == "model":
         return _model_train(args)
+    if args.command == "sl":
+        return _semantic_layer(args)
     return _status()
+
+
+def parse_filter(text: str):
+    """'fiscal_year=FY2026' -> Filter('fiscal_year', '=', 'FY2026'); numbers and true/false typed."""
+    import re
+
+    from hri.semantic import Filter, SemanticLayerError
+
+    match = re.fullmatch(r"\s*(\w+)\s*(>=|<=|!=|=|>|<)\s*(.+?)\s*", text)
+    if not match:
+        raise SemanticLayerError(f"Cannot read filter {text!r}; write it like fiscal_year=FY2026")
+    name, op, raw = match.groups()
+    value: str | int | float | bool = raw
+    if raw.lower() in ("true", "false"):
+        value = raw.lower() == "true"
+    else:
+        for kind in (int, float):
+            try:
+                value = kind(raw)
+                break
+            except ValueError:
+                pass
+    return Filter(name, op, value)
+
+
+def _semantic_layer(args: argparse.Namespace) -> int:
+    from hri.semantic import SemanticLayer, SemanticLayerError
+
+    layer = SemanticLayer()
+    try:
+        if args.action == "list":
+            if args.metric:
+                m = layer.metrics.get(args.metric)
+                if m is None:
+                    raise SemanticLayerError(f"Unknown metric {args.metric!r}")
+                print(f"{m.name} - {m.label}\n  {m.description}\n\nDimensions:")
+                print("\n".join(f"  {d}" for d in m.dimensions))
+            else:
+                for m in layer.metrics.values():
+                    print(f"{m.name:45s} {m.label}")
+            return 0
+        result = layer.query(args.metrics, group_by=args.by, filters=[parse_filter(w) for w in args.where],
+                             order_by=[o for o in args.order.split(",") if o], limit=args.limit)
+    except SemanticLayerError as exc:
+        print(exc)
+        return 2
+    print(result.data.to_string(index=False))
+    for m in result.metrics:
+        print(f"\n{m.name}: {m.description}")
+    if args.sql:
+        print("\n" + result.sql)
+    return 0
 
 
 def _model_train(args: argparse.Namespace) -> int:

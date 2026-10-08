@@ -9,3 +9,16 @@ hri:
       type: duckdb
       path: ../data/hri.duckdb      # relative to this dbt folder; data/ is gitignored
       threads: 4
+    # Read-only access for the semantic layer and the LLM agent (D-025): an empty in-memory
+    # database with the warehouse attached READ_ONLY under the same name, so the generated SQL
+    # ("hri"."marts"...) is identical but cannot change anything. Selected with DBT_TARGET=semantic.
+    semantic:
+      type: duckdb
+      path: ":memory:"
+      database: hri
+      attach:
+        # Absolute path from `hri` (HRI_DUCKDB_PATH), so it works from any folder.
+        - path: "{{ env_var('HRI_DUCKDB_PATH', '../data/hri.duckdb') }}"
+          alias: hri
+          read_only: true
+      threads: 1

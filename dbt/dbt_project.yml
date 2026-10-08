@@ -50,3 +50,8 @@ models:
     ml:
       +materialized: table
       +schema: ml
+    # Semantic layer (step 8, D-025): metric definitions read by MetricFlow, plus the day
+    # calendar it requires. The YAML holds the definitions; only the calendar is a table.
+    semantic:
+      +materialized: table
+      +schema: semantic

@@ -26,6 +26,9 @@ dependencies = [
     "interpret-core>=0.7",  # Explainable Boosting Machine (EBM)
     "shap>=0.46",           # explanations of the tree model
     "joblib>=1.3",          # saving the fitted models
+    # Semantic layer (step 8): MetricFlow, the dbt Semantic Layer engine, with its dbt connection.
+    # Pinned to a minor version because it is tied to the dbt-core version (D-025).
+    "dbt-metricflow[dbt-duckdb]>=0.15,<0.16",
 ]
 
 [project.optional-dependencies]

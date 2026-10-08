@@ -326,6 +326,18 @@ the evaluation set turns "it seems to work" into a measured accuracy.
 **Alternative considered.** Letting the LLM query raw tables freely: quick to demo, but
 unreliable and not something a healthcare organization would deploy.
 
+**Refined at step 8 (with the project owner).**
+- **Semantic layer: dbt MetricFlow** (the engine of the dbt Semantic Layer), built in 8a
+  ([D-025](#d-025--semantic-layer-dbt-metricflow-read-only-with-reconciled-metrics--accepted-step-8)).
+- **The LLM does not write SQL at all.** It fills in a structured query plan (metrics,
+  breakdowns, filters) that is checked against the catalog; MetricFlow writes the SQL.
+- **Model: a local model through Ollama**, not a hosted API. No key, no cost, nothing leaves the
+  machine. The Claude API was considered first (stronger at structured output) and free hosted
+  tiers (GitHub Models, Gemini, Groq) as alternatives; the owner chose local-only. The laptop has
+  no separate graphics card, so answers are slow and small models are less reliable; the plan
+  therefore asks the model for a JSON-schema-constrained plan in one call, rather than a
+  multi-step tool conversation, and the evaluation compares a small and a mid-size model.
+
 ---
 
 ## D-011 · Power BI dashboard, Streamlit for the agent · Proposed (step 9)
@@ -856,3 +868,55 @@ about 0.65-0.75; above about 0.85 without the variant features would be investig
   shared patients):* gives more than one estimate, but FY 2024 could train on FY 2020-2021 only
   and FY 2025 on FY 2020-2022. Kept as a possible stability check in 7b, not as the main result,
   which uses the most training data and the most recent year.
+
+---
+
+## D-025 · Semantic layer: dbt MetricFlow, read-only, with reconciled metrics · Accepted (step 8)
+
+**Context.** The same question has several honest answers in this data. "Average HRRP penalty
+in FY 2026" is 0.344% over all 2,945 hospitals in the payment file, or 0.440% over the
+penalized ones. "Average readmission ratio" is 1.0018 as a plain average, or 0.9996 weighted by
+discharges, but CMS hides discharge counts below 11, so that weight is missing for 30% of scored
+results. An LLM writing its own SQL would pick a reading at random, and nobody would know which.
+
+**Decision.** Define every metric once, in YAML next to the dbt models
+(`dbt/models/semantic/`), and let MetricFlow write the SQL:
+- **5 semantic models:** fiscal years, hospitals, counties (dimensions), hospital-years and
+  readmission results (facts), linked by the entities `hospital`, `fiscal_year` and `county`.
+  MetricFlow works out joins such as hospital-year -> hospital -> county by itself.
+- **17 metrics offered**, each with a description that states what is counted and over which
+  hospitals (penalty counts, share and averages, the 3% cap, Excess Readmission Ratio averages
+  and counts, eligible discharges, 4 patient-survey averages). Two building-block sums are
+  marked `meta.agent: hidden`.
+- **Left out on purpose:** an observed readmission rate (counts are suppressed below 11, so it
+  would silently drop small hospitals) and a discharge-weighted ratio (no weight is published
+  for every result in every year).
+- **Read-only by construction:** a second dbt target, `semantic`, opens an empty in-memory
+  database with the warehouse attached READ_ONLY under the same name. `hri.semantic` forces that
+  target and refuses to start unless DuckDB reports the warehouse as read-only.
+- **Structured filters only:** (dimension, operator, value), operators `= != > >= < <=`; values
+  are quoted in code, so a value such as `MD' or 1=1 --` stays one string. At most 500 rows.
+- **Never stale:** MetricFlow reads `dbt/target/semantic_manifest.json`; `hri.semantic` re-parses
+  the project when a model or YAML file is newer than that file.
+- **Reconciled:** a test compares every offered metric with SQL written by hand on the marts,
+  including the joins to hospitals and counties; another fails if a new metric has no such check.
+
+**Why MetricFlow.** It is the engine of the dbt Semantic Layer, so the definitions sit in the
+same project, review and tests as the models, and the skill transfers to teams using dbt. It
+was already a dependency of dbt-core 1.12; `dbt-metricflow 0.15` adds its command line and dbt
+connection and was checked compatible before installing.
+
+**Fiscal year, not dates.** MetricFlow ties every measure to a date column, so the facts gained
+`fiscal_year_start`. Users and the agent ask by the label (`fiscal_year = 'FY2026'`), because
+"2025" by date would mean FY 2026 (it starts 2025-10-01), an easy mistake.
+
+**Windows notes.** The `mf` command line needs UTF-8 output (`PYTHONUTF8=1`) or it fails while
+printing its progress symbols; `hri sl` calls MetricFlow from Python and avoids this.
+
+**Alternatives considered.**
+- *Own YAML catalog and SQL builder:* simple and transparent, but a home-made copy of what dbt
+  provides, without its validation against the warehouse.
+- *LLM writes SQL against approved views, checked by a SQL parser:* flexible, but metric
+  definitions would live in prompts and drift between answers.
+- *Cube or another standalone semantic layer:* capable, but a separate server and a second place
+  for definitions, for a single-user DuckDB project.

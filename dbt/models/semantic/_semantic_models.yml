@@ -1,0 +1,198 @@
+# The semantic layer (D-025): what can be measured, and how tables join, defined once.
+#
+# MetricFlow (the engine behind the dbt Semantic Layer) reads these definitions and writes the
+# SQL for any combination of metric + breakdown + filter. The LLM agent of step 8 only chooses
+# from the metrics and dimensions defined here; it never writes SQL itself (D-010).
+#
+# Terms:
+#   semantic model  a table described for MetricFlow: its entities, dimensions and measures.
+#   entity          a key that links tables (hospital, fiscal_year, county). MetricFlow joins
+#                   a foreign entity to the model where it is primary, so "penalized hospitals
+#                   by state" works without anyone writing the join.
+#   dimension       something to group or filter by (state, condition, peer group).
+#   measure         an aggregation of a column (sum, count, average). Metrics are built on them.
+
+models:
+  - name: metricflow_time_spine
+    description: One row per day; MetricFlow uses it to resolve time (D-025).
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        granularity: day
+        data_tests:
+          - unique
+          - not_null
+
+semantic_models:
+  - name: fiscal_years
+    description: HRRP fiscal years (FY 2019 - FY 2026), the time axis of every question.
+    model: ref('dim_fiscal_year')
+    entities:
+      - name: fiscal_year
+        type: primary
+        expr: fiscal_year
+    dimensions:
+      - name: is_latest_fiscal_year
+        type: categorical
+        description: True for the most recent fiscal year with a payment file.
+
+  - name: hospitals
+    description: >
+      One row per hospital (current profile). Its dimensions describe hospitals today, for
+      breakdowns such as state or ownership.
+    model: ref('dim_hospital')
+    entities:
+      - name: hospital
+        type: primary
+        expr: facility_id
+      - name: county
+        type: foreign
+        expr: county_fips
+    dimensions:
+      - name: facility_name
+        type: categorical
+        description: Hospital name as CMS publishes it (upper case).
+      - name: city
+        type: categorical
+      - name: state
+        type: categorical
+        description: Two-letter state or territory code (e.g. MD, TX, PR).
+      - name: ownership
+        type: categorical
+        description: Ownership type, e.g. Proprietary, Voluntary non-profit - Private, Government - State.
+      - name: hospital_type
+        type: categorical
+      - name: overall_star_rating
+        type: categorical
+        description: Current CMS star rating (1-5, NULL when not rated). Includes readmission measures.
+      - name: is_hrrp_hospital
+        type: categorical
+        description: True for hospitals in the readmission program (acute care, paid under IPPS).
+
+  - name: counties
+    description: One row per US county with CDC PLACES community health data.
+    model: ref('dim_county')
+    entities:
+      - name: county
+        type: primary
+        expr: county_fips
+    dimensions:
+      - name: county_name
+        type: categorical
+      - name: state_name
+        type: categorical
+        description: Full state name of the county (e.g. Maryland).
+
+  - name: hospital_years
+    description: >
+      One row per hospital and fiscal year: the HRRP payment penalty and the hospital's
+      patient-survey scores lined up with that year's readmission period.
+    model: ref('fct_hospital_year')
+    defaults:
+      agg_time_dimension: fiscal_year_start
+    entities:
+      - name: hospital_year
+        type: primary
+        expr: facility_id || '-' || fiscal_year
+      - name: hospital
+        type: foreign
+        expr: facility_id
+      - name: fiscal_year
+        type: foreign
+        expr: fiscal_year
+    dimensions:
+      - name: fiscal_year_start
+        type: time
+        type_params:
+          time_granularity: day
+      - name: peer_group
+        type: categorical
+        description: >
+          CMS peer group 1-5 by share of dual-eligible (low-income) patients; 5 = highest share.
+          Each hospital is compared only with its peer group.
+      - name: is_penalized
+        type: categorical
+        description: True if the hospital's payments were reduced that year; NULL outside the payment file.
+    measures:
+      - name: hospitals_in_payment_file
+        description: Hospitals in that year's HRRP payment file.
+        agg: sum
+        expr: case when in_payment_file then 1 else 0 end
+      - name: penalized_hospitals
+        description: Hospitals with a payment reduction above zero.
+        agg: sum
+        expr: case when is_penalized then 1 else 0 end
+      - name: hospitals_at_max_penalty
+        description: Hospitals at the 3% cap.
+        agg: sum
+        expr: case when payment_reduction_pct >= 3 then 1 else 0 end
+      - name: payment_reduction_pct_total
+        description: Sum of payment reductions (percent); a building block for averages.
+        agg: sum
+        expr: payment_reduction_pct
+      - name: payment_reduction_pct_max
+        agg: max
+        expr: payment_reduction_pct
+      # Patient survey (HCAHPS) scores, 0-100 linear mean scores; hospitals without a survey are left out.
+      - name: recommend_score_average
+        agg: average
+        expr: recommend_score
+      - name: overall_rating_score_average
+        agg: average
+        expr: overall_rating_score
+      - name: care_transition_score_average
+        agg: average
+        expr: care_transition_score
+      - name: discharge_information_score_average
+        agg: average
+        expr: discharge_information_score
+
+  - name: readmission_results
+    description: >
+      One row per hospital, condition and fiscal year: the Excess Readmission Ratio (ERR) CMS
+      published. ERR = the hospital's predicted readmissions / readmissions expected for an
+      average hospital with the same patients. Above 1.0 means worse than expected.
+    model: ref('fct_readmissions')
+    defaults:
+      agg_time_dimension: fiscal_year_start
+    entities:
+      - name: readmission_result
+        type: primary
+        expr: facility_id || '-' || fiscal_year || '-' || condition
+      - name: hospital
+        type: foreign
+        expr: facility_id
+      - name: fiscal_year
+        type: foreign
+        expr: fiscal_year
+    dimensions:
+      - name: fiscal_year_start
+        type: time
+        type_params:
+          time_granularity: day
+      - name: condition
+        type: categorical
+        description: >
+          AMI (heart attack), HF (heart failure), PN (pneumonia), COPD, HIP_KNEE (hip/knee
+          replacement), CABG (bypass surgery).
+      - name: score_status
+        type: categorical
+        description: scored, too_few_cases, no_cases, not_available.
+    measures:
+      - name: scored_results
+        description: Hospital-condition results with a published ratio.
+        agg: count
+        expr: excess_readmission_ratio
+      - name: excess_readmission_ratio_total
+        agg: sum
+        expr: excess_readmission_ratio
+      - name: results_worse_than_expected
+        agg: sum
+        expr: case when excess_readmission_ratio > 1 then 1 else 0 end
+      - name: results_counting_toward_penalty
+        agg: sum
+        expr: case when counts_toward_penalty then 1 else 0 end
+      - name: eligible_discharges
+        agg: sum
+        expr: eligible_discharges

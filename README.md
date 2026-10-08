@@ -145,6 +145,34 @@ penalties (0.5 = guessing); brackets are 95% bootstrap intervals
 
 ![Model comparison](images/09_model_comparison.png)
 
+## Asking the data: one definition per metric (step 8)
+
+The same question can have several honest answers. "Average HRRP penalty in FY 2026" is
+**0.344%** over all hospitals in the payment file, or **0.440%** over the penalized ones only.
+Before an LLM answers questions, every metric is defined once in a **semantic layer**
+([dbt MetricFlow](https://docs.getdbt.com/docs/build/about-metricflow)), and the agent may only
+choose from it ([why](docs/decisions.md#d-025--semantic-layer-dbt-metricflow-read-only-with-reconciled-metrics--accepted-step-8)):
+
+- **17 approved metrics** (penalties, readmission ratios, patient survey), each with a definition
+  that says what is counted. MetricFlow writes the SQL, including the joins.
+- **Read-only by construction**, structured filters only, at most 500 rows per answer.
+- **Every metric reconciled** with hand-written SQL in a test; deliberately breaking a
+  definition makes it fail.
+- Left out on purpose: an "observed readmission rate", because CMS hides counts below 11 and the
+  rate would silently drop small hospitals.
+
+```
+$ hri sl query share_penalized hospitals_in_payment_file --by hospital__ownership --where fiscal_year=FY2026 --order=-share_penalized
+                        hospital__ownership  share_penalized  hospitals_in_payment_file
+               Voluntary non-profit - Other         0.838428                        229
+             Voluntary non-profit - Private         0.810754                       1432
+...
+share_penalized: Penalized hospitals / hospitals in the payment file, as a fraction (0.78 = 78%).
+```
+
+Next: a local LLM (Ollama) that turns a plain-English question into one of these queries, and
+an evaluation set that measures how often it gets the answer right.
+
 ## Planned architecture
 
 ```
@@ -165,7 +193,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 5. Hospital-to-county join with a match-rate test, first star-schema tables
 - [x] 6. Archived data to align time periods (prevents data leakage)
 - [x] 7. Validation design, baselines and a three-model comparison (ridge, LightGBM, EBM) explained with SHAP
-- [ ] 8. LLM question-answering agent with an evaluation set
+- [ ] 8. LLM question-answering agent with an evaluation set (8a semantic layer done)
 - [ ] 9. Power BI dashboard
 - [ ] 10. CI and scheduled data refresh
 
@@ -186,8 +214,10 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest                 # download new releases of every source (skips stored ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
-.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 208 checks
+.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 211 checks
 .venv/Scripts/hri model train            # train and score the penalty models (about 20 minutes)
+.venv/Scripts/hri sl list                  # the approved metrics of the semantic layer
+.venv/Scripts/hri sl query share_penalized --by hospital__state --where fiscal_year=FY2026 --order=-share_penalized --limit 10
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 
@@ -197,7 +227,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 dbt reads the raw Parquet files in place through DuckDB
 ([why](docs/decisions.md#d-019--dbt-reads-the-raw-parquet-files-as-sources-all-releases-at-once--accepted-step-4)).
 
-The cleaned tables live in `data/hri.duckdb`, in the schemas `staging`, `intermediate`, `marts` and `ml`
+The cleaned tables live in `data/hri.duckdb`, in the schemas `staging`, `intermediate`, `marts`, `ml` and `semantic`
 ([conventions](docs/decisions.md#d-020--staging-conventions-strict-conversion-tables-one-naming-scheme--accepted-step-4)).
 Query them from Python or any DuckDB client:
 

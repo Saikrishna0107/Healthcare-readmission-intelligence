@@ -1,0 +1,175 @@
+# Approved metrics (D-025). Each description says exactly what is counted and over which
+# hospitals, because the same question can have several honest answers ("average penalty":
+# 0.34% over all hospitals in the FY 2026 payment file, 0.44% over penalized hospitals only).
+# The agent shows these descriptions with every answer.
+#
+# meta.agent: hidden marks building blocks the agent never offers.
+#
+# Metrics left out on purpose:
+#   observed readmission rate  CMS hides readmission and discharge counts below 11, so a rate
+#                              from the published counts silently drops small hospitals.
+#   discharge-weighted ERR     no weight is published for every scored result in every year.
+
+metrics:
+  # --- Penalty (one row per hospital and fiscal year) ---------------------------------------
+  - name: hospitals_in_payment_file
+    label: Hospitals in the payment file
+    description: Number of hospitals in the HRRP payment file of the fiscal year (no file for FY 2019).
+    type: simple
+    type_params:
+      measure: hospitals_in_payment_file
+
+  - name: penalized_hospitals
+    label: Penalized hospitals
+    description: Number of hospitals whose Medicare payments were reduced (reduction above 0%).
+    type: simple
+    type_params:
+      measure: penalized_hospitals
+
+  - name: share_penalized
+    label: Share of hospitals penalized
+    description: >
+      Penalized hospitals / hospitals in the payment file, as a fraction (0.78 = 78%).
+    type: ratio
+    type_params:
+      numerator: penalized_hospitals
+      denominator: hospitals_in_payment_file
+
+  - name: avg_payment_reduction_pct
+    label: Average payment reduction (all hospitals in the file)
+    description: >
+      Average HRRP payment reduction in percent of Medicare base payments, over ALL hospitals
+      in the payment file, counting unpenalized hospitals as 0%.
+    type: ratio
+    type_params:
+      numerator: payment_reduction_pct_total
+      denominator: hospitals_in_payment_file
+
+  - name: avg_payment_reduction_among_penalized_pct
+    label: Average payment reduction (penalized hospitals only)
+    description: >
+      Average HRRP payment reduction in percent, over penalized hospitals only (reduction above 0%).
+    type: ratio
+    type_params:
+      numerator: payment_reduction_pct_total
+      denominator: penalized_hospitals
+
+  - name: max_payment_reduction_pct
+    label: Largest payment reduction
+    description: Largest HRRP payment reduction in percent (the program caps it at 3%).
+    type: simple
+    type_params:
+      measure: payment_reduction_pct_max
+
+  - name: hospitals_at_max_penalty
+    label: Hospitals at the 3% cap
+    description: Number of hospitals whose reduction reached the 3% maximum.
+    type: simple
+    type_params:
+      measure: hospitals_at_max_penalty
+
+  - name: payment_reduction_pct_total
+    config:
+      meta:
+        agent: hidden   # building block for a ratio; not offered to the agent
+    label: Sum of payment reductions
+    description: Sum of payment reductions in percent; a building block, not meaningful on its own.
+    type: simple
+    type_params:
+      measure: payment_reduction_pct_total
+
+  # --- Readmission results (one row per hospital, condition and fiscal year) ----------------
+  - name: scored_results
+    label: Scored results
+    description: >
+      Number of hospital-condition results with a published Excess Readmission Ratio (CMS
+      publishes none below 25 cases).
+    type: simple
+    type_params:
+      measure: scored_results
+
+  - name: avg_excess_readmission_ratio
+    label: Average Excess Readmission Ratio
+    description: >
+      Simple (unweighted) average of published Excess Readmission Ratios over hospital-condition
+      results. Above 1.0 = more readmissions than expected for similar patients. Results without
+      a published ratio are left out, never counted as zero.
+    type: ratio
+    type_params:
+      numerator: excess_readmission_ratio_total
+      denominator: scored_results
+
+  - name: excess_readmission_ratio_total
+    config:
+      meta:
+        agent: hidden   # building block for a ratio; not offered to the agent
+    label: Sum of Excess Readmission Ratios
+    description: Building block for the average; not meaningful on its own.
+    type: simple
+    type_params:
+      measure: excess_readmission_ratio_total
+
+  - name: results_worse_than_expected
+    label: Results worse than expected
+    description: Number of hospital-condition results with an Excess Readmission Ratio above 1.0.
+    type: simple
+    type_params:
+      measure: results_worse_than_expected
+
+  - name: share_results_worse_than_expected
+    label: Share of results worse than expected
+    description: >
+      Results with an Excess Readmission Ratio above 1.0 / results with a published ratio, as a fraction.
+    type: ratio
+    type_params:
+      numerator: results_worse_than_expected
+      denominator: scored_results
+
+  - name: results_counting_toward_penalty
+    label: Results counting toward the penalty
+    description: >
+      Hospital-condition results CMS counted toward a penalty: ratio above the peer group median
+      and at least 25 eligible discharges.
+    type: simple
+    type_params:
+      measure: results_counting_toward_penalty
+
+  - name: eligible_discharges
+    label: Eligible discharges
+    description: >
+      Medicare discharges eligible for the readmission measures, from the payment file (none
+      for FY 2019; pneumonia left out in FY 2023).
+    type: simple
+    type_params:
+      measure: eligible_discharges
+
+  # --- Patient survey (HCAHPS), lined up with each year's readmission period ---------------
+  - name: avg_recommend_score
+    label: Average "would recommend" score
+    description: Average of hospitals' "would recommend the hospital" linear mean score (0-100); hospitals without survey data left out.
+    type: simple
+    type_params:
+      measure: recommend_score_average
+
+  - name: avg_overall_rating_score
+    label: Average overall rating score
+    description: Average of hospitals' overall hospital rating linear mean score (0-100); hospitals without survey data left out.
+    type: simple
+    type_params:
+      measure: overall_rating_score_average
+
+  - name: avg_care_transition_score
+    label: Average care transition score
+    description: >
+      Average of hospitals' care transition linear mean score (0-100): did patients understand
+      their care and needs when leaving the hospital. Hospitals without survey data left out.
+    type: simple
+    type_params:
+      measure: care_transition_score_average
+
+  - name: avg_discharge_information_score
+    label: Average discharge information score
+    description: Average of hospitals' discharge information linear mean score (0-100); hospitals without survey data left out.
+    type: simple
+    type_params:
+      measure: discharge_information_score_average

@@ -23,6 +23,10 @@ payment as (
 
 select
     coalesce(pub.fiscal_year, pay.fiscal_year)                  as fiscal_year,
+    -- FY 2026 starts 2025-10-01. A date column, because the semantic layer ties every measure
+    -- to a time column (D-025); same value as dim_fiscal_year.fiscal_year_start.
+    make_date(substr(coalesce(pub.fiscal_year, pay.fiscal_year), 3)::integer - 1, 10, 1)
+                                                                as fiscal_year_start,
     coalesce(pub.facility_id, pay.facility_id)                  as facility_id,
     coalesce(pub.condition, pay.condition)                      as condition,
 

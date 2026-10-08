@@ -45,6 +45,7 @@ profiles as (
 
 select
     y.fiscal_year,
+    f.fiscal_year_start,    -- date column for the semantic layer (D-025)
     y.facility_id,
 
     -- Readmission results (fct_readmissions)
