@@ -253,6 +253,21 @@ score measure the tuning, not the agent; the fixes and a new question set are fo
 Every model reply is saved in [reports/agent](reports/agent/), and a test replays them to check the
 published scores without the model.
 
+## Power BI dashboard (step 9, in progress)
+
+The dashboard reads a **Parquet copy of the star schema**: `hri export powerbi` writes
+`data/powerbi/`. Power BI's built-in Parquet connector reads it, so no database driver is
+needed ([why](docs/decisions.md#d-011--power-bi-dashboard-streamlit-for-the-agent--proposed-step-9)).
+
+Besides the five marts, the export holds:
+- `model_risk`: the FY2026 penalty-risk prediction for every hospital, with its rank and
+  whether it is in the flagged top quarter
+- `model_drivers`: why the model predicts that number, as each hospital's SHAP contribution
+  per feature family (survey, volume, county, ...); a test checks that they add up to the
+  prediction
+- `metric_checks`: every semantic-layer metric per year, as MetricFlow computes it, so the
+  report can show that its DAX measures give the same numbers
+
 ## Planned architecture
 
 ```
@@ -299,6 +314,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri sl list                  # the approved metrics of the semantic layer
 .venv/Scripts/hri sl query share_penalized --by hospital__state --where fiscal_year=FY2026 --order=-share_penalized --limit 10
 .venv/Scripts/hri ask "How many hospitals were penalized each year?"   # needs Ollama + granite4.1:3b
+.venv/Scripts/hri export powerbi         # Parquet files for the Power BI dashboard (data/powerbi)
 .venv/Scripts/hri eval                   # score the agent on 42 questions, 3 variants (about 30 minutes)
 .venv/Scripts/hri eval --replay          # rescore the saved replies, no model needed
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)

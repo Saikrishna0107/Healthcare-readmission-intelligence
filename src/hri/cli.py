@@ -67,6 +67,11 @@ def main(argv: list[str] | None = None) -> int:
     eval_cmd.add_argument("--replay", action="store_true",
                           help="rescore the recorded replies in reports/agent instead of calling the model")
 
+    export_cmd = commands.add_parser("export", help="export data for other tools")
+    export_cmd.add_argument("target", choices=["powerbi"], help="powerbi: Parquet files in data/powerbi")
+    export_cmd.add_argument("--no-model", action="store_true",
+                            help="skip the model tables (when `hri model train` has not been run)")
+
     args = parser.parse_args(argv)
     if args.command == "dbt":
         return run_dbt(args.dbt_args)
@@ -85,6 +90,8 @@ def main(argv: list[str] | None = None) -> int:
         return _ask(args)
     if args.command == "eval":
         return _eval(args)
+    if args.command == "export":
+        return _export(args)
     return _status()
 
 
@@ -187,6 +194,20 @@ def _eval(args: argparse.Namespace) -> int:
         save(run)  # a replay only checks the saved scores; it never overwrites them
     print()
     print(summary_text(summarize(run["results"])))
+    return 0
+
+
+def _export(args: argparse.Namespace) -> int:
+    from hri.export import EXPORT_DIR, export_powerbi
+
+    try:
+        manifest = export_powerbi(with_model=not args.no_model)
+    except FileNotFoundError as exc:
+        print(exc)
+        return 2
+    print(f"Wrote {EXPORT_DIR}")
+    for table, rows in manifest["rows"].items():
+        print(f"  {table:20s} {rows:>8,} rows")
     return 0
 
 

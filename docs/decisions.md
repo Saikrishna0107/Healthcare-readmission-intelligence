@@ -409,6 +409,30 @@ results in `reports/agent/`.
 **Why.** Power BI appears in more healthcare job descriptions than Tableau, especially at health
 plans. Power BI can't host a chat interface, so the agent gets a small Streamlit app.
 
+**Refined at step 9 (with the project owner).**
+- **Data: a Parquet export of the star schema** (`hri export powerbi` writes `data/powerbi/`).
+  - Power BI reads Parquet with a built-in connector.
+  - Alternatives:
+    - *DuckDB ODBC driver:* live data, but every viewer must install a system driver and set
+      up a data source name.
+    - *CSV:* loses the types (dates, booleans) and is larger.
+  - Cost: the export is a copy, so after a rebuild run the export, then refresh the report.
+  - Types are checked in a test. DuckDB writes a 128-bit integer sum as a DOUBLE in Parquet,
+    so the export casts it to a 64-bit integer to keep counts whole.
+- **Format: PBIP** (Power BI project), not a `.pbix` file.
+  - The model and the pages are saved as text (TMDL and JSON), so changes can be reviewed in
+    git like code.
+- **Measures are named like the MetricFlow metrics and defined the same way.**
+  - The export includes MetricFlow's value of every metric by year (`metric_checks`).
+  - A Checks page compares the two.
+- **The owner builds the report pages from a written guide.** The data, the semantic model and
+  the measures are generated. Building the visuals by hand is the Power BI practice the role
+  asks for, and hand-written report JSON can't be checked here without Power BI.
+- **The model's explanations ship with the data.** `model_drivers` holds each hospital's SHAP
+  contribution per feature family. A test checks that the contributions add up to the
+  prediction (SHAP's additivity).
+- **The Streamlit app for the agent is step 9d.**
+
 ---
 
 ## D-012 · Python command-line runner instead of a Makefile · Accepted (step 3)
