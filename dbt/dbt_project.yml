@@ -45,3 +45,8 @@ models:
     marts:
       +materialized: table
       +schema: marts
+    # ML: model-ready tables built from the marts (step 7). One row per training example, every
+    # column with a documented role (key, target, split, feature) and a leakage review (D-024).
+    ml:
+      +materialized: table
+      +schema: ml

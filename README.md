@@ -86,6 +86,31 @@ From the cleaned, tested data ([D-021](docs/decisions.md#d-021--data-tests-every
   3,144 counties. They stay NULL, flagged, never filled in
   ([D-007](docs/decisions.md#d-007--star-schema-for-the-marts--accepted-step-5)).
 
+From the modeling table, before any model is trained
+([read it with results](https://saikrishna0107.github.io/Healthcare-readmission-intelligence/notebooks/02_modeling_data.html)
+· [source](notebooks/02_modeling_data.py)):
+
+- **The model predicts each hospital's penalty**, one row per hospital and fiscal year (21,263
+  rows), and is judged on finding the top quarter of penalties in a year: 75-83% of hospitals are
+  penalized every year, so "penalized or not" is a weak question
+  ([D-002](docs/decisions.md#d-002--target-the-hospitals-hrrp-penalty-built-on-the-excess-readmission-ratio--accepted-revised-at-step-7)).
+- **Neighbouring years share patients.** Each penalty uses three years of patients and the
+  window slides by one year, so a hospital's ratio correlates at 0.86 with the next year's but
+  0.56 three years later. A random split would test the model partly on what it learned. The
+  model trains on FY 2020-2023 and is tested on FY 2026, whose period starts the day after
+  FY 2023's ends; a dbt test enforces it
+  ([D-024](docs/decisions.md#d-024--validation-by-time-without-shared-patients-and-a-leakage-review-for-every-feature--accepted-step-7)).
+- **Every column has a role and every feature a leakage review**, in the dbt YAML. A dbt
+  contract and a pytest make sure nothing enters the table unreviewed. The CMS star rating is
+  kept out: it includes readmissions, so it would leak the answer.
+- **Small hospitals are rarely penalized**, by construction: CMS shrinks their ratios toward
+  1.0, so about half are penalized (82-91% of the rest) and under 8% reach the top quarter.
+- **Poverty barely moves the penalty (rank correlation -0.03)**, because CMS compares each
+  hospital only with peers serving a similar share of low-income patients. Patient-experience
+  scores do (-0.14 to -0.20), and for-profit hospitals average the largest cuts (0.63% vs 0.50%).
+
+![Correlation by years apart](images/06_overlap_by_lag.png)
+
 ## Planned architecture
 
 ```
@@ -105,7 +130,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 4. Cleaning (dbt staging models), missing-value reasons and 80 data tests
 - [x] 5. Hospital-to-county join with a match-rate test, first star-schema tables
 - [x] 6. Archived data to align time periods (prevents data leakage)
-- [ ] 7. Baseline model, then a three-model comparison
+- [ ] 7. Baseline model, then a three-model comparison (7a done: modeling table and validation design)
 - [ ] 8. LLM question-answering agent with an evaluation set
 - [ ] 9. Power BI dashboard
 - [ ] 10. CI and scheduled data refresh
@@ -127,7 +152,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest                 # download new releases of every source (skips stored ones)
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
-.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 192 checks
+.venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 208 checks
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 
@@ -137,7 +162,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 dbt reads the raw Parquet files in place through DuckDB
 ([why](docs/decisions.md#d-019--dbt-reads-the-raw-parquet-files-as-sources-all-releases-at-once--accepted-step-4)).
 
-The cleaned tables live in `data/hri.duckdb`, in the schemas `staging`, `intermediate` and `marts`
+The cleaned tables live in `data/hri.duckdb`, in the schemas `staging`, `intermediate`, `marts` and `ml`
 ([conventions](docs/decisions.md#d-020--staging-conventions-strict-conversion-tables-one-naming-scheme--accepted-step-4)).
 Query them from Python or any DuckDB client:
 
@@ -147,6 +172,7 @@ con = duckdb.connect("data/hri.duckdb", read_only=True)
 con.sql("select score_status, count(*) from staging.stg_cms__hrrp group by 1").show()
 con.sql("select state, count(*), avg(diabetes_pct) from marts.dim_county group by 1").show()
 con.sql("select fiscal_year, avg(payment_reduction_pct) from marts.fct_hospital_year group by 1 order by 1").show()
+con.sql("select split, count(*), avg(is_top_quarter_penalty::int) from ml.ml_penalty_features group by 1").show()
 ```
 
 The first `hri ingest` also downloads every archived CMS snapshot since 2019 (about 500 MB,
@@ -162,8 +188,9 @@ Notebooks use [marimo](https://marimo.io) and are plain `.py` files:
 .venv/Scripts/python notebooks/01_data_exploration.py          # or run it as a script
 ```
 
-The notebook runs `hri ingest` for the sources it needs, so the first run downloads the data
-(about 110 MB) and later runs reuse it.
+Notebook 01 runs `hri ingest` for the sources it needs, so the first run downloads the data
+(about 110 MB) and later runs reuse it. Notebook 02 reads the warehouse, so run `hri ingest` and
+`hri dbt build` first.
 After changing a notebook, refresh its published page:
 
 ```bash

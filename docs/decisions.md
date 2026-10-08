@@ -28,12 +28,13 @@ A portfolio project needs data that is realistic but shareable.
 
 ---
 
-## D-002 · Target: HRRP Excess Readmission Ratio for acute care hospitals · Accepted
+## D-002 · Target: the hospital's HRRP penalty, built on the Excess Readmission Ratio · Accepted (revised at step 7)
 
 **Context.** We need one clear outcome to predict and explain.
 
-**Decision.** The target is the **Excess Readmission Ratio (ERR)** from HRRP, at the grain of
-hospital × condition. ERR = predicted ÷ expected readmission rate; above 1.0 means worse than
+**Decision (step 1).** The target is the **Excess Readmission Ratio (ERR)** from HRRP, at the
+grain of hospital × condition. Revised at step 7: the model predicts the penalty that CMS
+computes from the ERRs, per hospital and fiscal year (see the end of this entry). ERR = predicted ÷ expected readmission rate; above 1.0 means worse than
 expected.
 
 **Why.**
@@ -44,9 +45,24 @@ expected.
 - HRRP only applies to acute care hospitals (critical access hospitals are exempt), so the
   scope is naturally limited to about 3,000 hospitals.
 
-**Still open (decided at step 7).** Whether to predict ERR as a number (regression) or
-"ERR above 1.0" as yes/no (classification). The number carries more information; the yes/no
-is closer to the penalty decision.
+**Resolved at step 7: the model predicts the hospital's penalty.** The question left open here
+was whether to predict ERR as a number or "ERR above 1.0" as yes/no. Exploring the time-aligned
+data (notebook 02) changed the question:
+- *ERR above 1.0 (or above the peer median) is a poor yes/no target:* it is true for about half
+  of hospitals by construction, whatever their quality.
+- *ERR per condition is noisy and barely predictable from hospital-level drivers:* a linear
+  model explained 2-4% of its variance. The drivers (survey, ownership, county, patient mix) are
+  measured per hospital, not per condition.
+- *The penalty is where the money is and what a manager asks about.* It combines all
+  conditions, weighted by patients and payments, into one number per hospital and year.
+
+So the step 7 model works at the grain **hospital × fiscal year** and predicts
+`payment_reduction_pct` (0-3%). It is judged on ranking: AUC for "top quarter of penalties in
+that year" and rank correlation, both within one year (D-024). "Penalized or not" is reported
+too, but 75-83% of hospitals are penalized every year, so it is a weak question.
+ERR stays the target of the descriptive work (marts, dashboard) and of the prior-results
+feature. Alternatives: predicting ERR per condition (rejected for the noise above); predicting
+"penalized" yes/no (rejected: a model saying "yes" to everyone is right 4 times in 5).
 
 ---
 
@@ -691,3 +707,71 @@ whole** (`latest_snapshot_per_period` macro), and records when the period was fi
 distinct facts, and every later join would need to deduplicate); keep the first snapshot
 (what was known earliest, but misses CMS's survey corrections). Keeping the latest is simple
 and, for readmissions, provably the same data.
+
+---
+
+## D-024 · Validation by time without shared patients, and a leakage review for every feature · Accepted (step 7)
+
+**Context.** The model (D-002) predicts each hospital's penalty from drivers measured over the
+same period. Two things can make such a model look better than it is: **leakage** (a feature
+that contains the answer) and a **test set that shares data with training**. HRRP has an unusual
+version of the second: each fiscal year's penalty uses three years of patients, and the windows
+slide by one year, so consecutive fiscal years share two thirds of their patients. A hospital's
+ratio correlates at about 0.85 with the next year's and about 0.55 three years later (notebook 02).
+
+**Decision: the split.** One column, `split`, in `ml.ml_penalty_features`:
+- `test` = the latest fiscal year (now FY 2026, period July 2021 - June 2024). Scored once.
+- `train` = years whose period ends before the test period starts (FY 2020 - FY 2023).
+- `overlap_unused` = years that share patients with the test year (FY 2024, FY 2025). Used only to
+  show the naive result next to the honest one.
+
+The split is computed in dbt from the periods, not typed in, so next year's file moves it
+forward by itself; the test `assert_ml_split_has_no_shared_patients` fails if a training period
+ever overlaps the test period. Inside the training years, hyperparameters are tuned with
+**cross-validation grouped by hospital**, so one hospital's years are never on both sides of a fold.
+
+**Decision: the leakage review.** Every column of the table has a role in `_ml.yml`
+(key, split, target, target_view, feature, variant_feature), and every feature a written note
+answering: *is it computed from the readmission outcomes of the target period?* A dbt
+**contract** makes the build fail if the table's columns differ from the YAML, and a pytest
+checks that every column has a role and every feature a review. The training code (7b) reads the
+feature list from the YAML, so a column cannot become an input without passing this review.
+- *In:* patient volume and conditions with 25+ cases (counts, flagged as mechanical: CMS
+  shrinks small hospitals' ratios toward 1.0), dual proportion and peer group, the survey scores
+  of the aligned window (D-008), ownership and emergency services, county health measures.
+- *Out, named in the YAML:* the adjustment factor and formula steps (the target in other forms),
+  the condition ratios, readmission counts and rates (the outcome itself), the **overall star
+  rating** (it includes a readmission measure group, so it would leak the outcome), star bands of
+  survey scores (copies), and hospital type (constant).
+- *Variant only:* the hospital's results from **three fiscal years earlier**, whose period ends
+  the day before the target period starts (tested by `assert_ml_prior_period_ends_before_target`).
+  They are outcomes, so they are kept out of the main model: it should explain *why* a hospital
+  is penalized, and "it was penalized before" is not a reason. A second model adds them, to
+  measure how much the drivers miss. They exist from FY 2022 (ratios) and FY 2023 (penalty), so
+  that variant trains on fewer years.
+
+**Metrics.** The level of penalties roughly halved from FY 2023, mostly for reasons no driver
+explains (the pandemic period, pneumonia left out). Training years are mostly before that change
+and the test year after, so the main metrics are **ranking within one year**: AUC for the top
+quarter of penalties (defined per year) and Spearman rank correlation. Error in percentage
+points is reported, but not used to choose models. Expectation written before training: AUC
+about 0.65-0.75; above about 0.85 without the variant features would be investigated as leakage.
+
+**Known limits.**
+- County measures come from one PLACES release (2022-2023 survey data) used for every year: for
+  FY 2020-2022 they are measured after the period. They are not outcomes of any hospital, so
+  this is a timing mismatch, not leakage of the answer.
+- Hospital profile attributes come from the first snapshot after each period (D-008); ownership
+  rarely changes.
+- One test year (about 2,950 hospitals) gives one estimate; 7b reports a bootstrap interval for it.
+
+**Alternatives considered.**
+- *Random split of hospital-years:* the same hospital in neighbouring years would sit on both
+  sides, with shared patients. Rejected; reported only as the naive comparison.
+- *Split by hospital (some hospitals for test, all years):* removes the hospital overlap but tests
+  on the same years as training, so it cannot show whether the model survives a change over time,
+  like the FY 2023 drop. Used inside training as grouped cross-validation, not as the final test.
+- *Rolling-origin evaluation (several test years, each trained only on years before it without
+  shared patients):* gives more than one estimate, but FY 2024 could train on FY 2020-2021 only
+  and FY 2025 on FY 2020-2022. Kept as a possible stability check in 7b, not as the main result,
+  which uses the most training data and the most recent year.

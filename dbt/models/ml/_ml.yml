@@ -1,0 +1,240 @@
+version: 2
+
+# ML: model-ready tables (step 7). The training code reads the column roles from here (meta.role),
+# so a column only becomes a model input by being declared a feature, with a leakage review.
+#
+# Leakage = information the model could not have had for the period it is scored on. The test
+# for every feature: is it computed from the readmission outcomes of the target period? If yes,
+# it is out. See D-024 for the full review.
+#
+# The contract makes dbt refuse to build the table if its columns differ from the list below, and
+# tests/test_dbt_project.py checks that every listed column has a role. Together: no column can
+# slip into the table without a role and a review.
+
+models:
+  - name: ml_penalty_features
+    description: >
+      One row per hospital and fiscal year in a CMS penalty file (FY 2020 - FY 2026): the HRRP
+      payment reduction to predict, the yes/no views of it, a train/test split that never lets
+      training and test periods share patients, and the drivers known for the same period.
+    config:
+      contract:
+        enforced: true
+      meta:
+        # Kept out on purpose; named here so the choice is visible (D-024).
+        excluded_columns:
+          payment_adjustment_factor: The target in another form (reduction = (1 - factor) x 100).
+          unadjusted_penalty, neutrality_modifier: Steps of the penalty formula itself.
+          conditions_counting_toward_penalty: Counts conditions whose ERR is above the peer median, an outcome.
+          excess ratios, readmissions, predicted and expected rates: The outcomes the penalty is computed from.
+          overall_star_rating: The CMS star rating includes a readmission measure group, so it leaks the outcome.
+          summary_stars and per-topic stars: Banded copies of survey scores that are already included.
+          hospital_type: Acute Care Hospitals on every row; carries no information.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination: [facility_id, fiscal_year]
+      - expression_is_true:
+          name: ml_penalized_matches_reduction
+          arguments:
+            expression: "is_penalized = (payment_reduction_pct > 0)"
+    columns:
+      # Keys
+      - name: facility_id
+        data_type: varchar
+        description: CMS Certification Number (CCN).
+        config:
+          meta: {role: key}
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_hospital')
+                field: facility_id
+      - name: fiscal_year
+        data_type: varchar
+        description: Federal fiscal year of the penalty, e.g. FY2026.
+        config:
+          meta: {role: key}
+        data_tests: [not_null]
+
+      # Split
+      - name: split
+        data_type: varchar
+        description: >
+          'test' = the latest fiscal year. 'train' = years whose readmission period ends before
+          the test period starts. 'overlap_unused' = years that share patients with the test
+          period; kept only for the naive comparison (D-024).
+        config:
+          meta: {role: split}
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [train, test, overlap_unused]
+
+      # Targets
+      - name: payment_reduction_pct
+        data_type: double
+        description: HRRP reduction of the hospital's Medicare payments, % (0 to 3). The main target.
+        config:
+          meta: {role: target}
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 3
+      - name: is_penalized
+        data_type: boolean
+        description: Reduction above 0. True for 75-83% of hospitals every year, so a check more than a goal.
+        config:
+          meta: {role: target_view}
+        data_tests: [not_null]
+      - name: is_top_quarter_penalty
+        data_type: boolean
+        description: Reduction in the top quarter of its fiscal year. The ranking the model is judged on.
+        config:
+          meta: {role: target_view}
+        data_tests: [not_null]
+
+      # Features: volume and patient mix
+      - name: eligible_discharges
+        data_type: integer
+        description: Medicare patients counted across the conditions in the penalty file.
+        config:
+          meta:
+            role: feature
+            group: volume
+            leakage: >
+              A count of patients, not of readmissions. CMS shrinks small hospitals' ratios
+              toward 1, so volume matters mechanically.
+      - name: conditions_with_25_cases
+        data_type: integer
+        description: >
+          Conditions with 25+ eligible discharges, i.e. those that can count toward a penalty
+          (at most 6; 5 in FY 2023, when CMS left out pneumonia).
+        config:
+          meta:
+            role: feature
+            group: volume
+            leakage: >
+              Counts conditions by patient volume only. Mechanical, not an outcome: more
+              conditions means more chances to land above a median.
+      - name: dual_proportion
+        data_type: double
+        description: Share of the hospital's Medicare patients also on Medicaid (a poverty proxy).
+        config:
+          meta:
+            role: feature
+            group: patient_mix
+            leakage: Measured from enrollment, not readmissions. CMS uses it to set the peer group.
+      - name: peer_group
+        data_type: integer
+        description: CMS peer group (1-5), quintiles of dual_proportion. ERRs are compared to the group median.
+        config:
+          meta:
+            role: feature
+            group: patient_mix
+            leakage: Derived from dual_proportion only.
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+
+      # Features: patient survey (HCAHPS), window aligned to the readmission period in dim_fiscal_year
+      - name: has_survey_scores
+        data_type: boolean
+        config:
+          meta: &survey_meta
+            role: feature
+            group: survey
+            leakage: >
+              The survey window ends on or before the readmission period ends (tested in marts).
+              Patient answers about their stay, not readmissions.
+      - {name: nurse_communication_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: doctor_communication_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: staff_responsiveness_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: medicine_communication_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: discharge_information_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: care_transition_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: cleanliness_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: quietness_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: overall_rating_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: recommend_score, data_type: integer, config: {meta: *survey_meta}}
+      - {name: completed_surveys, data_type: integer, config: {meta: *survey_meta}}
+      - {name: response_rate_pct, data_type: integer, config: {meta: *survey_meta}}
+
+      # Features: hospital profile
+      - name: ownership
+        data_type: varchar
+        description: CMS ownership category, e.g. Proprietary (for-profit), Voluntary non-profit - Private.
+        config:
+          meta:
+            role: feature
+            group: profile
+            leakage: >
+              From the first profile snapshot after the period ends. Ownership rarely changes
+              and is not an outcome.
+      - name: has_emergency_services
+        data_type: boolean
+        config:
+          meta:
+            role: feature
+            group: profile
+            leakage: Same snapshot as ownership; a facility attribute.
+
+      # Features: county health (CDC PLACES)
+      - name: county_population
+        data_type: integer
+        config:
+          meta: &county_meta
+            role: feature
+            group: county
+            leakage: >
+              One current PLACES release (2022-2023 survey data) for every year, so later than
+              the older training periods. Not an outcome of any hospital; a known limit
+              (D-008, D-024).
+      - {name: county_diabetes_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_obesity_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_copd_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_heart_disease_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_high_blood_pressure_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_stroke_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_depression_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_smoking_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_physical_inactivity_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_fair_poor_health_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_disability_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_uninsured_18_64_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_routine_checkup_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_lack_transportation_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_food_insecurity_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_housing_insecurity_pct, data_type: double, config: {meta: *county_meta}}
+      - {name: county_loneliness_pct, data_type: double, config: {meta: *county_meta}}
+
+      # Variant features: the period three fiscal years earlier, which ends before this one starts
+      - name: prior_weighted_err
+        data_type: double
+        description: >
+          Discharge-weighted excess readmission ratio from the public file three fiscal years
+          earlier. NULL for FY 2020 and FY 2021: the archive has no public file for FY 2017-2018.
+        config:
+          meta: &prior_meta
+            role: variant_feature
+            group: prior_results
+            leakage: >
+              Readmission outcomes, but of a period that ends before the target period starts
+              (tested: assert_ml_prior_period_ends_before_target). Used only by the "with prior
+              results" model, so the drivers-only model contains no outcome at all.
+      - name: prior_conditions_scored
+        data_type: integer
+        config:
+          meta: *prior_meta
+      - name: prior_payment_reduction_pct
+        data_type: double
+        description: The hospital's reduction three fiscal years earlier (available from FY 2023).
+        config:
+          meta: *prior_meta
