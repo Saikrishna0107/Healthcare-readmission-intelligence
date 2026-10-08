@@ -1,0 +1,278 @@
+{
+  "table": {
+    "rows": 21263,
+    "train_rows": 12301,
+    "train_years": [
+      "FY2020",
+      "FY2021",
+      "FY2022",
+      "FY2023"
+    ],
+    "test_rows": 2945,
+    "test_year": "FY2026"
+  },
+  "selection_metric": "auc_top_quarter, grouped cross-validation on the training years",
+  "models": {
+    "training_mean": {
+      "description": "Every hospital gets the training-years average.",
+      "train_rows": 12301,
+      "train_years": [
+        "FY2020",
+        "FY2021",
+        "FY2022",
+        "FY2023"
+      ],
+      "test": {
+        "auc_top_quarter": 0.5,
+        "auc_penalized": 0.5,
+        "spearman": null,
+        "mae_pct": 0.3848,
+        "mean_actual_pct": 0.344,
+        "mean_predicted_pct": 0.5008,
+        "hospitals": 2945
+      }
+    },
+    "penalty_3_years_earlier": {
+      "description": "The hospital's own penalty from the fiscal year whose period ends before this one starts (no shared patients); training median where missing.",
+      "train_rows": 12301,
+      "train_years": [
+        "FY2020",
+        "FY2021",
+        "FY2022",
+        "FY2023"
+      ],
+      "test": {
+        "auc_top_quarter": 0.6967,
+        "auc_penalized": 0.7074,
+        "spearman": 0.4041,
+        "mae_pct": 0.3163,
+        "mean_actual_pct": 0.344,
+        "mean_predicted_pct": 0.3244,
+        "hospitals": 2945,
+        "interval_95": {
+          "auc_top_quarter": [
+            0.6747,
+            0.7191
+          ],
+          "spearman": [
+            0.3723,
+            0.4365
+          ]
+        }
+      }
+    },
+    "penalty_1_year_earlier": {
+      "description": "Reference only: last year's penalty. Its period shares 2 of 3 years of patients with the test year, so it shows how good a score looks with overlap.",
+      "train_rows": 12301,
+      "train_years": [
+        "FY2020",
+        "FY2021",
+        "FY2022",
+        "FY2023"
+      ],
+      "test": {
+        "auc_top_quarter": 0.8984,
+        "auc_penalized": 0.8564,
+        "spearman": 0.7655,
+        "mae_pct": 0.1712,
+        "mean_actual_pct": 0.344,
+        "mean_predicted_pct": 0.3249,
+        "hospitals": 2945,
+        "interval_95": {
+          "auc_top_quarter": [
+            0.8859,
+            0.9116
+          ],
+          "spearman": [
+            0.7464,
+            0.7831
+          ]
+        }
+      }
+    },
+    "linear_drivers": {
+      "description": "Ridge regression on the driver features, all training years.",
+      "train_rows": 12301,
+      "train_years": [
+        "FY2020",
+        "FY2021",
+        "FY2022",
+        "FY2023"
+      ],
+      "features": 37,
+      "alpha": 100.0,
+      "cv": {
+        "auc_top_quarter": 0.6831,
+        "auc_penalized": 0.7703,
+        "spearman": 0.4266,
+        "mae_pct": 0.4174
+      },
+      "test": {
+        "auc_top_quarter": 0.7145,
+        "auc_penalized": 0.7722,
+        "spearman": 0.4628,
+        "mae_pct": 0.3318,
+        "mean_actual_pct": 0.344,
+        "mean_predicted_pct": 0.4607,
+        "hospitals": 2945,
+        "interval_95": {
+          "auc_top_quarter": [
+            0.6935,
+            0.7354
+          ],
+          "spearman": [
+            0.4342,
+            0.492
+          ]
+        }
+      }
+    },
+    "linear_drivers_same_rows": {
+      "description": "Ridge on the drivers, trained only on the years the prior-results variant can use.",
+      "train_rows": 6091,
+      "train_years": [
+        "FY2022",
+        "FY2023"
+      ],
+      "features": 37,
+      "alpha": 1000.0,
+      "cv": {
+        "auc_top_quarter": 0.6827,
+        "auc_penalized": 0.7824,
+        "spearman": 0.4326,
+        "mae_pct": 0.3655
+      },
+      "test": {
+        "auc_top_quarter": 0.7164,
+        "auc_penalized": 0.7943,
+        "spearman": 0.4783,
+        "mae_pct": 0.3142,
+        "mean_actual_pct": 0.344,
+        "mean_predicted_pct": 0.4244,
+        "hospitals": 2945,
+        "interval_95": {
+          "auc_top_quarter": [
+            0.6953,
+            0.7375
+          ],
+          "spearman": [
+            0.4501,
+            0.5064
+          ]
+        }
+      }
+    },
+    "linear_with_prior": {
+      "description": "Ridge on the drivers plus the hospital's results from three fiscal years earlier.",
+      "train_rows": 6091,
+      "train_years": [
+        "FY2022",
+        "FY2023"
+      ],
+      "features": 40,
+      "alpha": 1000.0,
+      "cv": {
+        "auc_top_quarter": 0.7485,
+        "auc_penalized": 0.8041,
+        "spearman": 0.5251,
+        "mae_pct": 0.3421
+      },
+      "test": {
+        "auc_top_quarter": 0.7609,
+        "auc_penalized": 0.7993,
+        "spearman": 0.5351,
+        "mae_pct": 0.2747,
+        "mean_actual_pct": 0.344,
+        "mean_predicted_pct": 0.3544,
+        "hospitals": 2945,
+        "interval_95": {
+          "auc_top_quarter": [
+            0.7417,
+            0.7807
+          ],
+          "spearman": [
+            0.5076,
+            0.5623
+          ]
+        }
+      }
+    }
+  },
+  "paired_comparisons": {
+    "linear_drivers vs penalty_3_years_earlier": {
+      "auc_top_quarter": {
+        "difference": 0.0178,
+        "interval_95": [
+          -0.007,
+          0.0429
+        ],
+        "share_of_resamples_better": 0.918
+      },
+      "spearman": {
+        "difference": 0.0587,
+        "interval_95": [
+          0.0204,
+          0.0944
+        ],
+        "share_of_resamples_better": 0.998
+      }
+    },
+    "linear_drivers vs training_mean": {
+      "auc_top_quarter": {
+        "difference": 0.2145,
+        "interval_95": [
+          0.1935,
+          0.2354
+        ],
+        "share_of_resamples_better": 1.0
+      }
+    },
+    "linear_with_prior vs linear_drivers_same_rows": {
+      "auc_top_quarter": {
+        "difference": 0.0445,
+        "interval_95": [
+          0.0276,
+          0.0594
+        ],
+        "share_of_resamples_better": 1.0
+      },
+      "spearman": {
+        "difference": 0.0568,
+        "interval_95": [
+          0.0342,
+          0.0771
+        ],
+        "share_of_resamples_better": 1.0
+      }
+    }
+  },
+  "naive_split_comparison": {
+    "random_rows": {
+      "description": "Random 80/20 split of all hospital-years: the same hospital and overlapping periods on both sides.",
+      "auc_top_quarter": 0.7007,
+      "auc_penalized": 0.7756,
+      "spearman": 0.4359,
+      "mae_pct": 0.355
+    },
+    "overlapping_years_in_training": {
+      "description": "Train on FY 2020 - FY 2025, test on the test year: FY 2024-2025 share patients with it.",
+      "auc_top_quarter": 0.7178,
+      "auc_penalized": 0.7663,
+      "spearman": 0.4607,
+      "mae_pct": 0.3034,
+      "mean_actual_pct": 0.344,
+      "mean_predicted_pct": 0.4009,
+      "hospitals": 2945
+    },
+    "honest": {
+      "description": "Train on the training years only (the linear_drivers result).",
+      "auc_top_quarter": 0.7145,
+      "auc_penalized": 0.7722,
+      "spearman": 0.4628,
+      "mae_pct": 0.3318,
+      "mean_actual_pct": 0.344,
+      "mean_predicted_pct": 0.4607,
+      "hospitals": 2945
+    }
+  }
+}

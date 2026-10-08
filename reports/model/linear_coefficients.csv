@@ -1,0 +1,76 @@
+feature,coefficient
+county_housing_insecurity_pct,0.1546
+county_food_insecurity_pct,-0.1498
+ownership_Proprietary,0.117
+conditions_with_25_cases,0.1152
+county_copd_pct,0.1099
+ownership_Government - Federal,0.108
+ownership_Government - State,-0.1069
+county_diabetes_pct,-0.0974
+overall_rating_score,-0.069
+county_routine_checkup_pct,0.0676
+county_fair_poor_health_pct,0.0604
+ownership_Physician,0.0581
+doctor_communication_score,-0.0572
+county_depression_pct,-0.0542
+eligible_discharges,0.0527
+county_physical_inactivity_pct,0.0521
+care_transition_score,0.051
+ownership_Government - Local,-0.0466
+completed_surveys,-0.0441
+dual_proportion,-0.0438
+peer_group,-0.0434
+staff_responsiveness_score,0.0428
+county_stroke_pct,-0.0423
+ownership_Voluntary non-profit - Church,-0.0411
+response_rate_pct,-0.0411
+medicine_communication_score,0.0385
+county_loneliness_pct,0.0367
+county_smoking_pct,-0.0357
+county_high_blood_pressure_pct,0.0299
+cleanliness_score,0.0274
+discharge_information_score,-0.0261
+ownership_Government - Hospital District or Authority,-0.0259
+ownership_Voluntary non-profit - Private,-0.0252
+county_lack_transportation_pct,-0.0224
+ownership_Voluntary non-profit - Other,-0.0202
+county_obesity_pct,-0.02
+recommend_score,-0.0197
+ownership_Tribal,-0.017
+has_emergency_services,-0.0121
+county_disability_pct,-0.0055
+county_uninsured_18_64_pct,-0.0053
+nurse_communication_score,0.0052
+county_population,0.0042
+missingindicator_county_food_insecurity_pct,0.0041
+missingindicator_county_housing_insecurity_pct,0.0041
+missingindicator_county_lack_transportation_pct,0.0041
+missingindicator_county_loneliness_pct,0.0041
+missingindicator_doctor_communication_score,-0.0035
+missingindicator_nurse_communication_score,-0.0035
+missingindicator_medicine_communication_score,-0.0035
+missingindicator_care_transition_score,-0.0035
+missingindicator_cleanliness_score,-0.0035
+missingindicator_quietness_score,-0.0035
+missingindicator_discharge_information_score,-0.0035
+missingindicator_recommend_score,-0.0035
+missingindicator_overall_rating_score,-0.0035
+missingindicator_staff_responsiveness_score,-0.0035
+has_survey_scores,0.0033
+missingindicator_county_physical_inactivity_pct,0.0015
+missingindicator_county_diabetes_pct,0.0015
+missingindicator_county_obesity_pct,0.0015
+missingindicator_county_high_blood_pressure_pct,0.0015
+missingindicator_county_heart_disease_pct,0.0015
+missingindicator_county_copd_pct,0.0015
+missingindicator_county_fair_poor_health_pct,0.0015
+missingindicator_county_uninsured_18_64_pct,0.0015
+missingindicator_county_disability_pct,0.0015
+missingindicator_county_routine_checkup_pct,0.0015
+missingindicator_county_stroke_pct,0.0015
+missingindicator_county_smoking_pct,0.0015
+missingindicator_county_depression_pct,0.0015
+missingindicator_response_rate_pct,0.0012
+missingindicator_completed_surveys,0.0012
+county_heart_disease_pct,-0.0009
+quietness_score,-0.0003

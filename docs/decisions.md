@@ -230,6 +230,44 @@ judgment; using one popular algorithm only shows familiarity with a tool.
 **Alternative considered.** Neural networks: overkill for about 3,000 hospitals, prone to
 overfitting and hard to explain.
 
+**Progress (step 7b): baselines and the linear model.** Code in `src/hri/model/`, run with
+`hri model train`; results in `reports/model/metrics.json`. The evaluation follows D-024: train
+FY 2020-2023, tune with 5-fold cross-validation grouped by hospital, score FY 2026 once, 95%
+bootstrap intervals over hospitals. The linear model is **ridge regression** (least squares
+that shrinks coefficients), not plain least squares: the ten survey scores are strongly
+correlated with each other, and unshrunk they get large weights of opposite sign. Missing values
+are filled with the training median plus a "was missing" flag; ownership is one-hot encoded.
+
+| Model (FY 2026 test) | AUC top quarter | Spearman |
+|---|---|---|
+| Training average for everyone | 0.500 | - |
+| Own penalty 3 years earlier (no shared patients) | 0.697 [0.67-0.72] | 0.404 |
+| Ridge on the drivers | **0.715** [0.69-0.74] | **0.463** |
+| Ridge on the drivers + results 3 years earlier | **0.761** [0.74-0.78] | 0.535 |
+| *Reference: own penalty 1 year earlier (shares 2/3 of patients)* | *0.898* | *0.766* |
+
+What it says:
+- **The drivers carry real signal**, well above guessing, and in the range expected before
+  training (D-024).
+- **Against the hospital's own history from 3 years earlier, the drivers win on ranking all
+  hospitals** (Spearman +0.059, paired interval +0.020 to +0.094) **but not clearly on finding the
+  top quarter** (AUC +0.018, interval -0.007 to +0.043). Together they do best: adding the
+  prior results to the drivers, on the same training years, adds +0.045 AUC (+0.028 to +0.059).
+  So the drivers and the history each know something the other doesn't.
+- **"Last year's penalty" scores 0.898 only because of the overlap.** It is a legitimate
+  forecast when used before the next file is published, but it answers "who was penalized
+  before", not "why"; it is the number a naive evaluation would celebrate.
+- **The split trap barely moves this linear model** (random split 0.701, overlapping years in
+  training 0.718, honest 0.715). A linear model on drivers cannot memorize hospitals. The trap
+  shows in outcome-based scores (0.898 vs 0.697) and is expected to matter more for the boosted
+  trees of 7c, which can memorize; the honest split stays the rule.
+- **Level error is mostly the year shift:** the model predicts an average 0.46% for FY 2026
+  where the actual average is 0.34%, because three of the four training years come before the
+  FY 2023 drop. Ranking is unaffected.
+- **Linear coefficients are not the explanation.** Correlated county measures get large
+  opposite-signed weights (housing insecurity +0.15, food insecurity -0.15), which ridge only
+  partly tames. Explanations come from SHAP and EBM in 7c, grouped by feature family.
+
 ---
 
 ## D-010 · LLM agent through a semantic layer, with an evaluation set · Proposed (step 8)

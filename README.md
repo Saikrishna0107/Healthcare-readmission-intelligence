@@ -111,6 +111,27 @@ From the modeling table, before any model is trained
 
 ![Correlation by years apart](images/06_overlap_by_lag.png)
 
+## Model results so far (step 7b: baselines and a linear model)
+
+Trained on FY 2020-2023, scored once on FY 2026 (2,945 hospitals), which shares no patients
+with the training years. AUC = how well the model finds the hospitals in the top quarter of
+penalties (0.5 = guessing); brackets are 95% bootstrap intervals
+([details](docs/decisions.md#d-009--compare-three-models-validate-on-a-later-year--proposed-step-7),
+[all numbers](reports/model/metrics.json)).
+
+| Model | AUC top quarter | Rank correlation |
+|---|---|---|
+| Everyone gets the training average | 0.500 | - |
+| The hospital's own penalty 3 years earlier | 0.697 [0.67-0.72] | 0.40 |
+| Ridge regression on drivers (survey, volume, ownership, county, patient mix) | 0.715 [0.69-0.74] | 0.46 |
+| Drivers + the hospital's results 3 years earlier | **0.761** [0.74-0.78] | **0.54** |
+
+- Drivers alone rank all hospitals better than their own history (rank correlation +0.06, paired
+  interval excludes zero), but are not clearly better at picking the top quarter (AUC +0.02,
+  interval includes zero). Together they do best: the history adds +0.045 AUC to the drivers.
+- "Last year's penalty" would score 0.90, but its period shares two thirds of the patients with
+  the year it scores. That is what a careless evaluation reports.
+
 ## Planned architecture
 
 ```
@@ -130,7 +151,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 4. Cleaning (dbt staging models), missing-value reasons and 80 data tests
 - [x] 5. Hospital-to-county join with a match-rate test, first star-schema tables
 - [x] 6. Archived data to align time periods (prevents data leakage)
-- [ ] 7. Baseline model, then a three-model comparison (7a done: modeling table and validation design)
+- [ ] 7. Baseline model, then a three-model comparison (7a modeling table and validation design, 7b baselines and linear model done)
 - [ ] 8. LLM question-answering agent with an evaluation set
 - [ ] 9. Power BI dashboard
 - [ ] 10. CI and scheduled data refresh
@@ -153,6 +174,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
 .venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 208 checks
+.venv/Scripts/hri model train            # train and score the penalty models (about 2 minutes)
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 

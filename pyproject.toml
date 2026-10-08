@@ -20,6 +20,8 @@ dependencies = [
     # Charts and notebooks (marimo: reactive notebooks stored as .py files)
     "matplotlib>=3.8",
     "marimo>=0.25",
+    # Modeling (step 7): baselines, preprocessing, cross-validation and metrics
+    "scikit-learn>=1.5",
 ]
 
 [project.optional-dependencies]
