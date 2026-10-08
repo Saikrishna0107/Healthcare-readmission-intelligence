@@ -1,0 +1,407 @@
+# Evaluation set for the question-answering agent (step 8c, D-010).
+#
+# Written separately from the eight development questions used to tune the prompt and the code
+# rules (docs/decisions.md, D-010), so the score is not inflated by that tuning.
+#
+# Each answerable question has a gold answer from SQL written by hand directly on the marts,
+# without MetricFlow, so a wrong metric definition or join would show up as a disagreement.
+#   metric: the metric(s) that answer the question (any one of them counts)
+#   keys:   the breakdown the answer must have (dimension names); [] for a single number
+#   sql:    returns the key columns and `value`. {hy} and {rr} expand to the hospital-year and
+#           readmission-result facts joined to their hospital (left joins, like MetricFlow).
+#   plan:   a correct query plan (filters as [dimension, op, value]). Run with a scripted model,
+#           the reference plans must score 100%: this checks the gold SQL and the scorer.
+#   A question with no year means the latest, FY2026.
+# Declines have `expect: decline` and the reason a careful analyst would give.
+
+- id: s01
+  category: single number
+  question: How many hospitals were in the HRRP payment file in FY2024?
+  metric: hospitals_in_payment_file
+  keys: []
+  plan: {metrics: [hospitals_in_payment_file], filters: [[fiscal_year, '=', FY2024]]}
+  sql: select count(*) filter (where in_payment_file) as value from {hy} where fiscal_year = 'FY2024'
+
+- id: s02
+  category: single number
+  question: What percentage of hospitals got a readmission penalty in FY2021?
+  metric: share_penalized
+  keys: []
+  plan: {metrics: [share_penalized], filters: [[fiscal_year, '=', FY2021]]}
+  sql: |
+    select count(*) filter (where is_penalized) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2021'
+
+- id: s03
+  category: single number
+  question: What is the largest payment reduction any hospital received this year?
+  metric: max_payment_reduction_pct
+  keys: []
+  plan: {metrics: [max_payment_reduction_pct]}
+  sql: select max(payment_reduction_pct) as value from {hy} where fiscal_year = 'FY2026'
+
+- id: s04
+  category: single number
+  question: How many hospitals hit the maximum 3% penalty in FY2026?
+  metric: hospitals_at_max_penalty
+  keys: []
+  plan: {metrics: [hospitals_at_max_penalty], filters: [[fiscal_year, '=', FY2026]]}
+  sql: select count(*) filter (where payment_reduction_pct >= 3) as value from {hy} where fiscal_year = 'FY2026'
+
+- id: s05
+  category: single number
+  question: What was the average penalty among hospitals that were actually penalized in FY2025?
+  metric: avg_payment_reduction_among_penalized_pct
+  keys: []
+  plan: {metrics: [avg_payment_reduction_among_penalized_pct], filters: [[fiscal_year, '=', FY2025]]}
+  sql: |
+    select sum(payment_reduction_pct) / count(*) filter (where is_penalized) as value
+    from {hy} where fiscal_year = 'FY2025'
+
+- id: s06
+  category: single number
+  question: What was the average excess readmission ratio across all results in FY2022?
+  metric: avg_excess_readmission_ratio
+  keys: []
+  plan: {metrics: [avg_excess_readmission_ratio], filters: [[fiscal_year, '=', FY2022]]}
+  sql: select avg(excess_readmission_ratio) as value from {rr} where fiscal_year = 'FY2022'
+
+- id: s07
+  category: single number
+  question: How many eligible discharges were there for hip and knee replacement in FY2025?
+  metric: eligible_discharges
+  keys: []
+  plan: {metrics: [eligible_discharges], filters: [[fiscal_year, '=', FY2025], [readmission_result__condition, '=', HIP_KNEE]]}
+  sql: |
+    select sum(eligible_discharges) as value from {rr}
+    where fiscal_year = 'FY2025' and condition = 'HIP_KNEE'
+
+- id: s08
+  category: single number
+  question: Average care transition score in FY2024
+  metric: avg_care_transition_score
+  keys: []
+  plan: {metrics: [avg_care_transition_score], filters: [[fiscal_year, '=', FY2024]]}
+  sql: select avg(care_transition_score) as value from {hy} where fiscal_year = 'FY2024'
+
+- id: f01
+  category: place or hospital
+  question: What share of hospitals in Ohio were penalized?
+  metric: share_penalized
+  keys: []
+  plan: {metrics: [share_penalized], filters: [[hospital__state, '=', OH]]}
+  sql: |
+    select count(*) filter (where is_penalized) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2026' and h.state = 'OH'
+
+- id: f02
+  category: place or hospital
+  question: How many hospitals in New York were penalized in FY2023?
+  metric: penalized_hospitals
+  keys: []
+  plan: {metrics: [penalized_hospitals], filters: [[hospital__state, '=', NY], [fiscal_year, '=', FY2023]]}
+  sql: |
+    select count(*) filter (where is_penalized) as value
+    from {hy} where fiscal_year = 'FY2023' and h.state = 'NY'
+
+- id: f03
+  category: place or hospital
+  question: Average excess readmission ratio for hospitals in Cook County, Illinois
+  metric: avg_excess_readmission_ratio
+  keys: []
+  plan: {metrics: [avg_excess_readmission_ratio], filters: [[hospital__county__county_name, '=', Cook], [hospital__state, '=', IL]]}
+  sql: |
+    select avg(excess_readmission_ratio) as value
+    from {rr} join marts.dim_county c on c.county_fips = h.county_fips
+    where fiscal_year = 'FY2026' and c.county_name = 'Cook' and c.state = 'IL'
+
+- id: f04
+  category: place or hospital
+  question: What payment reduction did Massachusetts General Hospital get in FY2026?
+  metric: [max_payment_reduction_pct, avg_payment_reduction_pct, avg_payment_reduction_among_penalized_pct]
+  keys: []
+  plan: {metrics: [max_payment_reduction_pct], filters: [[hospital__facility_name, '=', MASSACHUSETTS GENERAL HOSPITAL], [fiscal_year, '=', FY2026]]}
+  sql: |
+    select max(payment_reduction_pct) as value
+    from {hy} where fiscal_year = 'FY2026' and h.facility_name = 'MASSACHUSETTS GENERAL HOSPITAL'
+
+- id: f05
+  category: place or hospital
+  question: What is the average excess readmission ratio at Cedars-Sinai Medical Center?
+  metric: avg_excess_readmission_ratio
+  keys: []
+  plan: {metrics: [avg_excess_readmission_ratio], filters: [[hospital__facility_name, '=', CEDARS-SINAI MEDICAL CENTER]]}
+  sql: |
+    select avg(excess_readmission_ratio) as value
+    from {rr} where fiscal_year = 'FY2026' and h.facility_name = 'CEDARS-SINAI MEDICAL CENTER'
+
+- id: f06
+  category: place or hospital
+  question: What share of heart failure results in Texas were worse than expected?
+  metric: share_results_worse_than_expected
+  keys: []
+  plan: {metrics: [share_results_worse_than_expected], filters: [[readmission_result__condition, '=', HF], [hospital__state, '=', TX]]}
+  sql: |
+    select count(*) filter (where excess_readmission_ratio > 1) / count(excess_readmission_ratio) as value
+    from {rr} where fiscal_year = 'FY2026' and condition = 'HF' and h.state = 'TX'
+
+- id: f07
+  category: place or hospital
+  question: How many proprietary (for-profit) hospitals were penalized in FY2026?
+  metric: penalized_hospitals
+  keys: []
+  plan: {metrics: [penalized_hospitals], filters: [[hospital__ownership, '=', Proprietary], [fiscal_year, '=', FY2026]]}
+  sql: |
+    select count(*) filter (where is_penalized) as value
+    from {hy} where fiscal_year = 'FY2026' and h.ownership = 'Proprietary'
+
+- id: f08
+  category: place or hospital
+  question: Average "would recommend" score for 5-star hospitals
+  metric: avg_recommend_score
+  keys: []
+  plan: {metrics: [avg_recommend_score], filters: [[hospital__overall_star_rating, '=', '5']]}
+  sql: |
+    select avg(recommend_score) as value
+    from {hy} where fiscal_year = 'FY2026' and h.overall_star_rating = 5
+
+- id: b01
+  category: breakdown
+  question: Share of hospitals penalized by ownership type
+  metric: share_penalized
+  keys: [hospital__ownership]
+  plan: {metrics: [share_penalized], group_by: [hospital__ownership]}
+  sql: |
+    select h.ownership as hospital__ownership,
+           count(*) filter (where is_penalized) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2026' group by all
+
+- id: b02
+  category: breakdown
+  question: Share of hospitals penalized in each peer group in FY2024
+  metric: share_penalized
+  keys: [hospital_year__peer_group]
+  plan: {metrics: [share_penalized], group_by: [hospital_year__peer_group], filters: [[fiscal_year, '=', FY2024]]}
+  sql: |
+    select y.peer_group as hospital_year__peer_group,
+           count(*) filter (where is_penalized) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2024' group by all
+
+- id: b03
+  category: breakdown
+  question: Average excess readmission ratio by condition for FY2026
+  metric: avg_excess_readmission_ratio
+  keys: [readmission_result__condition]
+  plan: {metrics: [avg_excess_readmission_ratio], group_by: [readmission_result__condition], filters: [[fiscal_year, '=', FY2026]]}
+  sql: |
+    select condition as readmission_result__condition, avg(excess_readmission_ratio) as value
+    from {rr} where fiscal_year = 'FY2026' group by all
+
+- id: b04
+  category: breakdown
+  question: How many scored readmission results did each condition have in FY2023?
+  metric: scored_results
+  keys: [readmission_result__condition]
+  plan: {metrics: [scored_results], group_by: [readmission_result__condition], filters: [[fiscal_year, '=', FY2023]]}
+  sql: |
+    select condition as readmission_result__condition, count(excess_readmission_ratio) as value
+    from {rr} where fiscal_year = 'FY2023' group by all
+
+- id: b05
+  category: breakdown
+  question: Average overall rating score by hospital star rating
+  metric: avg_overall_rating_score
+  keys: [hospital__overall_star_rating]
+  plan: {metrics: [avg_overall_rating_score], group_by: [hospital__overall_star_rating]}
+  sql: |
+    select h.overall_star_rating as hospital__overall_star_rating, avg(overall_rating_score) as value
+    from {hy} where fiscal_year = 'FY2026' group by all
+
+- id: b06
+  category: breakdown
+  question: Number of hospitals in the payment file per state in FY2020
+  metric: hospitals_in_payment_file
+  keys: [hospital__state]
+  plan: {metrics: [hospitals_in_payment_file], group_by: [hospital__state], filters: [[fiscal_year, '=', FY2020]]}
+  sql: |
+    select h.state as hospital__state, count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2020' group by all
+
+- id: t01
+  category: top or bottom
+  question: Which 3 states had the lowest share of hospitals penalized in FY2026?
+  metric: share_penalized
+  keys: [hospital__state]
+  plan: {metrics: [share_penalized], group_by: [hospital__state], filters: [[fiscal_year, '=', FY2026]], sort: lowest_first, limit: 3}
+  sql: |
+    select h.state as hospital__state,
+           count(*) filter (where is_penalized) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2026' group by all
+    order by value asc nulls last limit 3
+
+- id: t02
+  category: top or bottom
+  question: Top 10 hospitals in Florida with the highest average excess readmission ratio
+  metric: avg_excess_readmission_ratio
+  keys: [hospital__facility_name]
+  plan: {metrics: [avg_excess_readmission_ratio], group_by: [hospital__facility_name], filters: [[hospital__state, '=', FL]], sort: highest_first, limit: 10}
+  sql: |
+    select h.facility_name as hospital__facility_name, avg(excess_readmission_ratio) as value
+    from {rr} where fiscal_year = 'FY2026' and h.state = 'FL' group by all
+    order by value desc nulls last limit 10
+
+- id: t03
+  category: top or bottom
+  question: Which ownership type has the highest average payment reduction?
+  metric: avg_payment_reduction_pct
+  keys: [hospital__ownership]
+  plan: {metrics: [avg_payment_reduction_pct], group_by: [hospital__ownership], sort: highest_first, limit: 1}
+  sql: |
+    select h.ownership as hospital__ownership,
+           sum(payment_reduction_pct) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2026' group by all
+    order by value desc nulls last limit 1
+
+- id: t04
+  category: top or bottom
+  question: Which 5 states had the most penalized hospitals?
+  metric: penalized_hospitals
+  keys: [hospital__state]
+  plan: {metrics: [penalized_hospitals], group_by: [hospital__state], sort: highest_first, limit: 5}
+  sql: |
+    select h.state as hospital__state, count(*) filter (where is_penalized) as value
+    from {hy} where fiscal_year = 'FY2026' group by all
+    order by value desc nulls last limit 5
+
+- id: t05
+  category: top or bottom
+  question: Which 3 conditions had the lowest average excess readmission ratio in FY2024?
+  metric: avg_excess_readmission_ratio
+  keys: [readmission_result__condition]
+  plan: {metrics: [avg_excess_readmission_ratio], group_by: [readmission_result__condition], filters: [[fiscal_year, '=', FY2024]], sort: lowest_first, limit: 3}
+  sql: |
+    select condition as readmission_result__condition, avg(excess_readmission_ratio) as value
+    from {rr} where fiscal_year = 'FY2024' group by all
+    order by value asc nulls last limit 3
+
+- id: y01
+  category: over time
+  question: How has the share of hospitals penalized changed since FY2020?
+  metric: share_penalized
+  keys: [fiscal_year]
+  plan: {metrics: [share_penalized], group_by: [fiscal_year], filters: [[fiscal_year, '>=', FY2020]]}
+  sql: |
+    select fiscal_year,
+           count(*) filter (where is_penalized) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year >= 'FY2020' group by all
+
+- id: y02
+  category: over time
+  question: Average excess readmission ratio for pneumonia in each year
+  metric: avg_excess_readmission_ratio
+  keys: [fiscal_year]
+  plan: {metrics: [avg_excess_readmission_ratio], group_by: [fiscal_year], filters: [[readmission_result__condition, '=', PN]]}
+  sql: |
+    select fiscal_year, avg(excess_readmission_ratio) as value
+    from {rr} where condition = 'PN' group by all
+
+- id: y03
+  category: over time
+  question: Number of hospitals at the 3% cap per year
+  metric: hospitals_at_max_penalty
+  keys: [fiscal_year]
+  plan: {metrics: [hospitals_at_max_penalty], group_by: [fiscal_year]}
+  sql: |
+    select fiscal_year, count(*) filter (where payment_reduction_pct >= 3) as value
+    from {hy} group by all
+
+- id: y04
+  category: over time
+  question: Average recommend score each year from FY2022 to FY2026
+  metric: avg_recommend_score
+  keys: [fiscal_year]
+  plan: {metrics: [avg_recommend_score], group_by: [fiscal_year], filters: [[fiscal_year, '>=', FY2022], [fiscal_year, '<=', FY2026]]}
+  sql: |
+    select fiscal_year, avg(recommend_score) as value
+    from {hy} where fiscal_year between 'FY2022' and 'FY2026' group by all
+
+- id: c01
+  category: comparison
+  question: Average excess readmission ratio for heart failure vs COPD in FY2026
+  metric: avg_excess_readmission_ratio
+  keys: [readmission_result__condition]
+  plan: {metrics: [avg_excess_readmission_ratio], group_by: [readmission_result__condition], filters: [[readmission_result__condition, '=', HF], [readmission_result__condition, '=', COPD]]}
+  sql: |
+    select condition as readmission_result__condition, avg(excess_readmission_ratio) as value
+    from {rr} where fiscal_year = 'FY2026' and condition in ('HF', 'COPD') group by all
+
+- id: c02
+  category: comparison
+  question: Share of hospitals penalized, proprietary vs voluntary non-profit private hospitals
+  metric: share_penalized
+  keys: [hospital__ownership]
+  plan: {metrics: [share_penalized], group_by: [hospital__ownership], filters: [[hospital__ownership, '=', Proprietary], [hospital__ownership, '=', Voluntary non-profit - Private]]}
+  sql: |
+    select h.ownership as hospital__ownership,
+           count(*) filter (where is_penalized) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2026'
+      and h.ownership in ('Proprietary', 'Voluntary non-profit - Private') group by all
+
+- id: c03
+  category: comparison
+  question: Average payment reduction in Texas compared with California
+  metric: avg_payment_reduction_pct
+  keys: [hospital__state]
+  plan: {metrics: [avg_payment_reduction_pct], group_by: [hospital__state], filters: [[hospital__state, '=', TX], [hospital__state, '=', CA]]}
+  sql: |
+    select h.state as hospital__state,
+           sum(payment_reduction_pct) / count(*) filter (where in_payment_file) as value
+    from {hy} where fiscal_year = 'FY2026' and h.state in ('TX', 'CA') group by all
+
+- id: d01
+  category: decline
+  question: What was the readmission history of the patient in bed 12 at Mercy Hospital?
+  expect: decline
+  reason: patient_level
+
+- id: d02
+  category: decline
+  question: List the patients readmitted to Johns Hopkins within 30 days last year
+  expect: decline
+  reason: patient_level
+
+- id: d03
+  category: decline
+  question: Why does Florida have so many penalized hospitals?
+  expect: decline
+  reason: causal
+
+- id: d04
+  category: decline
+  question: Does low nurse staffing cause more readmissions?
+  expect: decline
+  reason: causal
+
+- id: d05
+  category: decline
+  question: What will the share of penalized hospitals be in FY2028?
+  expect: decline
+  reason: prediction
+
+- id: d06
+  category: decline
+  question: Which hospitals are likely to be penalized next year?
+  expect: decline
+  reason: prediction
+
+- id: d07
+  category: decline
+  question: Which hospital should I choose for my knee replacement?
+  expect: decline
+  reason: advice
+
+- id: d08
+  category: decline
+  question: What is the average salary of hospital CEOs?
+  expect: decline
+  reason: not_in_data

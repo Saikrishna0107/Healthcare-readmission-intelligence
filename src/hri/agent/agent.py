@@ -22,7 +22,7 @@ from functools import cached_property
 import pandas as pd
 
 from hri.agent.llm import LLM, Call
-from hri.semantic import OPERATORS, Filter, SemanticLayer, SemanticLayerError
+from hri.semantic import MAX_ROWS, OPERATORS, Filter, SemanticLayer, SemanticLayerError
 
 MAX_QUESTION_CHARS = 500
 MAX_ANSWER_ROWS = 50
@@ -66,9 +66,7 @@ METRICS
 
 DIMENSIONS usable with every metric
 {common}
-{extra}
-EXAMPLES
-{examples}"""
+{extra}{examples}"""
 
 EXAMPLES = [
     ("What share of hospitals were penalized in FY2025?",
@@ -166,12 +164,14 @@ def _number(value) -> str:
     return str(int(value)) if isinstance(value, float) and value.is_integer() else str(value)
 
 
-def resolve_value(dimension: str, value: str, known: list, aliases: dict[str, str] | None = None):
+def resolve_value(dimension: str, value: str, known: list, aliases: dict[str, str] | None = None,
+                  exact: bool = False):
     """The value as stored in the data, and a note when it was changed.
 
     Tries in order: exact, case-insensitive, an alias (state name -> code), a unique name that
     contains the value, the closest spelling. Raises SemanticLayerError when nothing fits, with
-    the closest values, so the model (or the user) can try again."""
+    the closest values, so the model (or the user) can try again. exact=True stops after the
+    first step (the evaluation's "no rules" variant)."""
     text = str(value).strip()
     if known and all(isinstance(v, bool) for v in known):
         if text.lower() in ("true", "yes", "1"):
@@ -187,6 +187,8 @@ def resolve_value(dimension: str, value: str, known: list, aliases: dict[str, st
                                      f"not {text!r}") from None
     if text in known:
         return text, None
+    if exact:
+        raise SemanticLayerError(f"No {dimension} value {text!r} in the data.")
     by_folded = {str(v).casefold(): v for v in known}
     folded = text.casefold()
     found = by_folded.get(folded) or by_folded.get((aliases or {}).get(folded, "").casefold())
@@ -248,10 +250,13 @@ def render(plan: Plan, data: pd.DataFrame, labels: dict[str, str]) -> str:
 
 
 class Agent:
-    def __init__(self, llm: LLM, layer: SemanticLayer | None = None):
+    def __init__(self, llm: LLM, layer: SemanticLayer | None = None, examples: bool = True,
+                 rules: bool = True):
+        """examples and rules can be switched off to measure what each adds (step 8c)."""
         self.llm = llm
         self.layer = layer or SemanticLayer()
         self._values: dict[str, list] = {}
+        self.examples, self.rules = examples, rules
 
     @cached_property
     def dimensions(self) -> list[str]:
@@ -305,6 +310,7 @@ class Agent:
         extra = "".join(f"\nDIMENSIONS usable only with {', '.join(users)}\n"
                         + "\n".join(line(d) for d in dims) + "\n" for users, dims in groups.items())
         examples = "\n".join(f"Q: {q}\nA: {json.dumps(self._full(p))}" for q, p in EXAMPLES)
+        examples = f"EXAMPLES\n{examples}" if self.examples else ""
         return SYSTEM_PROMPT.format(
             metrics="\n".join(f"- {m.name}: {m.description}" for m in metrics.values()),
             common="\n".join(line(d) for d in common), extra=extra, examples=examples)
@@ -325,7 +331,8 @@ class Agent:
             aliases = self.state_names if f.dimension == "hospital__state" else None
             if f.dimension not in self.dimensions:
                 raise SemanticLayerError(f"Unknown dimension {f.dimension!r}")
-            value, note = resolve_value(f.dimension, f.value, self.values(f.dimension), aliases)
+            value, note = resolve_value(f.dimension, f.value, self.values(f.dimension), aliases,
+                                        exact=not self.rules)
             filters.append(Filter(f.dimension, f.op, value))
             notes += [note] if note else []
             states = self.facility_states.get(value, []) if f.dimension == "hospital__facility_name" else []
@@ -333,7 +340,7 @@ class Agent:
                 notes.append(f"Hospitals named {value} are in {len(states)} states ({', '.join(states)}); "
                              "the figures combine them. Name the state to see one.")
         group_by, keep = list(plan.group_by), {}
-        for dimension in dict.fromkeys(f.dimension for f in filters):
+        for dimension in dict.fromkeys(f.dimension for f in filters) if self.rules else []:
             equal = [f.value for f in filters if f.dimension == dimension and f.op == "="]
             if len(equal) > 1:
                 # "penalized vs unpenalized" as two = filters would match nothing; compare instead.
@@ -342,7 +349,7 @@ class Agent:
                 keep[dimension] = equal
                 notes.append(f"Compared {' and '.join(map(_number, equal))} side by side.")
         year_range = any(f.dimension == "fiscal_year" and f.op != "=" for f in filters)
-        if year_range and "fiscal_year" not in group_by:
+        if self.rules and year_range and "fiscal_year" not in group_by:
             # A range of years added into one number is rarely what was meant ("each year since").
             group_by.insert(0, "fiscal_year")
             notes.append("Several years asked for: one row per fiscal year, not one total.")
@@ -350,9 +357,17 @@ class Agent:
             filters.append(Filter("fiscal_year", "=", self.latest_fiscal_year))
             notes.append(f"No year given: used {self.latest_fiscal_year}, the latest.")
         plan = Plan("query", "none", plan.metrics, group_by, filters, plan.sort,
-                    max(1, min(plan.limit, MAX_ANSWER_ROWS)), keep)
+                    self._limit(plan), keep)
         self.layer.validate(plan.metrics, plan.group_by, plan.filters, self._order(plan), plan.limit)
         return plan, notes
+
+    @staticmethod
+    def _limit(plan: Plan) -> int:
+        # The limit means "top N" only. Without a sort every row is shown (up to the semantic
+        # layer's cap): a model's default limit must not silently cut a list of 51 states.
+        if plan.sort == "none" or not plan.group_by:
+            return MAX_ROWS
+        return max(1, min(plan.limit, MAX_ANSWER_ROWS))
 
     @staticmethod
     def _order(plan: Plan) -> list[str]:
@@ -403,6 +418,8 @@ class Agent:
             data = data[data[dimension].isin(values)].reset_index(drop=True)
         labels = {m.name: m.label for m in result.metrics}
         text = render(plan, data, labels)
+        if len(result.data) == MAX_ROWS:
+            notes.append(f"Only the first {MAX_ROWS} rows are shown; narrow the question to see the rest.")
         if data[plan.metrics].isna().any().any():
             notes.append("n/a: nothing to compute from, e.g. no hospital in the payment file matches "
                          "(Maryland is exempt from the HRRP) or the condition was not scored that year.")

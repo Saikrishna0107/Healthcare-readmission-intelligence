@@ -60,6 +60,13 @@ def main(argv: list[str] | None = None) -> int:
     ask_cmd.add_argument("--plan", action="store_true", help="also print the query plan the model wrote")
     ask_cmd.add_argument("--sql", action="store_true", help="also print the SQL MetricFlow wrote")
 
+    eval_cmd = commands.add_parser("eval", help="score the agent on the evaluation questions (evals/)")
+    eval_cmd.add_argument("--variants", nargs="+", default=["full", "no_examples", "no_rules"],
+                          choices=["full", "no_examples", "no_rules", "reference"])
+    eval_cmd.add_argument("--model", default=None, help="Ollama model (default granite4.1:3b)")
+    eval_cmd.add_argument("--replay", action="store_true",
+                          help="rescore the recorded replies in reports/agent instead of calling the model")
+
     args = parser.parse_args(argv)
     if args.command == "dbt":
         return run_dbt(args.dbt_args)
@@ -76,6 +83,8 @@ def main(argv: list[str] | None = None) -> int:
         return _semantic_layer(args)
     if args.command == "ask":
         return _ask(args)
+    if args.command == "eval":
+        return _eval(args)
     return _status()
 
 
@@ -157,6 +166,28 @@ def _ask(args: argparse.Namespace) -> int:
     print(f"\n[{answer.status}; {len(answer.calls)} model call(s), {tokens} tokens written, "
           f"{answer.seconds:.1f} s]")
     return 0 if answer.status == "answered" else 1
+
+
+def _eval(args: argparse.Namespace) -> int:
+    import json
+
+    from hri.agent import DEFAULT_MODEL, LLMError
+    from hri.agent.evaluate import REPORT_DIR, evaluate, save, summarize, summary_text
+
+    replay = None
+    if args.replay:
+        replay = json.loads((REPORT_DIR / "responses.json").read_text(encoding="utf-8"))
+        args.variants = [v for v in args.variants if v in replay or v == "reference"]
+    try:
+        run = evaluate(args.variants, model=args.model or DEFAULT_MODEL, replay=replay)
+    except LLMError as exc:
+        print(exc)
+        return 2
+    if not args.replay and set(args.variants) != {"reference"}:
+        save(run)  # a replay only checks the saved scores; it never overwrites them
+    print()
+    print(summary_text(summarize(run["results"])))
+    return 0
 
 
 def _model_train(args: argparse.Namespace) -> int:

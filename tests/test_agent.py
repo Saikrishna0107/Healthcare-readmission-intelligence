@@ -182,3 +182,10 @@ def test_two_equal_filters_on_one_dimension_become_a_comparison(layer):
     answer = Agent(llm, layer).ask("Recommend score of penalized vs unpenalized hospitals")
     assert answer.plan.group_by == ["hospital_year__is_penalized"]
     assert sorted(answer.data.hospital_year__is_penalized) == [False, True]
+
+
+@needs_warehouse
+def test_a_list_is_never_cut_by_the_models_default_limit(layer):
+    llm = FakeLLM(plan(metrics=["hospitals_in_payment_file"], group_by=["hospital__state"], limit=50))
+    answer = Agent(llm, layer).ask("Hospitals in the payment file per state")
+    assert len(answer.data) > 50

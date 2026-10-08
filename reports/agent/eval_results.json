@@ -1,0 +1,4243 @@
+{
+  "model": "granite4.1:3b",
+  "questions": 42,
+  "summary": {
+    "full": {
+      "accuracy": 0.833,
+      "correct": 35,
+      "questions": 42,
+      "answerable_correct": "29/34",
+      "declines_correct": "6/8",
+      "decline_reason_matches": "4/8",
+      "wrongly_declined": 0,
+      "errors": {
+        "wrong metric": 4,
+        "not declined (answered)": 2,
+        "wrong rows": 1
+      },
+      "by_category": {
+        "single number": "8/8",
+        "place or hospital": "7/8",
+        "breakdown": "4/6",
+        "top or bottom": "3/5",
+        "over time": "4/4",
+        "comparison": "3/3",
+        "decline": "6/8"
+      },
+      "saved_by_repair": 0,
+      "median_seconds": 13.6,
+      "p90_seconds": 17.8
+    },
+    "no_examples": {
+      "accuracy": 0.667,
+      "correct": 28,
+      "questions": 42,
+      "answerable_correct": "21/34",
+      "declines_correct": "7/8",
+      "decline_reason_matches": "4/8",
+      "wrongly_declined": 0,
+      "errors": {
+        "wrong rows": 6,
+        "wrong metric": 3,
+        "wrong values": 2,
+        "extra breakdown": 2,
+        "not declined (answered)": 1
+      },
+      "by_category": {
+        "single number": "8/8",
+        "place or hospital": "5/8",
+        "breakdown": "4/6",
+        "top or bottom": "0/5",
+        "over time": "3/4",
+        "comparison": "1/3",
+        "decline": "7/8"
+      },
+      "saved_by_repair": 0,
+      "median_seconds": 13.1,
+      "p90_seconds": 17.8
+    },
+    "no_rules": {
+      "accuracy": 0.69,
+      "correct": 29,
+      "questions": 42,
+      "answerable_correct": "23/34",
+      "declines_correct": "6/8",
+      "decline_reason_matches": "4/8",
+      "wrongly_declined": 0,
+      "errors": {
+        "wrong metric": 4,
+        "wrong rows": 4,
+        "failed": 2,
+        "not declined (answered)": 2,
+        "missing breakdown": 1
+      },
+      "by_category": {
+        "single number": "8/8",
+        "place or hospital": "5/8",
+        "breakdown": "4/6",
+        "top or bottom": "3/5",
+        "over time": "3/4",
+        "comparison": "0/3",
+        "decline": "6/8"
+      },
+      "saved_by_repair": 0,
+      "median_seconds": 13.7,
+      "p90_seconds": 17.5
+    }
+  },
+  "results": [
+    {
+      "variant": "full",
+      "id": "s01",
+      "category": "single number",
+      "question": "How many hospitals were in the HRRP payment file in FY2024?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 12.8,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_in_payment_file"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "s02",
+      "category": "single number",
+      "question": "What percentage of hospitals got a readmission penalty in FY2021?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 12.58,
+      "output_tokens": 65,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2021"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "s03",
+      "category": "single number",
+      "question": "What is the largest payment reduction any hospital received this year?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 12.12,
+      "output_tokens": 65,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "max_payment_reduction_pct"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "s04",
+      "category": "single number",
+      "question": "How many hospitals hit the maximum 3% penalty in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.21,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "s05",
+      "category": "single number",
+      "question": "What was the average penalty among hospitals that were actually penalized in FY2025?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 16.75,
+      "output_tokens": 92,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_among_penalized_pct"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "hospital_year__is_penalized",
+            "op": "=",
+            "value": true
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2025"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "s06",
+      "category": "single number",
+      "question": "What was the average excess readmission ratio across all results in FY2022?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.12,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2022"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "s07",
+      "category": "single number",
+      "question": "How many eligible discharges were there for hip and knee replacement in FY2025?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.48,
+      "output_tokens": 87,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "eligible_discharges"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "HIP_KNEE"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2025"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "s08",
+      "category": "single number",
+      "question": "Average care transition score in FY2024",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 11.54,
+      "output_tokens": 66,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_care_transition_score"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "f01",
+      "category": "place or hospital",
+      "question": "What share of hospitals in Ohio were penalized?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.19,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "OH"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "f02",
+      "category": "place or hospital",
+      "question": "How many hospitals in New York were penalized in FY2023?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.22,
+      "output_tokens": 89,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "NY"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2023"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "f03",
+      "category": "place or hospital",
+      "question": "Average excess readmission ratio for hospitals in Cook County, Illinois",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.01,
+      "output_tokens": 75,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__county__county_name"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__county__county_name",
+            "op": "=",
+            "value": "Cook"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "f04",
+      "category": "place or hospital",
+      "question": "What payment reduction did Massachusetts General Hospital get in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 16.92,
+      "output_tokens": 92,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_pct"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          },
+          {
+            "dimension": "hospital__facility_name",
+            "op": "=",
+            "value": "MASSACHUSETTS GENERAL HOSPITAL"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "f05",
+      "category": "place or hospital",
+      "question": "What is the average excess readmission ratio at Cedars-Sinai Medical Center?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.13,
+      "output_tokens": 78,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__facility_name",
+            "op": "=",
+            "value": "CEDARS-SINAI MEDICAL CENTER"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "f06",
+      "category": "place or hospital",
+      "question": "What share of heart failure results in Texas were worse than expected?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 65.61,
+      "output_tokens": 95,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "results_worse_than_expected"
+        ],
+        "group_by": [
+          "readmission_result__condition",
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "HF"
+          },
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "TX"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "f07",
+      "category": "place or hospital",
+      "question": "How many proprietary (for-profit) hospitals were penalized in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 17.24,
+      "output_tokens": 91,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__ownership",
+            "op": "=",
+            "value": "Proprietary"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "f08",
+      "category": "place or hospital",
+      "question": "Average \"would recommend\" score for 5-star hospitals",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.4,
+      "output_tokens": 70,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_recommend_score"
+        ],
+        "group_by": [
+          "hospital__overall_star_rating"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__overall_star_rating",
+            "op": "=",
+            "value": 5.0
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "b01",
+      "category": "breakdown",
+      "question": "Share of hospitals penalized by ownership type",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 9.84,
+      "output_tokens": 50,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "b02",
+      "category": "breakdown",
+      "question": "Share of hospitals penalized in each peer group in FY2024",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 13.68,
+      "output_tokens": 72,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [
+          "hospital_year__peer_group"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "b03",
+      "category": "breakdown",
+      "question": "Average excess readmission ratio by condition for FY2026",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.43,
+      "output_tokens": 73,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "b04",
+      "category": "breakdown",
+      "question": "How many scored readmission results did each condition have in FY2023?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 18.79,
+      "output_tokens": 70,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "scored_results"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2023"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "b05",
+      "category": "breakdown",
+      "question": "Average overall rating score by hospital star rating",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 11.09,
+      "output_tokens": 52,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_overall_rating_score"
+        ],
+        "group_by": [
+          "hospital__overall_star_rating"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "b06",
+      "category": "breakdown",
+      "question": "Number of hospitals in the payment file per state in FY2020",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 17.82,
+      "output_tokens": 70,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_in_payment_file"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2020"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "t01",
+      "category": "top or bottom",
+      "question": "Which 3 states had the lowest share of hospitals penalized in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.69,
+      "output_tokens": 70,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "lowest_first",
+        "limit": 3
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "t02",
+      "category": "top or bottom",
+      "question": "Top 10 hospitals in Florida with the highest average excess readmission ratio",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.64,
+      "output_tokens": 71,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "FL"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "highest_first",
+        "limit": 10
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "t03",
+      "category": "top or bottom",
+      "question": "Which ownership type has the highest average payment reduction?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 10.32,
+      "output_tokens": 50,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_pct"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "highest_first",
+        "limit": 50
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "t04",
+      "category": "top or bottom",
+      "question": "Which 5 states had the most penalized hospitals?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 10.31,
+      "output_tokens": 50,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "highest_first",
+        "limit": 5
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "t05",
+      "category": "top or bottom",
+      "question": "Which 3 conditions had the lowest average excess readmission ratio in FY2024?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.14,
+      "output_tokens": 74,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "lowest_first",
+        "limit": 3
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "y01",
+      "category": "over time",
+      "question": "How has the share of hospitals penalized changed since FY2020?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 12.52,
+      "output_tokens": 66,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": ">=",
+            "value": "FY2020"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "y02",
+      "category": "over time",
+      "question": "Average excess readmission ratio for pneumonia in each year",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.57,
+      "output_tokens": 71,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "PN"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "y03",
+      "category": "over time",
+      "question": "Number of hospitals at the 3% cap per year",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 10.37,
+      "output_tokens": 51,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "y04",
+      "category": "over time",
+      "question": "Average recommend score each year from FY2022 to FY2026",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.77,
+      "output_tokens": 90,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_recommend_score"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": ">=",
+            "value": "FY2022"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "<=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "c01",
+      "category": "comparison",
+      "question": "Average excess readmission ratio for heart failure vs COPD in FY2026",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 516.41,
+      "output_tokens": 117,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "c02",
+      "category": "comparison",
+      "question": "Share of hospitals penalized, proprietary vs voluntary non-profit private hospitals",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.65,
+      "output_tokens": 92,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "c03",
+      "category": "comparison",
+      "question": "Average payment reduction in Texas compared with California",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.41,
+      "output_tokens": 85,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_pct"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "full",
+      "id": "d01",
+      "category": "decline",
+      "question": "What was the readmission history of the patient in bed 12 at Mercy Hospital?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 10.18,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "patient_level"
+    },
+    {
+      "variant": "full",
+      "id": "d02",
+      "category": "decline",
+      "question": "List the patients readmitted to Johns Hopkins within 30 days last year",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 9.68,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "patient_level"
+    },
+    {
+      "variant": "full",
+      "id": "d03",
+      "category": "decline",
+      "question": "Why does Florida have so many penalized hospitals?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 8.98,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "advice",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "advice",
+      "expected_reason": "causal"
+    },
+    {
+      "variant": "full",
+      "id": "d04",
+      "category": "decline",
+      "question": "Does low nurse staffing cause more readmissions?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 9.71,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "causal",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "causal",
+      "expected_reason": "causal"
+    },
+    {
+      "variant": "full",
+      "id": "d05",
+      "category": "decline",
+      "question": "What will the share of penalized hospitals be in FY2028?",
+      "status": "answered",
+      "correct": false,
+      "why": "not declined (answered)",
+      "model_calls": 2,
+      "seconds": 30.81,
+      "output_tokens": 130,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": "prediction"
+    },
+    {
+      "variant": "full",
+      "id": "d06",
+      "category": "decline",
+      "question": "Which hospitals are likely to be penalized next year?",
+      "status": "answered",
+      "correct": false,
+      "why": "not declined (answered)",
+      "model_calls": 2,
+      "seconds": 39.67,
+      "output_tokens": 176,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "eligible_discharges",
+          "results_counting_toward_penalty"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": "prediction"
+    },
+    {
+      "variant": "full",
+      "id": "d07",
+      "category": "decline",
+      "question": "Which hospital should I choose for my knee replacement?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 11.64,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "advice"
+    },
+    {
+      "variant": "full",
+      "id": "d08",
+      "category": "decline",
+      "question": "What is the average salary of hospital CEOs?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 10.58,
+      "output_tokens": 43,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "not_in_data",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "not_in_data",
+      "expected_reason": "not_in_data"
+    },
+    {
+      "variant": "no_examples",
+      "id": "s01",
+      "category": "single number",
+      "question": "How many hospitals were in the HRRP payment file in FY2024?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 12.54,
+      "output_tokens": 76,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_in_payment_file"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "s02",
+      "category": "single number",
+      "question": "What percentage of hospitals got a readmission penalty in FY2021?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 12.8,
+      "output_tokens": 74,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2021"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "s03",
+      "category": "single number",
+      "question": "What is the largest payment reduction any hospital received this year?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 11.21,
+      "output_tokens": 65,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "max_payment_reduction_pct"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "s04",
+      "category": "single number",
+      "question": "How many hospitals hit the maximum 3% penalty in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 11.9,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "s05",
+      "category": "single number",
+      "question": "What was the average penalty among hospitals that were actually penalized in FY2025?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 18.86,
+      "output_tokens": 119,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_among_penalized_pct"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2025"
+          },
+          {
+            "dimension": "hospital_year__is_penalized",
+            "op": "=",
+            "value": true
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "s06",
+      "category": "single number",
+      "question": "What was the average excess readmission ratio across all results in FY2022?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.41,
+      "output_tokens": 86,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2022"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "s07",
+      "category": "single number",
+      "question": "How many eligible discharges were there for hip and knee replacement in FY2025?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 19.1,
+      "output_tokens": 120,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "eligible_discharges"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "HIP_KNEE"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2025"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "s08",
+      "category": "single number",
+      "question": "Average care transition score in FY2024",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.08,
+      "output_tokens": 78,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_care_transition_score"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "f01",
+      "category": "place or hospital",
+      "question": "What share of hospitals in Ohio were penalized?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.31,
+      "output_tokens": 86,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "OH"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "f02",
+      "category": "place or hospital",
+      "question": "How many hospitals in New York were penalized in FY2023?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.67,
+      "output_tokens": 92,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "NY"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2023"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "f03",
+      "category": "place or hospital",
+      "question": "Average excess readmission ratio for hospitals in Cook County, Illinois",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong values",
+      "model_calls": 2,
+      "seconds": 673.03,
+      "output_tokens": 190,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__county__state_name"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__county__state_name",
+            "op": "=",
+            "value": "Illinois"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "f04",
+      "category": "place or hospital",
+      "question": "What payment reduction did Massachusetts General Hospital get in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 16.28,
+      "output_tokens": 99,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_pct"
+        ],
+        "group_by": [
+          "hospital__facility_name",
+          "fiscal_year"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__facility_name",
+            "op": "=",
+            "value": "MASSACHUSETTS GENERAL HOSPITAL"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "f05",
+      "category": "place or hospital",
+      "question": "What is the average excess readmission ratio at Cedars-Sinai Medical Center?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.67,
+      "output_tokens": 97,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__facility_name",
+            "op": "=",
+            "value": "CEDARS-SINAI MEDICAL CENTER"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "f06",
+      "category": "place or hospital",
+      "question": "What share of heart failure results in Texas were worse than expected?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 16.34,
+      "output_tokens": 103,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "results_worse_than_expected"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "HF"
+          },
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "TX"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "f07",
+      "category": "place or hospital",
+      "question": "How many proprietary (for-profit) hospitals were penalized in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.96,
+      "output_tokens": 91,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__ownership",
+            "op": "=",
+            "value": "Proprietary"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "f08",
+      "category": "place or hospital",
+      "question": "Average \"would recommend\" score for 5-star hospitals",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 14.7,
+      "output_tokens": 91,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_overall_rating_score"
+        ],
+        "group_by": [
+          "hospital__overall_star_rating"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__overall_star_rating",
+            "op": "=",
+            "value": 5.0
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "b01",
+      "category": "breakdown",
+      "question": "Share of hospitals penalized by ownership type",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 12.12,
+      "output_tokens": 74,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals",
+          "hospitals_at_max_penalty",
+          "hospitals_in_payment_file"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "b02",
+      "category": "breakdown",
+      "question": "Share of hospitals penalized in each peer group in FY2024",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong values",
+      "model_calls": 1,
+      "seconds": 17.84,
+      "output_tokens": 108,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital_year__peer_group"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital_year__is_penalized",
+            "op": "=",
+            "value": true
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "b03",
+      "category": "breakdown",
+      "question": "Average excess readmission ratio by condition for FY2026",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.98,
+      "output_tokens": 92,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "b04",
+      "category": "breakdown",
+      "question": "How many scored readmission results did each condition have in FY2023?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.63,
+      "output_tokens": 89,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "scored_results"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2023"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "b05",
+      "category": "breakdown",
+      "question": "Average overall rating score by hospital star rating",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 10.56,
+      "output_tokens": 61,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_overall_rating_score"
+        ],
+        "group_by": [
+          "hospital__overall_star_rating"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "b06",
+      "category": "breakdown",
+      "question": "Number of hospitals in the payment file per state in FY2020",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.75,
+      "output_tokens": 83,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_in_payment_file"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2020"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "t01",
+      "category": "top or bottom",
+      "question": "Which 3 states had the lowest share of hospitals penalized in FY2026?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 10.31,
+      "output_tokens": 58,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "t02",
+      "category": "top or bottom",
+      "question": "Top 10 hospitals in Florida with the highest average excess readmission ratio",
+      "status": "answered",
+      "correct": false,
+      "why": "extra breakdown",
+      "model_calls": 1,
+      "seconds": 17.98,
+      "output_tokens": 112,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__facility_name",
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "FL"
+          },
+          {
+            "dimension": "readmission_result__score_status",
+            "op": "=",
+            "value": "scored"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "t03",
+      "category": "top or bottom",
+      "question": "Which ownership type has the highest average payment reduction?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 9.95,
+      "output_tokens": 49,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_pct"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "t04",
+      "category": "top or bottom",
+      "question": "Which 5 states had the most penalized hospitals?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 10.99,
+      "output_tokens": 60,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "t05",
+      "category": "top or bottom",
+      "question": "Which 3 conditions had the lowest average excess readmission ratio in FY2024?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 11.83,
+      "output_tokens": 62,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "y01",
+      "category": "over time",
+      "question": "How has the share of hospitals penalized changed since FY2020?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 10.79,
+      "output_tokens": 58,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "y02",
+      "category": "over time",
+      "question": "Average excess readmission ratio for pneumonia in each year",
+      "status": "answered",
+      "correct": false,
+      "why": "extra breakdown",
+      "model_calls": 1,
+      "seconds": 11.84,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition",
+          "fiscal_year"
+        ],
+        "filters": [],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "y03",
+      "category": "over time",
+      "question": "Number of hospitals at the 3% cap per year",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 11.68,
+      "output_tokens": 66,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "max_payment_reduction_pct",
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "y04",
+      "category": "over time",
+      "question": "Average recommend score each year from FY2022 to FY2026",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 16.84,
+      "output_tokens": 104,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_recommend_score"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": ">=",
+            "value": "FY2022"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "<=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "c01",
+      "category": "comparison",
+      "question": "Average excess readmission ratio for heart failure vs COPD in FY2026",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 18.86,
+      "output_tokens": 120,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "HF"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "c02",
+      "category": "comparison",
+      "question": "Share of hospitals penalized, proprietary vs voluntary non-profit private hospitals",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 11.09,
+      "output_tokens": 58,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "c03",
+      "category": "comparison",
+      "question": "Average payment reduction in Texas compared with California",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.13,
+      "output_tokens": 92,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_pct"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_examples",
+      "id": "d01",
+      "category": "decline",
+      "question": "What was the readmission history of the patient in bed 12 at Mercy Hospital?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 9.12,
+      "output_tokens": 44,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "patient_level"
+    },
+    {
+      "variant": "no_examples",
+      "id": "d02",
+      "category": "decline",
+      "question": "List the patients readmitted to Johns Hopkins within 30 days last year",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 9.04,
+      "output_tokens": 44,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "patient_level"
+    },
+    {
+      "variant": "no_examples",
+      "id": "d03",
+      "category": "decline",
+      "question": "Why does Florida have so many penalized hospitals?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 13.07,
+      "output_tokens": 79,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "causal",
+        "metrics": [],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "FL"
+          }
+        ],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "causal",
+      "expected_reason": "causal"
+    },
+    {
+      "variant": "no_examples",
+      "id": "d04",
+      "category": "decline",
+      "question": "Does low nurse staffing cause more readmissions?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 8.34,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "causal"
+    },
+    {
+      "variant": "no_examples",
+      "id": "d05",
+      "category": "decline",
+      "question": "What will the share of penalized hospitals be in FY2028?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 14.7,
+      "output_tokens": 89,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "prediction",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2028"
+          }
+        ],
+        "sort": "none",
+        "limit": 1
+      },
+      "decline_reason": "prediction",
+      "expected_reason": "prediction"
+    },
+    {
+      "variant": "no_examples",
+      "id": "d06",
+      "category": "decline",
+      "question": "Which hospitals are likely to be penalized next year?",
+      "status": "answered",
+      "correct": false,
+      "why": "not declined (answered)",
+      "model_calls": 1,
+      "seconds": 11.39,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals",
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": "prediction"
+    },
+    {
+      "variant": "no_examples",
+      "id": "d07",
+      "category": "decline",
+      "question": "Which hospital should I choose for my knee replacement?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 9.43,
+      "output_tokens": 51,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "advice"
+    },
+    {
+      "variant": "no_examples",
+      "id": "d08",
+      "category": "decline",
+      "question": "What is the average salary of hospital CEOs?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 8.65,
+      "output_tokens": 44,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "causal",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "causal",
+      "expected_reason": "not_in_data"
+    },
+    {
+      "variant": "no_rules",
+      "id": "s01",
+      "category": "single number",
+      "question": "How many hospitals were in the HRRP payment file in FY2024?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 15.92,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_in_payment_file"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "s02",
+      "category": "single number",
+      "question": "What percentage of hospitals got a readmission penalty in FY2021?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.93,
+      "output_tokens": 65,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2021"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "s03",
+      "category": "single number",
+      "question": "What is the largest payment reduction any hospital received this year?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.51,
+      "output_tokens": 65,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "max_payment_reduction_pct"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "s04",
+      "category": "single number",
+      "question": "How many hospitals hit the maximum 3% penalty in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.32,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "s05",
+      "category": "single number",
+      "question": "What was the average penalty among hospitals that were actually penalized in FY2025?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 17.1,
+      "output_tokens": 92,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_among_penalized_pct"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "hospital_year__is_penalized",
+            "op": "=",
+            "value": true
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2025"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "s06",
+      "category": "single number",
+      "question": "What was the average excess readmission ratio across all results in FY2022?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.0,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2022"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "s07",
+      "category": "single number",
+      "question": "How many eligible discharges were there for hip and knee replacement in FY2025?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 16.33,
+      "output_tokens": 87,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "eligible_discharges"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "HIP_KNEE"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2025"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "s08",
+      "category": "single number",
+      "question": "Average care transition score in FY2024",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 12.6,
+      "output_tokens": 66,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_care_transition_score"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "f01",
+      "category": "place or hospital",
+      "question": "What share of hospitals in Ohio were penalized?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.04,
+      "output_tokens": 67,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "OH"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "f02",
+      "category": "place or hospital",
+      "question": "How many hospitals in New York were penalized in FY2023?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 17.02,
+      "output_tokens": 89,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "NY"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2023"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "f03",
+      "category": "place or hospital",
+      "question": "Average excess readmission ratio for hospitals in Cook County, Illinois",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.16,
+      "output_tokens": 75,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__county__county_name"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__county__county_name",
+            "op": "=",
+            "value": "Cook"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "f04",
+      "category": "place or hospital",
+      "question": "What payment reduction did Massachusetts General Hospital get in FY2026?",
+      "status": "failed",
+      "correct": false,
+      "why": "failed",
+      "model_calls": 2,
+      "seconds": 35.67,
+      "output_tokens": 189,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_among_penalized_pct"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          },
+          {
+            "dimension": "hospital__facility_name",
+            "op": "=",
+            "value": "Massachusetts General Hospital"
+          }
+        ],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "f05",
+      "category": "place or hospital",
+      "question": "What is the average excess readmission ratio at Cedars-Sinai Medical Center?",
+      "status": "failed",
+      "correct": false,
+      "why": "failed",
+      "model_calls": 2,
+      "seconds": 31.72,
+      "output_tokens": 154,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__facility_name",
+            "op": "=",
+            "value": "Cedars Sinai Medical Center"
+          }
+        ],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "f06",
+      "category": "place or hospital",
+      "question": "What share of heart failure results in Texas were worse than expected?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 17.51,
+      "output_tokens": 95,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "results_worse_than_expected"
+        ],
+        "group_by": [
+          "readmission_result__condition",
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "HF"
+          },
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "TX"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "f07",
+      "category": "place or hospital",
+      "question": "How many proprietary (for-profit) hospitals were penalized in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 16.9,
+      "output_tokens": 91,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "penalized_hospitals"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__ownership",
+            "op": "=",
+            "value": "Proprietary"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "f08",
+      "category": "place or hospital",
+      "question": "Average \"would recommend\" score for 5-star hospitals",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.22,
+      "output_tokens": 70,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_recommend_score"
+        ],
+        "group_by": [
+          "hospital__overall_star_rating"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__overall_star_rating",
+            "op": "=",
+            "value": 5.0
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "b01",
+      "category": "breakdown",
+      "question": "Share of hospitals penalized by ownership type",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 10.32,
+      "output_tokens": 50,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "b02",
+      "category": "breakdown",
+      "question": "Share of hospitals penalized in each peer group in FY2024",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 13.49,
+      "output_tokens": 72,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [
+          "hospital_year__peer_group"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "b03",
+      "category": "breakdown",
+      "question": "Average excess readmission ratio by condition for FY2026",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.75,
+      "output_tokens": 73,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "b04",
+      "category": "breakdown",
+      "question": "How many scored readmission results did each condition have in FY2023?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.94,
+      "output_tokens": 70,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "scored_results"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2023"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "b05",
+      "category": "breakdown",
+      "question": "Average overall rating score by hospital star rating",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 10.77,
+      "output_tokens": 52,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_overall_rating_score"
+        ],
+        "group_by": [
+          "hospital__overall_star_rating"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "b06",
+      "category": "breakdown",
+      "question": "Number of hospitals in the payment file per state in FY2020",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.66,
+      "output_tokens": 70,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_in_payment_file"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2020"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "t01",
+      "category": "top or bottom",
+      "question": "Which 3 states had the lowest share of hospitals penalized in FY2026?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.63,
+      "output_tokens": 70,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "lowest_first",
+        "limit": 3
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "t02",
+      "category": "top or bottom",
+      "question": "Top 10 hospitals in Florida with the highest average excess readmission ratio",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.98,
+      "output_tokens": 71,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "FL"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "highest_first",
+        "limit": 10
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "t03",
+      "category": "top or bottom",
+      "question": "Which ownership type has the highest average payment reduction?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 10.46,
+      "output_tokens": 50,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_pct"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "highest_first",
+        "limit": 50
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "t04",
+      "category": "top or bottom",
+      "question": "Which 5 states had the most penalized hospitals?",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong metric",
+      "model_calls": 1,
+      "seconds": 10.61,
+      "output_tokens": 50,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "highest_first",
+        "limit": 5
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "t05",
+      "category": "top or bottom",
+      "question": "Which 3 conditions had the lowest average excess readmission ratio in FY2024?",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 14.57,
+      "output_tokens": 74,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2024"
+          }
+        ],
+        "sort": "lowest_first",
+        "limit": 3
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "y01",
+      "category": "over time",
+      "question": "How has the share of hospitals penalized changed since FY2020?",
+      "status": "answered",
+      "correct": false,
+      "why": "missing breakdown",
+      "model_calls": 1,
+      "seconds": 13.28,
+      "output_tokens": 66,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": ">=",
+            "value": "FY2020"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "y02",
+      "category": "over time",
+      "question": "Average excess readmission ratio for pneumonia in each year",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 13.2,
+      "output_tokens": 71,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "PN"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "y03",
+      "category": "over time",
+      "question": "Number of hospitals at the 3% cap per year",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 10.97,
+      "output_tokens": 51,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "hospitals_at_max_penalty"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "y04",
+      "category": "over time",
+      "question": "Average recommend score each year from FY2022 to FY2026",
+      "status": "answered",
+      "correct": true,
+      "why": "correct",
+      "model_calls": 1,
+      "seconds": 16.32,
+      "output_tokens": 90,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_recommend_score"
+        ],
+        "group_by": [
+          "fiscal_year"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": ">=",
+            "value": "FY2022"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "<=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "c01",
+      "category": "comparison",
+      "question": "Average excess readmission ratio for heart failure vs COPD in FY2026",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 20.35,
+      "output_tokens": 117,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_excess_readmission_ratio"
+        ],
+        "group_by": [
+          "readmission_result__condition"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          },
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "HF"
+          },
+          {
+            "dimension": "readmission_result__condition",
+            "op": "=",
+            "value": "COPD"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "c02",
+      "category": "comparison",
+      "question": "Share of hospitals penalized, proprietary vs voluntary non-profit private hospitals",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 17.47,
+      "output_tokens": 92,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [
+          "hospital__ownership"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__ownership",
+            "op": "=",
+            "value": "Proprietary"
+          },
+          {
+            "dimension": "hospital__ownership",
+            "op": "=",
+            "value": "Voluntary non-profit - Private"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "c03",
+      "category": "comparison",
+      "question": "Average payment reduction in Texas compared with California",
+      "status": "answered",
+      "correct": false,
+      "why": "wrong rows",
+      "model_calls": 1,
+      "seconds": 14.97,
+      "output_tokens": 85,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "avg_payment_reduction_pct"
+        ],
+        "group_by": [
+          "hospital__state"
+        ],
+        "filters": [
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "TX"
+          },
+          {
+            "dimension": "hospital__state",
+            "op": "=",
+            "value": "CA"
+          },
+          {
+            "dimension": "fiscal_year",
+            "op": "=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": null
+    },
+    {
+      "variant": "no_rules",
+      "id": "d01",
+      "category": "decline",
+      "question": "What was the readmission history of the patient in bed 12 at Mercy Hospital?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 8.77,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "patient_level"
+    },
+    {
+      "variant": "no_rules",
+      "id": "d02",
+      "category": "decline",
+      "question": "List the patients readmitted to Johns Hopkins within 30 days last year",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 8.61,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "patient_level"
+    },
+    {
+      "variant": "no_rules",
+      "id": "d03",
+      "category": "decline",
+      "question": "Why does Florida have so many penalized hospitals?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 8.42,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "advice",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "advice",
+      "expected_reason": "causal"
+    },
+    {
+      "variant": "no_rules",
+      "id": "d04",
+      "category": "decline",
+      "question": "Does low nurse staffing cause more readmissions?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 8.85,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "causal",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "causal",
+      "expected_reason": "causal"
+    },
+    {
+      "variant": "no_rules",
+      "id": "d05",
+      "category": "decline",
+      "question": "What will the share of penalized hospitals be in FY2028?",
+      "status": "answered",
+      "correct": false,
+      "why": "not declined (answered)",
+      "model_calls": 2,
+      "seconds": 28.94,
+      "output_tokens": 131,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "share_penalized"
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": ">=",
+            "value": "FY2026"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": "prediction"
+    },
+    {
+      "variant": "no_rules",
+      "id": "d06",
+      "category": "decline",
+      "question": "Which hospitals are likely to be penalized next year?",
+      "status": "answered",
+      "correct": false,
+      "why": "not declined (answered)",
+      "model_calls": 2,
+      "seconds": 39.99,
+      "output_tokens": 199,
+      "plan": {
+        "action": "query",
+        "decline_reason": "none",
+        "metrics": [
+          "eligible_discharges",
+          "results_counting_toward_penalty"
+        ],
+        "group_by": [
+          "hospital__facility_name"
+        ],
+        "filters": [
+          {
+            "dimension": "fiscal_year",
+            "op": ">",
+            "value": "FY2026"
+          },
+          {
+            "dimension": "readmission_result__score_status",
+            "op": "=",
+            "value": "scored"
+          }
+        ],
+        "sort": "none",
+        "limit": 500
+      },
+      "decline_reason": null,
+      "expected_reason": "prediction"
+    },
+    {
+      "variant": "no_rules",
+      "id": "d07",
+      "category": "decline",
+      "question": "Which hospital should I choose for my knee replacement?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 11.54,
+      "output_tokens": 42,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "patient_level",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "patient_level",
+      "expected_reason": "advice"
+    },
+    {
+      "variant": "no_rules",
+      "id": "d08",
+      "category": "decline",
+      "question": "What is the average salary of hospital CEOs?",
+      "status": "declined",
+      "correct": true,
+      "why": "declined",
+      "model_calls": 1,
+      "seconds": 9.4,
+      "output_tokens": 43,
+      "plan": {
+        "action": "decline",
+        "decline_reason": "not_in_data",
+        "metrics": [],
+        "group_by": [],
+        "filters": [],
+        "sort": "none",
+        "limit": 50
+      },
+      "decline_reason": "not_in_data",
+      "expected_reason": "not_in_data"
+    }
+  ]
+}

@@ -174,7 +174,7 @@ share_penalized: Penalized hospitals / hospitals in the payment file, as a fract
 
 `hri ask` sends the question to a **local** model ([Ollama](https://ollama.com), IBM
 `granite4.1:3b`, 2.1 GB, runs on the CPU), so no data leaves the machine and no key is needed
-([why](docs/decisions.md#d-010--llm-agent-through-a-semantic-layer-with-an-evaluation-set--proposed-step-8)).
+([why](docs/decisions.md#d-010--llm-agent-through-a-semantic-layer-with-an-evaluation-set--accepted-step-8)).
 The model writes a **query plan**, not SQL and not the answer:
 
 1. **Plan.** The model returns JSON (metrics, breakdowns, filters, sort, limit, or a decline).
@@ -211,8 +211,47 @@ On this laptop (i7-1165G7, no graphics card) a question takes **8-18 seconds** o
 loaded. The first question after a start takes about a minute, while the model loads and reads
 the 1,800-token catalog.
 
-The 3B model still makes mistakes, for example a count where a share was asked. How often it is
-wrong is measured next (8c), on a fixed question set with answers from hand-written SQL.
+### How often is it right? (step 8c)
+
+The agent is scored on **42 questions** in [evals/questions.yaml](evals/questions.yaml), written
+apart from the questions used to tune it:
+- **34 have gold answers** from SQL written by hand on the tables, without MetricFlow. An
+  answer counts as correct only if the metric, the breakdown, every row and every value match.
+- **8 should be declined:** patients, causes, forecasts, advice, and data the project doesn't
+  have.
+
+Turning parts of the design off shows what each part adds. The model is the same in every run
+(`granite4.1:3b`).
+
+| Variant | Correct | Answerable | Declined correctly | Median time |
+|---|---|---|---|---|
+| **Full agent** | **83%** (35/42) | 29/34 | 6/8 | 13.6 s |
+| Without the prompt examples | 67% (28/42) | 21/34 | 7/8 | 13.1 s |
+| Without the code rules | 69% (29/42) | 23/34 | 6/8 | 13.7 s |
+| Correct plans, no model (checks the gold answers) | 100% | 34/34 | 8/8 | - |
+
+What the errors show:
+- **Picking the metric is the weak spot.** 4 of the full agent's 7 errors are a wrong metric.
+  For "share of hospitals penalized by ownership" it chose the hospitals at the 3% cap, and for
+  "most penalized hospitals" it gave a share where a count was asked. Every single-number
+  question was right (8/8).
+- **The examples matter most for top-N questions.** Without them the model scored 0/5 on those.
+- **The code rules matter most for comparisons and names.** Without them it scored 0/3 on
+  "A vs B" questions and failed both hospital-name questions.
+- **The repair round never helped.** It ran 7 times across the variants and saved no answer.
+  5 times it turned a failure into a confident answer to a different question.
+  - "Share penalized in FY2028?" first asked for FY2028, which doesn't exist. After the
+    error, the model asked for FY2026 instead and answered a different question.
+  - "Cook County" was changed into all of Illinois in the same way.
+- **The reference run found a real bug before any model was scored.** A list of 51 states had
+  been cut to 50, because the model's default limit applied to every answer. That limit now
+  applies only to top-N questions.
+
+These errors are reported, not fixed against this question set. Fixing them here would make the
+score measure the tuning, not the agent; the fixes and a new question set are follow-ups in
+[D-010](docs/decisions.md#d-010--llm-agent-through-a-semantic-layer-with-an-evaluation-set--accepted-step-8).
+Every model reply is saved in [reports/agent](reports/agent/), and a test replays them to check the
+published scores without the model.
 
 ## Planned architecture
 
@@ -234,7 +273,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 5. Hospital-to-county join with a match-rate test, first star-schema tables
 - [x] 6. Archived data to align time periods (prevents data leakage)
 - [x] 7. Validation design, baselines and a three-model comparison (ridge, LightGBM, EBM) explained with SHAP
-- [ ] 8. LLM question-answering agent with an evaluation set (8a semantic layer, 8b agent done)
+- [x] 8. LLM question-answering agent through a semantic layer, with an evaluation set
 - [ ] 9. Power BI dashboard
 - [ ] 10. CI and scheduled data refresh
 
@@ -260,6 +299,8 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri sl list                  # the approved metrics of the semantic layer
 .venv/Scripts/hri sl query share_penalized --by hospital__state --where fiscal_year=FY2026 --order=-share_penalized --limit 10
 .venv/Scripts/hri ask "How many hospitals were penalized each year?"   # needs Ollama + granite4.1:3b
+.venv/Scripts/hri eval                   # score the agent on 42 questions, 3 variants (about 30 minutes)
+.venv/Scripts/hri eval --replay          # rescore the saved replies, no model needed
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 

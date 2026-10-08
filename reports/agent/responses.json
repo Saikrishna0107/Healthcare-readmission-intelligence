@@ -1,0 +1,393 @@
+{
+  "full": {
+    "s01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_in_payment_file\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2021\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"max_payment_reduction_pct\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_among_penalized_pct\"], \"group_by\": [], \"filters\": [{\"dimension\": \"hospital_year__is_penalized\", \"op\": \"=\", \"value\": \"true\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2025\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s06": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2022\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s07": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"eligible_discharges\"], \"group_by\": [], \"filters\": [{\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"HIP_KNEE\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2025\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s08": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_care_transition_score\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"OH\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"penalized_hospitals\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"NY\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2023\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"hospital__county__county_name\"], \"filters\": [{\"dimension\": \"hospital__county__county_name\", \"op\": \"=\", \"value\": \"Cook\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}, {\"dimension\": \"hospital__facility_name\", \"op\": \"=\", \"value\": \"Massachusetts General Hospital\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"hospital__facility_name\", \"op\": \"=\", \"value\": \"Cedars-Sinai Medical Center\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f06": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"results_worse_than_expected\"], \"group_by\": [\"readmission_result__condition\", \"hospital__state\"], \"filters\": [{\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"HF\"}, {\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"TX\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f07": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"penalized_hospitals\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [{\"dimension\": \"hospital__ownership\", \"op\": \"=\", \"value\": \"Proprietary\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f08": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_recommend_score\"], \"group_by\": [\"hospital__overall_star_rating\"], \"filters\": [{\"dimension\": \"hospital__overall_star_rating\", \"op\": \"=\", \"value\": \"5\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [\"hospital_year__peer_group\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"readmission_result__condition\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"scored_results\"], \"group_by\": [\"readmission_result__condition\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2023\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_overall_rating_score\"], \"group_by\": [\"hospital__overall_star_rating\"], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b06": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_in_payment_file\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2020\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "t01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"lowest_first\", \"limit\": 3}"
+    ],
+    "t02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"FL\"}], \"sort\": \"highest_first\", \"limit\": 10}"
+    ],
+    "t03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [], \"sort\": \"highest_first\", \"limit\": 50}"
+    ],
+    "t04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [\"hospital__state\"], \"filters\": [], \"sort\": \"highest_first\", \"limit\": 5}"
+    ],
+    "t05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"readmission_result__condition\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}], \"sort\": \"lowest_first\", \"limit\": 3}"
+    ],
+    "y01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \">=\", \"value\": \"FY2020\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "y02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"fiscal_year\"], \"filters\": [{\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"PN\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "y03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [\"fiscal_year\"], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "y04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_recommend_score\"], \"group_by\": [\"fiscal_year\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \">=\", \"value\": \"FY2022\"}, {\"dimension\": \"fiscal_year\", \"op\": \"<=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "c01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"readmission_result__condition\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}, {\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"HF\"}, {\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"COPD\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "c02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [{\"dimension\": \"hospital__ownership\", \"op\": \"=\", \"value\": \"Proprietary\"}, {\"dimension\": \"hospital__ownership\", \"op\": \"=\", \"value\": \"Voluntary non-profit - Private\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "c03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"TX\"}, {\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"CA\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d01": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d02": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d03": [
+      "{\"action\": \"decline\", \"decline_reason\": \"advice\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d04": [
+      "{\"action\": \"decline\", \"decline_reason\": \"causal\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2028\"}], \"sort\": \"none\", \"limit\": 50}",
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d06": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"eligible_discharges\", \"results_counting_toward_penalty\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2027\"}, {\"dimension\": \"readmission_result__score_status\", \"op\": \"=\", \"value\": \"scored\"}], \"sort\": \"none\", \"limit\": 50}",
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"eligible_discharges\", \"results_counting_toward_penalty\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d07": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d08": [
+      "{\"action\": \"decline\", \"decline_reason\": \"not_in_data\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ]
+  },
+  "no_examples": {
+    "s01": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"hospitals_in_payment_file\"],\n  \"group_by\": [],\n  \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}],\n  \"sort\": \"none\",\n  \"limit\": 1\n}"
+    ],
+    "s02": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"share_penalized\"],\n  \"group_by\": [],\n  \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2021\"}],\n  \"sort\": \"none\",\n  \"limit\": 1\n}"
+    ],
+    "s03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"max_payment_reduction_pct\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 1}"
+    ],
+    "s04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s05": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_payment_reduction_among_penalized_pct\"],\n  \"group_by\": [],\n  \"filters\": [\n    {\n      \"dimension\": \"fiscal_year\",\n      \"op\": \"=\",\n      \"value\": \"FY2025\"\n    },\n    {\n      \"dimension\": \"hospital_year__is_penalized\",\n      \"op\": \"=\",\n      \"value\": \"true\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 1\n}"
+    ],
+    "s06": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [],\n  \"filters\": [\n    {\n      \"dimension\": \"fiscal_year\",\n      \"op\": \"=\",\n      \"value\": \"FY2022\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 1\n}"
+    ],
+    "s07": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"eligible_discharges\"],\n  \"group_by\": [\"readmission_result__condition\"],\n  \"filters\": [\n    {\n      \"dimension\": \"readmission_result__condition\",\n      \"op\": \"=\",\n      \"value\": \"HIP_KNEE\"\n    },\n    {\n      \"dimension\": \"fiscal_year\",\n      \"op\": \"=\",\n      \"value\": \"FY2025\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "s08": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_care_transition_score\"],\n  \"group_by\": [],\n  \"filters\": [\n    {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "f01": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"share_penalized\"],\n  \"group_by\": [\"hospital__state\"],\n  \"filters\": [\n    {\n      \"dimension\": \"hospital__state\",\n      \"op\": \"=\",\n      \"value\": \"OH\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "f02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"penalized_hospitals\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"NY\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2023\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f03": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [\"hospital__county__county_name\"],\n  \"filters\": [\n    {\n      \"dimension\": \"hospital__county__county_name\",\n      \"op\": \"=\",\n      \"value\": \"Cook County\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}",
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [\"hospital__county__state_name\"],\n  \"filters\": [\n    {\n      \"dimension\": \"hospital__county__state_name\",\n      \"op\": \"=\",\n      \"value\": \"Illinois\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "f04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__facility_name\", \"fiscal_year\"], \"filters\": [{\"dimension\": \"hospital__facility_name\", \"op\": \"=\", \"value\": \"Massachusetts General Hospital\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 1}"
+    ],
+    "f05": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [\"hospital__facility_name\"],\n  \"filters\": [\n    {\n      \"dimension\": \"hospital__facility_name\",\n      \"op\": \"=\",\n      \"value\": \"Cedars-Sinai Medical Center\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 1\n}"
+    ],
+    "f06": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"results_worse_than_expected\"],\n  \"group_by\": [\"readmission_result__condition\"],\n  \"filters\": [\n    {\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"HF\"},\n    {\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"TX\"}\n  ],\n  \"sort\": \"none\",\n  \"limit\": 1\n}"
+    ],
+    "f07": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"penalized_hospitals\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [{\"dimension\": \"hospital__ownership\", \"op\": \"=\", \"value\": \"Proprietary\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f08": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_overall_rating_score\"],\n  \"group_by\": [\"hospital__overall_star_rating\"],\n  \"filters\": [\n    {\n      \"dimension\": \"hospital__overall_star_rating\",\n      \"op\": \"=\",\n      \"value\": \"5\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "b01": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"penalized_hospitals\", \"hospitals_at_max_penalty\", \"hospitals_in_payment_file\"],\n  \"group_by\": [\"hospital__ownership\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "b02": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"share_penalized\"],\n  \"group_by\": [\"hospital_year__peer_group\"],\n  \"filters\": [{\"dimension\": \"hospital_year__is_penalized\", \"op\": \"=\", \"value\": \"true\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "b03": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [\"readmission_result__condition\"],\n  \"filters\": [\n    {\n      \"dimension\": \"fiscal_year\",\n      \"op\": \"=\",\n      \"value\": \"FY2026\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "b04": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"scored_results\"],\n  \"group_by\": [\"readmission_result__condition\"],\n  \"filters\": [\n    {\n      \"dimension\": \"fiscal_year\",\n      \"op\": \"=\",\n      \"value\": \"FY2023\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "b05": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_overall_rating_score\"],\n  \"group_by\": [\"hospital__overall_star_rating\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "b06": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"hospitals_in_payment_file\"],\n  \"group_by\": [\"hospital__state\"],\n  \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2020\"}],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "t01": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"share_penalized\"],\n  \"group_by\": [\"hospital__state\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 3\n}"
+    ],
+    "t02": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [\"hospital__facility_name\", \"readmission_result__condition\"],\n  \"filters\": [\n    {\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"FL\"},\n    {\"dimension\": \"readmission_result__score_status\", \"op\": \"=\", \"value\": \"scored\"}\n  ],\n  \"sort\": \"none\",\n  \"limit\": 10\n}"
+    ],
+    "t03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "t04": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"penalized_hospitals\"],\n  \"group_by\": [\"hospital__state\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 5\n}"
+    ],
+    "t05": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [\"readmission_result__condition\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 3\n}"
+    ],
+    "y01": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"share_penalized\"],\n  \"group_by\": [\"fiscal_year\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "y02": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [\"readmission_result__condition\", \"fiscal_year\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "y03": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"max_payment_reduction_pct\", \"hospitals_at_max_penalty\"],\n  \"group_by\": [\"fiscal_year\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "y04": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_recommend_score\"],\n  \"group_by\": [\"fiscal_year\"],\n  \"filters\": [\n    {\"dimension\": \"fiscal_year\", \"op\": \">=\", \"value\": \"FY2022\"},\n    {\"dimension\": \"fiscal_year\", \"op\": \"<=\", \"value\": \"FY2026\"}\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "c01": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"avg_excess_readmission_ratio\"],\n  \"group_by\": [\"readmission_result__condition\"],\n  \"filters\": [\n    {\n      \"dimension\": \"readmission_result__condition\",\n      \"op\": \"=\",\n      \"value\": \"HF\"\n    },\n    {\n      \"dimension\": \"fiscal_year\",\n      \"op\": \"=\",\n      \"value\": \"FY2026\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "c02": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"share_penalized\"],\n  \"group_by\": [\"hospital__ownership\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "c03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"TX\"}, {\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"CA\"}], \"sort\": \"none\", \"limit\": 2}"
+    ],
+    "d01": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d02": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d03": [
+      "{\n  \"action\": \"decline\",\n  \"decline_reason\": \"causal\",\n  \"metrics\": [],\n  \"group_by\": [],\n  \"filters\": [\n    {\n      \"dimension\": \"hospital__state\",\n      \"op\": \"=\",\n      \"value\": \"FL\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "d04": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [],\"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d05": [
+      "{\n  \"action\": \"decline\",\n  \"decline_reason\": \"prediction\",\n  \"metrics\": [\"share_penalized\"],\n  \"group_by\": [\"fiscal_year\"],\n  \"filters\": [\n    {\n      \"dimension\": \"fiscal_year\",\n      \"op\": \"=\",\n      \"value\": \"FY2028\"\n    }\n  ],\n  \"sort\": \"none\",\n  \"limit\": 1\n}"
+    ],
+    "d06": [
+      "{\n  \"action\": \"query\",\n  \"decline_reason\": \"none\",\n  \"metrics\": [\"penalized_hospitals\", \"share_penalized\"],\n  \"group_by\": [\"hospital__facility_name\"],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "d07": [
+      "{\n  \"action\": \"decline\",\n  \"decline_reason\": \"patient_level\",\n  \"metrics\": [],\n  \"group_by\": [],\n  \"filters\": [],\n  \"sort\": \"none\",\n  \"limit\": 50\n}"
+    ],
+    "d08": [
+      "{\"action\": \"decline\", \"decline_reason\": \"causal\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ]
+  },
+  "no_rules": {
+    "s01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_in_payment_file\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2021\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"max_payment_reduction_pct\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_among_penalized_pct\"], \"group_by\": [], \"filters\": [{\"dimension\": \"hospital_year__is_penalized\", \"op\": \"=\", \"value\": \"true\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2025\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s06": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2022\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s07": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"eligible_discharges\"], \"group_by\": [], \"filters\": [{\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"HIP_KNEE\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2025\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "s08": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_care_transition_score\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"OH\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"penalized_hospitals\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"NY\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2023\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"hospital__county__county_name\"], \"filters\": [{\"dimension\": \"hospital__county__county_name\", \"op\": \"=\", \"value\": \"Cook\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}, {\"dimension\": \"hospital__facility_name\", \"op\": \"=\", \"value\": \"Massachusetts General Hospital\"}], \"sort\": \"none\", \"limit\": 50}",
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_among_penalized_pct\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}, {\"dimension\": \"hospital__facility_name\", \"op\": \"=\", \"value\": \"Massachusetts General Hospital\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"hospital__facility_name\", \"op\": \"=\", \"value\": \"Cedars-Sinai Medical Center\"}], \"sort\": \"none\", \"limit\": 50}",
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"hospital__facility_name\", \"op\": \"=\", \"value\": \"Cedars Sinai Medical Center\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f06": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"results_worse_than_expected\"], \"group_by\": [\"readmission_result__condition\", \"hospital__state\"], \"filters\": [{\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"HF\"}, {\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"TX\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f07": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"penalized_hospitals\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [{\"dimension\": \"hospital__ownership\", \"op\": \"=\", \"value\": \"Proprietary\"}, {\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "f08": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_recommend_score\"], \"group_by\": [\"hospital__overall_star_rating\"], \"filters\": [{\"dimension\": \"hospital__overall_star_rating\", \"op\": \"=\", \"value\": \"5\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [\"hospital_year__peer_group\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"readmission_result__condition\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"scored_results\"], \"group_by\": [\"readmission_result__condition\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2023\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_overall_rating_score\"], \"group_by\": [\"hospital__overall_star_rating\"], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "b06": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_in_payment_file\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2020\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "t01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}], \"sort\": \"lowest_first\", \"limit\": 3}"
+    ],
+    "t02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"FL\"}], \"sort\": \"highest_first\", \"limit\": 10}"
+    ],
+    "t03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [], \"sort\": \"highest_first\", \"limit\": 50}"
+    ],
+    "t04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [\"hospital__state\"], \"filters\": [], \"sort\": \"highest_first\", \"limit\": 5}"
+    ],
+    "t05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"readmission_result__condition\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2024\"}], \"sort\": \"lowest_first\", \"limit\": 3}"
+    ],
+    "y01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \">=\", \"value\": \"FY2020\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "y02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"fiscal_year\"], \"filters\": [{\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"PN\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "y03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"hospitals_at_max_penalty\"], \"group_by\": [\"fiscal_year\"], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "y04": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_recommend_score\"], \"group_by\": [\"fiscal_year\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \">=\", \"value\": \"FY2022\"}, {\"dimension\": \"fiscal_year\", \"op\": \"<=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "c01": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_excess_readmission_ratio\"], \"group_by\": [\"readmission_result__condition\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2026\"}, {\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"HF\"}, {\"dimension\": \"readmission_result__condition\", \"op\": \"=\", \"value\": \"COPD\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "c02": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [\"hospital__ownership\"], \"filters\": [{\"dimension\": \"hospital__ownership\", \"op\": \"=\", \"value\": \"Proprietary\"}, {\"dimension\": \"hospital__ownership\", \"op\": \"=\", \"value\": \"Voluntary non-profit - Private\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "c03": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"avg_payment_reduction_pct\"], \"group_by\": [\"hospital__state\"], \"filters\": [{\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"TX\"}, {\"dimension\": \"hospital__state\", \"op\": \"=\", \"value\": \"CA\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d01": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d02": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d03": [
+      "{\"action\": \"decline\", \"decline_reason\": \"advice\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d04": [
+      "{\"action\": \"decline\", \"decline_reason\": \"causal\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d05": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2028\"}], \"sort\": \"none\", \"limit\": 50}",
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"share_penalized\"], \"group_by\": [], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \">=\", \"value\": \"FY2026\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d06": [
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"eligible_discharges\", \"results_counting_toward_penalty\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \"=\", \"value\": \"FY2027\"}, {\"dimension\": \"readmission_result__score_status\", \"op\": \"=\", \"value\": \"scored\"}], \"sort\": \"none\", \"limit\": 50}",
+      "{\"action\": \"query\", \"decline_reason\": \"none\", \"metrics\": [\"eligible_discharges\", \"results_counting_toward_penalty\"], \"group_by\": [\"hospital__facility_name\"], \"filters\": [{\"dimension\": \"fiscal_year\", \"op\": \">\", \"value\": \"FY2026\"}, {\"dimension\": \"readmission_result__score_status\", \"op\": \"=\", \"value\": \"scored\"}], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d07": [
+      "{\"action\": \"decline\", \"decline_reason\": \"patient_level\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ],
+    "d08": [
+      "{\"action\": \"decline\", \"decline_reason\": \"not_in_data\", \"metrics\": [], \"group_by\": [], \"filters\": [], \"sort\": \"none\", \"limit\": 50}"
+    ]
+  }
+}

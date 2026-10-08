@@ -313,7 +313,7 @@ simpler family (ridge < EBM < LightGBM) wins if within 0.01.**
 
 ---
 
-## D-010 · LLM agent through a semantic layer, with an evaluation set · Proposed (step 8)
+## D-010 · LLM agent through a semantic layer, with an evaluation set · Accepted (step 8)
 
 **Decision.** Build an agent that answers plain-English questions by writing SQL, but only
 against a semantic layer of approved metric definitions, with read-only access and row limits.
@@ -363,6 +363,44 @@ unreliable and not something a healthcare organization would deploy.
 - **Development questions vs evaluation questions.** The prompt examples and the code rules were
   tuned on eight development questions. The 8c evaluation set is written separately, so its
   score is not inflated by that tuning.
+
+**Evaluated in 8c.** Code in `src/hri/agent/evaluate.py`, questions in `evals/questions.yaml`,
+results in `reports/agent/`.
+- **The comparison.** The owner chose to compare variants of the one installed model rather than
+  download a second model. The variants switch off the prompt examples, or the code rules.
+  - This measures what the design adds, which matters more for this project than model size.
+  - Comparing models stays possible: `hri eval --model <name>`.
+- **Gold answers come from hand SQL on the marts.** The reference variant (the correct plans,
+  no model) must score 100%. That checks the gold SQL, the scorer and the MetricFlow
+  definitions against each other.
+  - It found one real bug: the model's default limit of 50 cut a 51-row list.
+  - Now a limit applies only to sorted (top-N) answers.
+- **Scoring is strict.** The metric, the breakdown, the rows and the values must all match.
+  - For "which ownership type has the highest" it returned every ownership type, ranked. That
+    counts as wrong, because the question asked for one.
+- **Results with granite4.1:3b:**
+
+  | Variant | Correct | Answerable | Declined correctly |
+  |---|---|---|---|
+  | Full | 83% | 29/34 | 6/8 |
+  | No examples | 67% | 21/34 | 7/8 |
+  | No rules | 69% | 23/34 | 6/8 |
+
+  - Median time 13-14 s; 90% of questions within 18 s.
+  - One no-examples question took 11 minutes, so set a time limit before production use.
+- **Accepted** as the design: examples and code rules each add 14-17 points.
+- **Not fixed against this set, to keep the score honest.** Follow-ups, to be checked on new
+  questions:
+  1. **The repair round is net harmful with a 3B model.** It ran 7 times and saved no answer.
+     5 times it turned a failure into a confident answer to a different question. The model "fixed" FY2028 to FY2026, and Cook County to all of Illinois. A
+     year after the latest one should be a decline in code, and a repair must keep the
+     question's filters.
+  2. **Wrong metric is the main error** (4 of 7). Candidates:
+     - shorter metric descriptions that lead with the counted thing
+     - a share/count check in code ("share", "percent" → a share_ metric)
+     - a larger model
+- **Recorded replies.** Every model reply is saved. `hri eval --replay` and a test recompute
+  every verdict from them without the model, so the published numbers are checked in CI.
 
 ---
 
