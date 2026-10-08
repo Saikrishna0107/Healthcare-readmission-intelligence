@@ -54,6 +54,12 @@ def main(argv: list[str] | None = None) -> int:
     query_cmd.add_argument("--limit", type=int, default=50)
     query_cmd.add_argument("--sql", action="store_true", help="also print the SQL MetricFlow wrote")
 
+    ask_cmd = commands.add_parser("ask", help="ask a question in plain English (local LLM via Ollama)")
+    ask_cmd.add_argument("question", nargs="+", help='e.g. "Which 5 states had the most penalties?"')
+    ask_cmd.add_argument("--model", default=None, help="Ollama model (default granite4.1:3b)")
+    ask_cmd.add_argument("--plan", action="store_true", help="also print the query plan the model wrote")
+    ask_cmd.add_argument("--sql", action="store_true", help="also print the SQL MetricFlow wrote")
+
     args = parser.parse_args(argv)
     if args.command == "dbt":
         return run_dbt(args.dbt_args)
@@ -68,6 +74,8 @@ def main(argv: list[str] | None = None) -> int:
         return _model_train(args)
     if args.command == "sl":
         return _semantic_layer(args)
+    if args.command == "ask":
+        return _ask(args)
     return _status()
 
 
@@ -121,6 +129,34 @@ def _semantic_layer(args: argparse.Namespace) -> int:
     if args.sql:
         print("\n" + result.sql)
     return 0
+
+
+def _ask(args: argparse.Namespace) -> int:
+    import json
+
+    from hri.agent import DEFAULT_MODEL, Agent, LLMError, OllamaClient
+
+    agent = Agent(OllamaClient(model=args.model or DEFAULT_MODEL))
+    try:
+        answer = agent.ask(" ".join(args.question))
+    except LLMError as exc:
+        print(exc)
+        return 2
+    print(answer.text)
+    for note in answer.notes:
+        print(f"  Note: {note}")
+    if answer.status == "answered":
+        definitions = {m.name: m.description for m in agent.layer.metrics.values()}
+        for name in answer.plan.metrics:
+            print(f"\n{name}: {definitions[name]}")
+    if args.plan and answer.plan:
+        print("\nPlan: " + json.dumps(answer.plan.as_dict(), default=str))
+    if args.sql and answer.sql:
+        print("\n" + answer.sql)
+    tokens = sum(c.output_tokens for c in answer.calls)
+    print(f"\n[{answer.status}; {len(answer.calls)} model call(s), {tokens} tokens written, "
+          f"{answer.seconds:.1f} s]")
+    return 0 if answer.status == "answered" else 1
 
 
 def _model_train(args: argparse.Namespace) -> int:

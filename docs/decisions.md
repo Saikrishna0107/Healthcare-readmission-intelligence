@@ -338,6 +338,32 @@ unreliable and not something a healthcare organization would deploy.
   therefore asks the model for a JSON-schema-constrained plan in one call, rather than a
   multi-step tool conversation, and the evaluation compares a small and a mid-size model.
 
+**Built in 8b.** Code in `src/hri/agent/`; command `hri ask`.
+- **Model: `granite4.1:3b`** (IBM, Apache 2.0, Q4 quantized, 2.1 GB). It is small enough for 16 GB
+  of RAM with no graphics card, and its JSON output followed the schema in every trial. The
+  owner approved this download only, so a larger model is not installed yet.
+- **What the model decides:** which metrics, breakdowns and filters to use, and whether to
+  decline.
+- **What code decides:**
+  - the values (state names become codes; hospital names are matched exactly, then without
+    case, then by a unique part of the name, then by close spelling)
+  - the default year
+  - the answer text and number formats
+- Each correction the code makes is printed with the answer, so a reader can see what was
+  assumed.
+- **Rules moved from the prompt into code** after the 3B model broke them on development
+  questions:
+  - a range of years is shown per year
+  - two `=` filters on one dimension become a comparison
+- **One repair round.** The validation error goes back to the model, which gets one second
+  attempt. After that the agent gives up and says why.
+- **Tests use a scripted fake model** (`tests/test_agent.py`), so they are fast and repeatable.
+  The fake model checks the code around the model, not the model. The model is measured by the
+  evaluation set in 8c.
+- **Development questions vs evaluation questions.** The prompt examples and the code rules were
+  tuned on eight development questions. The 8c evaluation set is written separately, so its
+  score is not inflated by that tuning.
+
 ---
 
 ## D-011 · Power BI dashboard, Streamlit for the agent · Proposed (step 9)

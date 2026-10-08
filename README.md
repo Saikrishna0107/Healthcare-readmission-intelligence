@@ -170,8 +170,49 @@ $ hri sl query share_penalized hospitals_in_payment_file --by hospital__ownershi
 share_penalized: Penalized hospitals / hospitals in the payment file, as a fraction (0.78 = 78%).
 ```
 
-Next: a local LLM (Ollama) that turns a plain-English question into one of these queries, and
-an evaluation set that measures how often it gets the answer right.
+### Asking in plain English (step 8b)
+
+`hri ask` sends the question to a **local** model ([Ollama](https://ollama.com), IBM
+`granite4.1:3b`, 2.1 GB, runs on the CPU), so no data leaves the machine and no key is needed
+([why](docs/decisions.md#d-010--llm-agent-through-a-semantic-layer-with-an-evaluation-set--proposed-step-8)).
+The model writes a **query plan**, not SQL and not the answer:
+
+1. **Plan.** The model returns JSON (metrics, breakdowns, filters, sort, limit, or a decline).
+   The JSON schema lists the approved names, so Ollama can only produce those.
+2. **Check and fix values in code.** For example `Maryland` becomes `MD` and `johns hopkins
+   hospital` becomes `JOHNS HOPKINS HOSPITAL, THE`. Every change is printed as a note.
+3. **One repair.** If the plan cannot run, the error goes back to the model once.
+4. **Run** through the semantic layer, read-only.
+5. **Answer written by code** from the result table. The numbers never pass through the model.
+
+Rules in code, not in the prompt:
+
+- no year means the latest one
+- a range of years gets one row per year, never one total
+- "A vs B" becomes a side-by-side comparison
+- a hospital name shared across states is flagged
+
+Questions about patients, causes ("why"), predictions or advice are declined.
+
+```
+$ hri ask "Which 5 states had the highest share of hospitals penalized?"
+Share of hospitals penalized (fiscal year = FY2026):
+
+state Share of hospitals penalized
+   FL                        92.8%
+   NH                        92.3%
+   NJ                        91.8%
+   HI                        90.9%
+   NV                        90.0%
+  Note: No year given: used FY2026, the latest.
+```
+
+On this laptop (i7-1165G7, no graphics card) a question takes **8-18 seconds** once the model is
+loaded. The first question after a start takes about a minute, while the model loads and reads
+the 1,800-token catalog.
+
+The 3B model still makes mistakes, for example a count where a share was asked. How often it is
+wrong is measured next (8c), on a fixed question set with answers from hand-written SQL.
 
 ## Planned architecture
 
@@ -193,7 +234,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 5. Hospital-to-county join with a match-rate test, first star-schema tables
 - [x] 6. Archived data to align time periods (prevents data leakage)
 - [x] 7. Validation design, baselines and a three-model comparison (ridge, LightGBM, EBM) explained with SHAP
-- [ ] 8. LLM question-answering agent with an evaluation set (8a semantic layer done)
+- [ ] 8. LLM question-answering agent with an evaluation set (8a semantic layer, 8b agent done)
 - [ ] 9. Power BI dashboard
 - [ ] 10. CI and scheduled data refresh
 
@@ -218,6 +259,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri model train            # train and score the penalty models (about 20 minutes)
 .venv/Scripts/hri sl list                  # the approved metrics of the semantic layer
 .venv/Scripts/hri sl query share_penalized --by hospital__state --where fiscal_year=FY2026 --order=-share_penalized --limit 10
+.venv/Scripts/hri ask "How many hospitals were penalized each year?"   # needs Ollama + granite4.1:3b
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 

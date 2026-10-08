@@ -149,6 +149,35 @@ class SemanticLayer:
                                    tuple(sorted(dimensions | set(ENTITY_DIMENSIONS))))
         return dict(sorted(found.items()))
 
+    @cached_property
+    def dimension_descriptions(self) -> dict[str, str]:
+        """Each dimension's description from the YAML, keyed by entity__dimension
+        (hospital__state). A two-join name such as hospital__county__state_name is described by
+        its last two parts; see describe()."""
+        import json
+
+        assert self._config  # makes sure the manifest is current
+        manifest = json.loads((DBT_DIR / "target" / "semantic_manifest.json").read_text(encoding="utf-8"))
+        found = dict(ENTITY_DIMENSIONS)
+        for model in manifest["semantic_models"]:
+            primary = next(e["name"] for e in model["entities"] if e["type"] == "primary")
+            for d in model["dimensions"]:
+                found[f"{primary}__{d['name']}"] = " ".join((d.get("description") or "").split())
+        return found
+
+    def describe(self, dimension: str) -> str:
+        return self.dimension_descriptions.get("__".join(dimension.split("__")[-2:]), "")
+
+    def dimension_values(self, *dimensions: str) -> pd.DataFrame:
+        """Every combination of values the dimensions take in the data (no row cap), from a query
+        of the first metric that offers them all, so they are exactly the values a filter can
+        match. Used to check and correct values before a query, not to answer questions."""
+        metric = next((m.name for m in self.metrics.values() if set(dimensions) <= set(m.dimensions)), None)
+        if metric is None:
+            raise SemanticLayerError(f"No metric offers {', '.join(dimensions)}")
+        data = self._run([metric], group_by=list(dimensions), order_by=list(dimensions)).data
+        return data[list(dimensions)].dropna().reset_index(drop=True)
+
     def dimensions_for(self, metric_names: list[str]) -> set[str]:
         """Dimensions valid for every one of the metrics (a query can only use shared ones)."""
         unknown = [m for m in metric_names if m not in self.metrics]
@@ -174,14 +203,17 @@ class SemanticLayer:
 
     def query(self, metrics: list[str], group_by=(), filters=(), order_by=(), limit=MAX_ROWS,
               ) -> QueryResult:
-        from metricflow.engine.metricflow_engine import MetricFlowQueryRequest
-
         self.validate(metrics, group_by, filters, order_by, limit)
         order_by = list(order_by) or list(group_by)  # stable row order when none is asked for
+        return self._run(metrics, group_by, [where_clause(f) for f in filters], order_by, limit)
+
+    def _run(self, metrics, group_by=(), where=(), order_by=(), limit=None) -> QueryResult:
+        from metricflow.engine.metricflow_engine import MetricFlowQueryRequest
+
         request = MetricFlowQueryRequest.create(
             metric_names=list(metrics),
             group_by_names=list(group_by) or None,
-            where_constraints=[where_clause(f) for f in filters] or None,
+            where_constraints=list(where) or None,
             order_by_names=list(order_by) or None,
             limit=limit,
         )
