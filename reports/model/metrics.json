@@ -11,7 +11,11 @@
     "test_rows": 2945,
     "test_year": "FY2026"
   },
-  "selection_metric": "auc_top_quarter, grouped cross-validation on the training years",
+  "selection": {
+    "metric": "auc_top_quarter, 5-fold cross-validation grouped by hospital, training years only",
+    "rule": "best CV AUC; a simpler family (linear < ebm < lightgbm) wins within 0.01",
+    "chosen": "lightgbm"
+  },
   "models": {
     "training_mean": {
       "description": "Every hospital gets the training-years average.",
@@ -91,7 +95,7 @@
       }
     },
     "linear_drivers": {
-      "description": "Ridge regression on the driver features, all training years.",
+      "description": "Ridge regression on the driver features.",
       "train_rows": 12301,
       "train_years": [
         "FY2020",
@@ -99,8 +103,11 @@
         "FY2022",
         "FY2023"
       ],
+      "family": "linear",
       "features": 37,
-      "alpha": 100.0,
+      "params": {
+        "alpha": 100.0
+      },
       "cv": {
         "auc_top_quarter": 0.6831,
         "auc_penalized": 0.7703,
@@ -127,152 +134,259 @@
         }
       }
     },
-    "linear_drivers_same_rows": {
-      "description": "Ridge on the drivers, trained only on the years the prior-results variant can use.",
-      "train_rows": 6091,
+    "lightgbm_drivers": {
+      "description": "LightGBM gradient-boosted trees on the driver features.",
+      "train_rows": 12301,
       "train_years": [
+        "FY2020",
+        "FY2021",
         "FY2022",
         "FY2023"
       ],
+      "family": "lightgbm",
       "features": 37,
-      "alpha": 1000.0,
+      "params": {
+        "num_leaves": 15,
+        "min_child_samples": 50,
+        "n_estimators": 300
+      },
       "cv": {
-        "auc_top_quarter": 0.6827,
-        "auc_penalized": 0.7824,
-        "spearman": 0.4326,
-        "mae_pct": 0.3655
+        "auc_top_quarter": 0.7231,
+        "auc_penalized": 0.7595,
+        "spearman": 0.4734,
+        "mae_pct": 0.4
       },
       "test": {
-        "auc_top_quarter": 0.7164,
-        "auc_penalized": 0.7943,
-        "spearman": 0.4783,
-        "mae_pct": 0.3142,
+        "auc_top_quarter": 0.7449,
+        "auc_penalized": 0.7802,
+        "spearman": 0.5019,
+        "mae_pct": 0.3138,
         "mean_actual_pct": 0.344,
-        "mean_predicted_pct": 0.4244,
+        "mean_predicted_pct": 0.4588,
         "hospitals": 2945,
         "interval_95": {
           "auc_top_quarter": [
-            0.6953,
-            0.7375
+            0.7257,
+            0.7643
           ],
           "spearman": [
-            0.4501,
-            0.5064
+            0.474,
+            0.5321
           ]
         }
       }
     },
-    "linear_with_prior": {
-      "description": "Ridge on the drivers plus the hospital's results from three fiscal years earlier.",
+    "ebm_drivers": {
+      "description": "Explainable Boosting Machine on the driver features.",
+      "train_rows": 12301,
+      "train_years": [
+        "FY2020",
+        "FY2021",
+        "FY2022",
+        "FY2023"
+      ],
+      "family": "ebm",
+      "features": 37,
+      "params": {
+        "interactions": 10,
+        "outer_bags": 8
+      },
+      "cv": {
+        "auc_top_quarter": 0.6737,
+        "auc_penalized": 0.6865,
+        "spearman": 0.359,
+        "mae_pct": 0.452
+      },
+      "test": {
+        "auc_top_quarter": 0.7235,
+        "auc_penalized": 0.7047,
+        "spearman": 0.4232,
+        "mae_pct": 0.3343,
+        "mean_actual_pct": 0.344,
+        "mean_predicted_pct": 0.4197,
+        "hospitals": 2945,
+        "interval_95": {
+          "auc_top_quarter": [
+            0.7033,
+            0.7443
+          ],
+          "spearman": [
+            0.3923,
+            0.4528
+          ]
+        }
+      }
+    },
+    "lightgbm_drivers_same_rows": {
+      "description": "LightGBM gradient-boosted trees on the drivers, trained only on the years the prior-results variant can use.",
       "train_rows": 6091,
       "train_years": [
         "FY2022",
         "FY2023"
       ],
-      "features": 40,
-      "alpha": 1000.0,
+      "family": "lightgbm",
+      "features": 37,
+      "params": {
+        "num_leaves": 31,
+        "min_child_samples": 50,
+        "n_estimators": 300
+      },
       "cv": {
-        "auc_top_quarter": 0.7485,
-        "auc_penalized": 0.8041,
-        "spearman": 0.5251,
-        "mae_pct": 0.3421
+        "auc_top_quarter": 0.7201,
+        "auc_penalized": 0.7448,
+        "spearman": 0.4531,
+        "mae_pct": 0.3485
       },
       "test": {
-        "auc_top_quarter": 0.7609,
-        "auc_penalized": 0.7993,
-        "spearman": 0.5351,
-        "mae_pct": 0.2747,
+        "auc_top_quarter": 0.747,
+        "auc_penalized": 0.7673,
+        "spearman": 0.5007,
+        "mae_pct": 0.2947,
         "mean_actual_pct": 0.344,
-        "mean_predicted_pct": 0.3544,
+        "mean_predicted_pct": 0.4166,
         "hospitals": 2945,
         "interval_95": {
           "auc_top_quarter": [
-            0.7417,
-            0.7807
+            0.7279,
+            0.7664
           ],
           "spearman": [
-            0.5076,
-            0.5623
+            0.473,
+            0.5291
+          ]
+        }
+      }
+    },
+    "lightgbm_with_prior": {
+      "description": "LightGBM gradient-boosted trees on the drivers plus the hospital's results from three fiscal years earlier.",
+      "train_rows": 6091,
+      "train_years": [
+        "FY2022",
+        "FY2023"
+      ],
+      "family": "lightgbm",
+      "features": 40,
+      "params": {
+        "num_leaves": 31,
+        "min_child_samples": 50,
+        "n_estimators": 300
+      },
+      "cv": {
+        "auc_top_quarter": 0.7705,
+        "auc_penalized": 0.7776,
+        "spearman": 0.5294,
+        "mae_pct": 0.3229
+      },
+      "test": {
+        "auc_top_quarter": 0.7402,
+        "auc_penalized": 0.753,
+        "spearman": 0.481,
+        "mae_pct": 0.268,
+        "mean_actual_pct": 0.344,
+        "mean_predicted_pct": 0.327,
+        "hospitals": 2945,
+        "interval_95": {
+          "auc_top_quarter": [
+            0.7194,
+            0.7612
+          ],
+          "spearman": [
+            0.4495,
+            0.5112
           ]
         }
       }
     }
   },
   "paired_comparisons": {
-    "linear_drivers vs penalty_3_years_earlier": {
+    "lightgbm_drivers vs linear_drivers": {
       "auc_top_quarter": {
-        "difference": 0.0178,
+        "difference": 0.0304,
         "interval_95": [
-          -0.007,
-          0.0429
-        ],
-        "share_of_resamples_better": 0.918
-      },
-      "spearman": {
-        "difference": 0.0587,
-        "interval_95": [
-          0.0204,
-          0.0944
-        ],
-        "share_of_resamples_better": 0.998
-      }
-    },
-    "linear_drivers vs training_mean": {
-      "auc_top_quarter": {
-        "difference": 0.2145,
-        "interval_95": [
-          0.1935,
-          0.2354
-        ],
-        "share_of_resamples_better": 1.0
-      }
-    },
-    "linear_with_prior vs linear_drivers_same_rows": {
-      "auc_top_quarter": {
-        "difference": 0.0445,
-        "interval_95": [
-          0.0276,
-          0.0594
+          0.0144,
+          0.0461
         ],
         "share_of_resamples_better": 1.0
       },
       "spearman": {
-        "difference": 0.0568,
+        "difference": 0.0392,
         "interval_95": [
-          0.0342,
-          0.0771
+          0.0156,
+          0.061
+        ],
+        "share_of_resamples_better": 0.999
+      }
+    },
+    "ebm_drivers vs linear_drivers": {
+      "auc_top_quarter": {
+        "difference": 0.009,
+        "interval_95": [
+          -0.0111,
+          0.0288
+        ],
+        "share_of_resamples_better": 0.812
+      },
+      "spearman": {
+        "difference": -0.0396,
+        "interval_95": [
+          -0.0694,
+          -0.0117
+        ],
+        "share_of_resamples_better": 0.005
+      }
+    },
+    "lightgbm_drivers vs penalty_3_years_earlier": {
+      "auc_top_quarter": {
+        "difference": 0.0482,
+        "interval_95": [
+          0.0255,
+          0.07
         ],
         "share_of_resamples_better": 1.0
+      },
+      "spearman": {
+        "difference": 0.0978,
+        "interval_95": [
+          0.0642,
+          0.1328
+        ],
+        "share_of_resamples_better": 1.0
+      }
+    },
+    "lightgbm_with_prior vs lightgbm_drivers_same_rows": {
+      "auc_top_quarter": {
+        "difference": -0.0068,
+        "interval_95": [
+          -0.0206,
+          0.0061
+        ],
+        "share_of_resamples_better": 0.164
+      },
+      "spearman": {
+        "difference": -0.0197,
+        "interval_95": [
+          -0.039,
+          -0.0024
+        ],
+        "share_of_resamples_better": 0.017
       }
     }
   },
-  "naive_split_comparison": {
-    "random_rows": {
-      "description": "Random 80/20 split of all hospital-years: the same hospital and overlapping periods on both sides.",
-      "auc_top_quarter": 0.7007,
-      "auc_penalized": 0.7756,
-      "spearman": 0.4359,
-      "mae_pct": 0.355
+  "naive_split_auc_top_quarter": {
+    "linear": {
+      "random_rows": 0.7007,
+      "overlapping_years_in_training": 0.7178,
+      "honest": 0.7145
     },
-    "overlapping_years_in_training": {
-      "description": "Train on FY 2020 - FY 2025, test on the test year: FY 2024-2025 share patients with it.",
-      "auc_top_quarter": 0.7178,
-      "auc_penalized": 0.7663,
-      "spearman": 0.4607,
-      "mae_pct": 0.3034,
-      "mean_actual_pct": 0.344,
-      "mean_predicted_pct": 0.4009,
-      "hospitals": 2945
+    "lightgbm": {
+      "random_rows": 0.7761,
+      "overlapping_years_in_training": 0.7571,
+      "honest": 0.7449
     },
-    "honest": {
-      "description": "Train on the training years only (the linear_drivers result).",
-      "auc_top_quarter": 0.7145,
-      "auc_penalized": 0.7722,
-      "spearman": 0.4628,
-      "mae_pct": 0.3318,
-      "mean_actual_pct": 0.344,
-      "mean_predicted_pct": 0.4607,
-      "hospitals": 2945
+    "ebm": {
+      "random_rows": 0.7739,
+      "overlapping_years_in_training": 0.7634,
+      "honest": 0.7235
     }
   }
 }

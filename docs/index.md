@@ -8,7 +8,12 @@ Hospital Readmissions Reduction Program.
 
 - [01 · Data exploration](notebooks/01_data_exploration.html): what each dataset contains, its
   traps, and what they mean for the project.
+- [02 · Modeling data](notebooks/02_modeling_data.html): the target, the overlap trap, the
+  validation design and which drivers carry signal, before any model is trained.
+- [03 · Model results](notebooks/03_model_results.html): the models against baselines on a test
+  year that shares no patients with training, and what drives their predictions.
 
 ## Project documents
 
 - [Decision log](decisions.md): every major decision, the reasoning and the alternatives considered.
+- [Model card](model_card.md): what the penalty-risk model is for, how it was tested, and its limits.

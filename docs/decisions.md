@@ -213,7 +213,7 @@ years only.
 
 ---
 
-## D-009 · Compare three models, validate on a later year · Proposed (step 7)
+## D-009 · Compare three models, validate on a later year · Accepted (step 7)
 
 **Decision.** Train and compare:
 1. **Linear / logistic regression**: the baseline. If a complex model can't beat it, keep the simple one.
@@ -267,6 +267,49 @@ What it says:
 - **Linear coefficients are not the explanation.** Correlated county measures get large
   opposite-signed weights (housing insecurity +0.15, food insecurity -0.15), which ridge only
   partly tames. Explanations come from SHAP and EBM in 7c, grouped by feature family.
+
+**Resolution (step 7c): LightGBM, chosen by cross-validation.** Same evaluation as above for
+two more families, all tuned by grouped cross-validation on the training years:
+- **LightGBM**: 12 settings (leaves 7/15/31, minimum rows per leaf 50/200, 300/600 trees) with
+  a slow learning rate and 80% row and column sampling. Missing values and the ownership category
+  are handled natively; a category first seen at scoring time becomes missing.
+- **EBM**: 10 pair interactions and 8 outer bags. The library default (up to 225 pairs, more
+  bagging) was so slow that the scratch run was stopped before it finished; 10 pairs fits in
+  about 90 seconds on 4 cores and keeps the model readable as charts. Not tuned further.
+
+The selection rule, fixed in code before the run: **best CV AUC for the top quarter, and a
+simpler family (ridge < EBM < LightGBM) wins if within 0.01.**
+
+| Model | CV AUC | FY 2026 AUC top quarter | Spearman |
+|---|---|---|---|
+| Ridge | 0.683 | 0.715 [0.69-0.74] | 0.463 |
+| EBM | 0.674 | 0.724 [0.70-0.74] | 0.423 |
+| **LightGBM** | **0.723** | **0.745** [0.73-0.76] | **0.502** |
+
+- **LightGBM wins by 0.04 in CV, so the tie rule does not apply, and the test year agrees:**
+  +0.030 AUC over ridge (paired interval +0.014 to +0.046) and +0.048 over the hospital's own
+  penalty 3 years earlier (+0.025 to +0.070). Of the quarter of hospitals it flags, 50% really
+  are in the top quarter (25% by chance).
+- **EBM did not beat ridge** (AUC +0.009, interval includes zero; Spearman -0.040). It stays in
+  the project as a second, readable explanation, not as the model.
+- **The split trap matters for flexible models.** AUC with a random split / with overlapping
+  years in training / honest: ridge 0.701 / 0.718 / 0.715, LightGBM 0.776 / 0.757 / 0.745, EBM
+  0.774 / 0.763 / 0.724. The more a model can memorize hospitals, the more a leaky split
+  flatters it.
+- **Prior results help ridge but not LightGBM.** Adding them to LightGBM changes AUC by -0.007
+  (-0.021 to +0.006), although CV said 0.771. In training the prior penalty only exists for
+  FY 2023 rows and comes from FY 2020, before penalties were halved; for FY 2026 it comes from
+  FY 2023, after. The trees learned cut points on the old scale; ridge's single slope survives
+  the shift. Grouped CV mixes years, so it could not see this. The main model stays drivers-only,
+  as decided; turning the prior penalty into a within-year rank is a candidate fix for later,
+  not tried now so that the test year is not used to choose it.
+- **Explanations** (SHAP for LightGBM, the EBM's own term scores; per hospital, summed within
+  each family): both put volume and county conditions first, then survey scores. Single county
+  measures are not interpretable alone: housing and food insecurity correlate at 0.97 and the
+  EBM gives them opposite-signed curves.
+- **Disclosure:** the scratch runs that timed EBM settings also printed FY 2026 scores. The
+  committed code tunes and chooses from CV only, and EBM was not chosen, so the selected model is
+  unaffected. Details and limits are in the [model card](model_card.md).
 
 ---
 

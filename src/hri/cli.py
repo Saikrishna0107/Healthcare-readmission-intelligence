@@ -33,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
 
     model_cmd = commands.add_parser("model", help="train and evaluate the penalty-risk model")
     model_actions = model_cmd.add_subparsers(dest="action", required=True)
-    train_cmd = model_actions.add_parser("train", help="baselines, linear model and split comparison")
+    train_cmd = model_actions.add_parser("train", help="baselines, ridge, LightGBM and EBM")
     train_cmd.add_argument("--bootstrap", type=int, default=1000, metavar="N",
                            help="bootstrap resamples for the 95%% intervals (0 to skip)")
     train_cmd.add_argument("--seed", type=int, default=0, help="random seed for folds and resamples")

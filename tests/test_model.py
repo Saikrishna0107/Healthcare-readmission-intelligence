@@ -7,8 +7,8 @@ import pytest
 
 from hri.model import SplitError, honest_split, load_roles
 from hri.model.metrics import bootstrap_difference, bootstrap_interval, within_year_metrics, year_metrics
-from hri.model.models import earlier_penalty, make_linear, split_feature_types
-from hri.model.train import grouped_folds
+from hri.model.models import CategoryColumns, earlier_penalty, make_linear, split_feature_types
+from hri.model.train import choose, fit, grouped_folds, make_model
 
 
 def hospital_years(n_hospitals: int = 200, years=("FY2020", "FY2021", "FY2026"), seed=0) -> pd.DataFrame:
@@ -133,3 +133,36 @@ def test_earlier_penalty_looks_back_by_fiscal_year():
     })
     test = table[table.fiscal_year == "FY2026"]
     assert earlier_penalty(table, test, 3, "payment_reduction_pct", fill=0.33).tolist() == [0.9, 0.33]
+
+
+def test_choose_prefers_the_simpler_family_when_scores_are_close():
+    assert choose({"linear": 0.700, "ebm": 0.705, "lightgbm": 0.709}) == "linear"
+    assert choose({"linear": 0.680, "ebm": 0.715, "lightgbm": 0.720}) == "ebm"
+    assert choose({"linear": 0.680, "ebm": 0.700, "lightgbm": 0.720}) == "lightgbm"
+
+
+def test_category_columns_turn_unseen_categories_into_missing():
+    encoder = CategoryColumns(["ownership"]).fit(pd.DataFrame({"ownership": ["A", "B", None]}))
+    out = encoder.transform(pd.DataFrame({"ownership": ["B", "Tribal"]}))
+    assert list(out.ownership.cat.categories) == ["A", "B"]
+    assert out.ownership.isna().tolist() == [False, True]
+
+
+@pytest.mark.parametrize("family, params", [
+    ("lightgbm", {"num_leaves": 7, "min_child_samples": 20, "n_estimators": 100}),
+    ("ebm", {"outer_bags": 2, "interactions": 0}),
+])
+def test_tree_models_fit_with_missing_values_and_unseen_categories(family, params):
+    train, test = honest_split(hospital_years())
+    train = train.copy()
+    train.loc[train.index[:20], "driver"] = np.nan
+    test = test.assign(ownership="Tribal")
+    model = fit(family, train, ("driver", "ownership"), "payment_reduction_pct", params)
+    predictions = model.predict(test[["driver", "ownership"]])
+    assert np.isfinite(predictions).all()
+    assert year_metrics(test, predictions)["auc_top_quarter"] > 0.75
+
+
+def test_make_model_refuses_an_unknown_family():
+    with pytest.raises(ValueError):
+        make_model("neural_net", hospital_years(), ("driver",), {})

@@ -1,4 +1,4 @@
-"""The baselines and the linear model of step 7b (D-009, D-024).
+"""The models of step 7 (D-009, D-024): baselines, ridge regression, LightGBM and EBM.
 
 Baselines answer "is the model better than doing nothing clever?":
 - training_mean: every hospital gets the training average. Ranks nothing (AUC 0.5); its level
@@ -14,6 +14,9 @@ keeps correlated survey scores from getting large opposite-signed weights.
 
 import numpy as np
 import pandas as pd
+from interpret.glassbox import ExplainableBoostingRegressor
+from lightgbm import LGBMRegressor
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import Ridge
@@ -76,3 +79,38 @@ def earlier_penalty(table: pd.DataFrame, test: pd.DataFrame, years_earlier: int,
     keys = ["facility_id", "fiscal_year"]
     merged = test[keys].merge(earlier, on=keys, how="left")
     return merged[target].fillna(fill).to_numpy()
+
+
+class CategoryColumns(BaseEstimator, TransformerMixin):
+    """Turns text columns into pandas categories with the categories seen in training, which is
+    how LightGBM takes categorical features. A category first seen at scoring time becomes
+    missing, instead of silently getting another category's code."""
+
+    def __init__(self, columns: list[str]):
+        self.columns = columns
+
+    def fit(self, X: pd.DataFrame, y=None):
+        self.categories_ = {c: sorted(X[c].dropna().unique()) for c in self.columns}
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        X = X.copy()
+        for column, categories in self.categories_.items():
+            known = X[column].where(X[column].isin(categories))
+            X[column] = pd.Categorical(known, categories=categories)
+        return X
+
+
+def make_lightgbm(categorical: list[str], seed: int = 0, **params) -> Pipeline:
+    """Gradient-boosted trees. A slow learning rate with many small trees, and each tree sees a
+    random 80% of rows and columns, which keeps the model from memorizing individual hospitals.
+    Missing values need no filling: each split learns which side they go to."""
+    booster = LGBMRegressor(learning_rate=0.02, subsample=0.8, subsample_freq=1, colsample_bytree=0.8,
+                            random_state=seed, n_jobs=1, verbose=-1, **params)
+    return Pipeline([("categories", CategoryColumns(categorical)), ("lightgbm", booster)])
+
+
+def make_ebm(seed: int = 0, **params) -> ExplainableBoostingRegressor:
+    """Explainable Boosting Machine: one learned curve per feature (plus a few pairs), added up.
+    Close to boosted trees in accuracy, but the whole model can be read as charts."""
+    return ExplainableBoostingRegressor(random_state=seed, n_jobs=4, **params)

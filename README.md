@@ -111,26 +111,39 @@ From the modeling table, before any model is trained
 
 ![Correlation by years apart](images/06_overlap_by_lag.png)
 
-## Model results so far (step 7b: baselines and a linear model)
+## Model results (step 7)
 
 Trained on FY 2020-2023, scored once on FY 2026 (2,945 hospitals), which shares no patients
-with the training years. AUC = how well the model finds the hospitals in the top quarter of
+with the training years. The model was chosen by cross-validation on the training years, before
+looking at the test year. AUC = how well the model finds the hospitals in the top quarter of
 penalties (0.5 = guessing); brackets are 95% bootstrap intervals
-([details](docs/decisions.md#d-009--compare-three-models-validate-on-a-later-year--proposed-step-7),
-[all numbers](reports/model/metrics.json)).
+([read it with results](https://saikrishna0107.github.io/Healthcare-readmission-intelligence/notebooks/03_model_results.html)
+· [source](notebooks/03_model_results.py)
+· [model card](docs/model_card.md)
+· [decision](docs/decisions.md#d-009--compare-three-models-validate-on-a-later-year--accepted-step-7)
+· [all numbers](reports/model/metrics.json)).
 
 | Model | AUC top quarter | Rank correlation |
 |---|---|---|
 | Everyone gets the training average | 0.500 | - |
 | The hospital's own penalty 3 years earlier | 0.697 [0.67-0.72] | 0.40 |
 | Ridge regression on drivers (survey, volume, ownership, county, patient mix) | 0.715 [0.69-0.74] | 0.46 |
-| Drivers + the hospital's results 3 years earlier | **0.761** [0.74-0.78] | **0.54** |
+| Explainable Boosting Machine (EBM) on drivers | 0.724 [0.70-0.74] | 0.42 |
+| **LightGBM on drivers (chosen)** | **0.745** [0.73-0.76] | **0.50** |
 
-- Drivers alone rank all hospitals better than their own history (rank correlation +0.06, paired
-  interval excludes zero), but are not clearly better at picking the top quarter (AUC +0.02,
-  interval includes zero). Together they do best: the history adds +0.045 AUC to the drivers.
-- "Last year's penalty" would score 0.90, but its period shares two thirds of the patients with
-  the year it scores. That is what a careless evaluation reports.
+- **LightGBM beats ridge by 0.030 AUC** (paired interval +0.014 to +0.046) and the hospital's own
+  history by 0.048. Of the quarter of hospitals it flags, half really land in the top quarter of
+  penalties (a random pick: a quarter); their average cut is 0.60% against 0.26% for the rest.
+- **A leaky split flatters flexible models.** Trained on a random split, LightGBM would report
+  0.776 and EBM 0.774 instead of 0.745 and 0.724; ridge barely moves. "Last year's penalty" would
+  score 0.90, because its period shares two thirds of the patients with the year it scores.
+- **Volume and county conditions drive the predictions**, then patient-experience scores, in
+  both LightGBM (SHAP) and EBM, summed by feature family. Association, not cause.
+- **Prior results help ridge (+0.045 AUC) but not LightGBM**: penalties were halved from FY 2023,
+  and the trees learned the old scale. Cross-validation could not see it; the test year did
+  ([model card](docs/model_card.md#limits-and-known-issues)).
+
+![Model comparison](images/09_model_comparison.png)
 
 ## Planned architecture
 
@@ -151,7 +164,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 4. Cleaning (dbt staging models), missing-value reasons and 80 data tests
 - [x] 5. Hospital-to-county join with a match-rate test, first star-schema tables
 - [x] 6. Archived data to align time periods (prevents data leakage)
-- [ ] 7. Baseline model, then a three-model comparison (7a modeling table and validation design, 7b baselines and linear model done)
+- [x] 7. Validation design, baselines and a three-model comparison (ridge, LightGBM, EBM) explained with SHAP
 - [ ] 8. LLM question-answering agent with an evaluation set
 - [ ] 9. Power BI dashboard
 - [ ] 10. CI and scheduled data refresh
@@ -174,7 +187,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri ingest --only hrrp     # just one source
 .venv/Scripts/hri status                 # what is stored, which release, how many rows
 .venv/Scripts/hri dbt build              # clean the data into data/hri.duckdb and run its 208 checks
-.venv/Scripts/hri model train            # train and score the penalty models (about 2 minutes)
+.venv/Scripts/hri model train            # train and score the penalty models (about 20 minutes)
 .venv/Scripts/python -m pytest           # run the tests (no internet needed)
 ```
 
@@ -212,7 +225,7 @@ Notebooks use [marimo](https://marimo.io) and are plain `.py` files:
 
 Notebook 01 runs `hri ingest` for the sources it needs, so the first run downloads the data
 (about 110 MB) and later runs reuse it. Notebook 02 reads the warehouse, so run `hri ingest` and
-`hri dbt build` first.
+`hri dbt build` first; notebook 03 also needs `hri model train`.
 After changing a notebook, refresh its published page:
 
 ```bash
