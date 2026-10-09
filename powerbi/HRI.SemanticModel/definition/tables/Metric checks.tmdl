@@ -1,0 +1,79 @@
+/// Every semantic-layer metric by fiscal year as MetricFlow computes it; the Checks page compares the measures with it.
+table 'Metric checks'
+	lineageTag: f0fc7da8-e732-406f-b324-1b9c2b733e38
+
+	/// The metric as the semantic layer (MetricFlow) computes it.
+	measure 'Check: MetricFlow value' = SUM('Metric checks'[expected_value])
+		formatString: 0.######
+		displayFolder: Checks
+		lineageTag: b42b26ad-0c04-4dcb-b9ad-9aebbf3e637e
+
+	/// The same metric from this report's DAX measure, for the same fiscal year.
+	measure 'Check: Power BI value' =
+			VAR metric = SELECTEDVALUE('Metric checks'[metric])
+			RETURN
+			CALCULATE(
+			  SWITCH(metric,
+			    "hospitals_in_payment_file", [Hospitals in the payment file],
+			    "penalized_hospitals", [Penalized hospitals],
+			    "share_penalized", [Share of hospitals penalized],
+			    "avg_payment_reduction_pct", [Average payment reduction (all hospitals in the file)],
+			    "avg_payment_reduction_among_penalized_pct", [Average payment reduction (penalized hospitals only)],
+			    "max_payment_reduction_pct", [Largest payment reduction],
+			    "hospitals_at_max_penalty", [Hospitals at the 3% cap],
+			    "scored_results", [Scored results],
+			    "avg_excess_readmission_ratio", [Average Excess Readmission Ratio],
+			    "results_worse_than_expected", [Results worse than expected],
+			    "share_results_worse_than_expected", [Share of results worse than expected],
+			    "results_counting_toward_penalty", [Results counting toward the penalty],
+			    "eligible_discharges", [Eligible discharges],
+			    "avg_recommend_score", [Average would-recommend score],
+			    "avg_overall_rating_score", [Average overall rating score],
+			    "avg_care_transition_score", [Average care transition score],
+			    "avg_discharge_information_score", [Average discharge information score],
+			    BLANK()
+			  ),
+			  TREATAS(VALUES('Metric checks'[fiscal_year]), 'Fiscal year'[fiscal_year])
+			)
+		formatString: 0.######
+		displayFolder: Checks
+		lineageTag: 873611cd-bd75-4d22-9053-7f9450f751c4
+
+	/// Absolute difference; a blank and 0 count as equal (Power BI shows a count of 0 as blank).
+	measure 'Check: difference' = ABS(COALESCE([Check: Power BI value], 0) - COALESCE([Check: MetricFlow value], 0))
+		formatString: 0.##########
+		displayFolder: Checks
+		lineageTag: 510a0c1d-eacd-471e-99ea-14e53ad25816
+
+	/// Metric-years where Power BI and MetricFlow disagree. Must be 0.
+	measure 'Check: mismatches' = SUMX('Metric checks', IF([Check: difference] > 1E-6 * MAX(1, ABS([Check: MetricFlow value])), 1, 0))
+		formatString: #,0
+		displayFolder: Checks
+		lineageTag: de250dc6-f148-4ea5-b1b4-b10e8aa2ac65
+
+	column metric
+		dataType: string
+		lineageTag: 43cf4ce1-cbbb-4cdb-95dc-9c570af3c774
+		summarizeBy: none
+		sourceColumn: metric
+
+	column fiscal_year
+		dataType: string
+		lineageTag: 4d33676d-a6e8-42fc-bf3e-a6cd215b081f
+		summarizeBy: none
+		sourceColumn: fiscal_year
+
+	column expected_value
+		dataType: double
+		lineageTag: 1f4106b8-3613-4c18-8485-aa9fe57fb6d3
+		summarizeBy: none
+		sourceColumn: expected_value
+
+	partition 'Metric checks' = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "metric_checks.parquet"))
+				in
+				    Source
+

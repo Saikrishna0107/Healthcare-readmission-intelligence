@@ -1,0 +1,5 @@
+# Power BI Desktop: per-user settings and the data cache (rebuilt on Refresh) are not source.
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+# The old single-file report; the project (HRI.pbip + folders) replaces it.
+*.pbix

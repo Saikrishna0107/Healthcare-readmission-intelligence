@@ -1,0 +1,382 @@
+/// One row per hospital and fiscal year: HRRP payment reduction, peer group and patient survey scores.
+table 'Hospital year'
+	lineageTag: a50db59d-c9de-4df9-bc4b-71b168b25ffe
+
+	/// Number of hospitals in the HRRP payment file of the fiscal year.
+	measure 'Hospitals in the payment file' = CALCULATE(COUNTROWS('Hospital year'), KEEPFILTERS('Hospital year'[in_payment_file] = TRUE()))
+		formatString: #,0
+		displayFolder: Penalty
+		lineageTag: 82396160-b5b8-4e57-a4ba-ff3b93b209da
+
+		annotation MetricFlowMetric = hospitals_in_payment_file
+
+	/// Hospitals whose Medicare payments were reduced (reduction above 0%).
+	measure 'Penalized hospitals' = CALCULATE(COUNTROWS('Hospital year'), KEEPFILTERS('Hospital year'[is_penalized] = TRUE()))
+		formatString: #,0
+		displayFolder: Penalty
+		lineageTag: c9cf807a-a84d-41f4-919a-f867bbf3a5a9
+
+		annotation MetricFlowMetric = penalized_hospitals
+
+	/// Penalized hospitals / hospitals in the payment file.
+	measure 'Share of hospitals penalized' = DIVIDE([Penalized hospitals], [Hospitals in the payment file])
+		formatString: 0.0%
+		displayFolder: Penalty
+		lineageTag: 82b4a1f5-73f0-43dc-ac9b-b2d4b4fe9919
+
+		annotation MetricFlowMetric = share_penalized
+
+	/// Average reduction in % of Medicare base payments over ALL hospitals in the payment file, unpenalized ones counted as 0%.
+	measure 'Average payment reduction (all hospitals in the file)' = DIVIDE(SUM('Hospital year'[payment_reduction_pct]), [Hospitals in the payment file])
+		formatString: 0.00"%"
+		displayFolder: Penalty
+		lineageTag: 21c61761-99ac-4d6d-ac40-4575bb310440
+
+		annotation MetricFlowMetric = avg_payment_reduction_pct
+
+	/// Average reduction in % over penalized hospitals only.
+	measure 'Average payment reduction (penalized hospitals only)' = DIVIDE(SUM('Hospital year'[payment_reduction_pct]), [Penalized hospitals])
+		formatString: 0.00"%"
+		displayFolder: Penalty
+		lineageTag: dc3c3182-5ec8-43a5-858e-6eb68a84ff39
+
+		annotation MetricFlowMetric = avg_payment_reduction_among_penalized_pct
+
+	/// Largest reduction in % (the program caps it at 3%).
+	measure 'Largest payment reduction' = MAX('Hospital year'[payment_reduction_pct])
+		formatString: 0.00"%"
+		displayFolder: Penalty
+		lineageTag: 56d0e4be-17f9-4d0d-90b6-d08dbd41c0e5
+
+		annotation MetricFlowMetric = max_payment_reduction_pct
+
+	/// Hospitals whose reduction reached the 3% maximum.
+	measure 'Hospitals at the 3% cap' = CALCULATE(COUNTROWS('Hospital year'), KEEPFILTERS('Hospital year'[payment_reduction_pct] >= 3))
+		formatString: #,0
+		displayFolder: Penalty
+		lineageTag: e3f2fada-e84e-4db8-8ef4-14bbc57e2f89
+
+		annotation MetricFlowMetric = hospitals_at_max_penalty
+
+	/// Average 'would recommend the hospital' linear mean score (0-100).
+	measure 'Average would-recommend score' = AVERAGE('Hospital year'[recommend_score])
+		formatString: 0.0
+		displayFolder: Patient survey
+		lineageTag: 4527d653-25a7-456e-9628-16d77fc4c74a
+
+		annotation MetricFlowMetric = avg_recommend_score
+
+	/// Average overall hospital rating linear mean score (0-100).
+	measure 'Average overall rating score' = AVERAGE('Hospital year'[overall_rating_score])
+		formatString: 0.0
+		displayFolder: Patient survey
+		lineageTag: 28c90a90-bf5c-49d6-821b-cd1f46eb8c43
+
+		annotation MetricFlowMetric = avg_overall_rating_score
+
+	/// Average care transition linear mean score (0-100).
+	measure 'Average care transition score' = AVERAGE('Hospital year'[care_transition_score])
+		formatString: 0.0
+		displayFolder: Patient survey
+		lineageTag: 720b1699-5abc-4f71-8752-bcdfac523793
+
+		annotation MetricFlowMetric = avg_care_transition_score
+
+	/// Average discharge information linear mean score (0-100).
+	measure 'Average discharge information score' = AVERAGE('Hospital year'[discharge_information_score])
+		formatString: 0.0
+		displayFolder: Patient survey
+		lineageTag: 346228e1-b9ec-413d-b5ee-85780e2ad40c
+
+		annotation MetricFlowMetric = avg_discharge_information_score
+
+	column fiscal_year
+		dataType: string
+		lineageTag: cd785ecc-1d3e-49cf-a95b-5937afd7e19e
+		summarizeBy: none
+		sourceColumn: fiscal_year
+
+	column fiscal_year_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: d574dae7-13a9-4c62-bd4f-ef7967db9ddf
+		summarizeBy: none
+		sourceColumn: fiscal_year_start
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column facility_id
+		dataType: string
+		lineageTag: 9877feac-2f31-4b8e-b0e4-fb80d7e46635
+		summarizeBy: none
+		sourceColumn: facility_id
+
+	column conditions_with_public_ratio
+		dataType: int64
+		lineageTag: e326f5fc-367a-4888-925d-65be909feba4
+		summarizeBy: none
+		sourceColumn: conditions_with_public_ratio
+
+	column conditions_counting_toward_penalty
+		dataType: int64
+		lineageTag: f3797b0a-d556-4b1d-8064-df0a02708c8a
+		summarizeBy: none
+		sourceColumn: conditions_counting_toward_penalty
+
+	column public_discharges
+		dataType: int64
+		lineageTag: 9763ad43-eef3-483b-880c-b71041d59822
+		summarizeBy: none
+		sourceColumn: public_discharges
+
+	column in_payment_file
+		dataType: boolean
+		lineageTag: cf0b9533-c061-4f5e-952a-97b9f8b8183b
+		summarizeBy: none
+		sourceColumn: in_payment_file
+
+	column payment_adjustment_factor
+		dataType: double
+		lineageTag: 41882f16-e6a7-458f-a246-7809f0bf8b75
+		summarizeBy: none
+		sourceColumn: payment_adjustment_factor
+
+	column payment_reduction_pct
+		dataType: double
+		lineageTag: 0636c4fc-59e8-47e3-977f-0e5359e88eb9
+		summarizeBy: none
+		sourceColumn: payment_reduction_pct
+
+	column payment_reduction_is_derived
+		dataType: boolean
+		lineageTag: f90f1941-d523-4047-b776-ce24ac083217
+		summarizeBy: none
+		sourceColumn: payment_reduction_is_derived
+
+	column is_penalized
+		dataType: boolean
+		lineageTag: bb634a2b-2631-422a-8648-10cbe5da7f57
+		summarizeBy: none
+		sourceColumn: is_penalized
+
+	column dual_proportion
+		dataType: double
+		lineageTag: 0f9c7caf-bca4-4b73-887a-b9f0fcc4b1dc
+		summarizeBy: none
+		sourceColumn: dual_proportion
+
+	column peer_group
+		dataType: int64
+		lineageTag: 4be53943-fd19-4c8d-b1c4-7f7e37f7cf96
+		summarizeBy: none
+		sourceColumn: peer_group
+
+	column neutrality_modifier
+		dataType: double
+		lineageTag: f032dd57-8d5f-4cac-8e59-0f88db8a81d9
+		summarizeBy: none
+		sourceColumn: neutrality_modifier
+
+	column unadjusted_penalty
+		dataType: double
+		lineageTag: 81858c4c-d7c5-4c69-bcf6-0e0c14272f1a
+		summarizeBy: none
+		sourceColumn: unadjusted_penalty
+
+	column survey_period_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 0fcbd7d8-f685-47b2-9110-068ae5454120
+		summarizeBy: none
+		sourceColumn: survey_period_start
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column survey_period_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: ccda5468-875a-445c-86f0-6111937c8632
+		summarizeBy: none
+		sourceColumn: survey_period_end
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column has_survey_scores
+		dataType: boolean
+		lineageTag: 82780a44-6f54-4089-b4ce-697c28892712
+		summarizeBy: none
+		sourceColumn: has_survey_scores
+
+	column nurse_communication_score
+		dataType: int64
+		lineageTag: ebd61841-8c6b-4497-abe8-ad61f31721c2
+		summarizeBy: none
+		sourceColumn: nurse_communication_score
+
+	column nurse_communication_stars
+		dataType: int64
+		lineageTag: 0a5aa9d0-c65f-425f-95c0-d290e99e4ced
+		summarizeBy: none
+		sourceColumn: nurse_communication_stars
+
+	column doctor_communication_score
+		dataType: int64
+		lineageTag: 729c866a-37dc-43c9-b121-6cee515637b7
+		summarizeBy: none
+		sourceColumn: doctor_communication_score
+
+	column doctor_communication_stars
+		dataType: int64
+		lineageTag: a10d8616-263b-4d4f-9b20-153ec83c775c
+		summarizeBy: none
+		sourceColumn: doctor_communication_stars
+
+	column staff_responsiveness_score
+		dataType: int64
+		lineageTag: b58f1762-44e0-4f40-9cd3-88e63d9e9ec0
+		summarizeBy: none
+		sourceColumn: staff_responsiveness_score
+
+	column staff_responsiveness_stars
+		dataType: int64
+		lineageTag: 3ec6b7e0-9554-4f84-a6fb-2b6cf6c5e422
+		summarizeBy: none
+		sourceColumn: staff_responsiveness_stars
+
+	column medicine_communication_score
+		dataType: int64
+		lineageTag: 17c2e1d7-7b81-4651-afab-209a8ae8b22d
+		summarizeBy: none
+		sourceColumn: medicine_communication_score
+
+	column medicine_communication_stars
+		dataType: int64
+		lineageTag: 4c3ddb4f-08ec-435a-bb08-118d4b873ff6
+		summarizeBy: none
+		sourceColumn: medicine_communication_stars
+
+	column discharge_information_score
+		dataType: int64
+		lineageTag: d89d3998-820c-4ff9-a320-b1ed6a04e44e
+		summarizeBy: none
+		sourceColumn: discharge_information_score
+
+	column discharge_information_stars
+		dataType: int64
+		lineageTag: 5bb9463b-0145-4814-b7d6-ca10514527ae
+		summarizeBy: none
+		sourceColumn: discharge_information_stars
+
+	column care_transition_score
+		dataType: int64
+		lineageTag: 418a7ac8-bddf-407b-a72e-47c811d69688
+		summarizeBy: none
+		sourceColumn: care_transition_score
+
+	column care_transition_stars
+		dataType: int64
+		lineageTag: cb1bad46-70bc-4ed3-a785-36f027958213
+		summarizeBy: none
+		sourceColumn: care_transition_stars
+
+	column cleanliness_score
+		dataType: int64
+		lineageTag: bc425c7c-bb53-4a4f-b8b8-5ac8b9b9a04e
+		summarizeBy: none
+		sourceColumn: cleanliness_score
+
+	column cleanliness_stars
+		dataType: int64
+		lineageTag: 1d13555d-b7e8-4d0e-8f5c-f79dff510fe4
+		summarizeBy: none
+		sourceColumn: cleanliness_stars
+
+	column quietness_score
+		dataType: int64
+		lineageTag: 25e9a0f4-383c-4d49-95e7-a42ec56e7920
+		summarizeBy: none
+		sourceColumn: quietness_score
+
+	column quietness_stars
+		dataType: int64
+		lineageTag: 0d3fe61c-9c78-4076-a1df-0183aa194cdc
+		summarizeBy: none
+		sourceColumn: quietness_stars
+
+	column overall_rating_score
+		dataType: int64
+		lineageTag: fa951f26-f265-44df-9a67-b74e2f1cc0ce
+		summarizeBy: none
+		sourceColumn: overall_rating_score
+
+	column overall_rating_stars
+		dataType: int64
+		lineageTag: b56db44d-203b-40f3-a042-d7384fdb8fd1
+		summarizeBy: none
+		sourceColumn: overall_rating_stars
+
+	column recommend_score
+		dataType: int64
+		lineageTag: c146ff1e-ccd3-4171-b2fa-09cbd796d891
+		summarizeBy: none
+		sourceColumn: recommend_score
+
+	column recommend_stars
+		dataType: int64
+		lineageTag: 070c0b98-9f13-4aba-bc05-edca1158d832
+		summarizeBy: none
+		sourceColumn: recommend_stars
+
+	column summary_stars
+		dataType: int64
+		lineageTag: d7b4f041-6e2b-4262-b829-d5f3dbce8aa4
+		summarizeBy: none
+		sourceColumn: summary_stars
+
+	column completed_surveys
+		dataType: int64
+		lineageTag: e78cb5e3-a46e-4e95-9576-659097686fef
+		summarizeBy: none
+		sourceColumn: completed_surveys
+
+	column response_rate_pct
+		dataType: int64
+		lineageTag: b7540333-549e-4c6b-8c12-fa377862d786
+		summarizeBy: none
+		sourceColumn: response_rate_pct
+
+	column profile_snapshot_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: f0d0b727-6550-46cd-b17a-8cfec6ee40b0
+		summarizeBy: none
+		sourceColumn: profile_snapshot_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column hospital_type
+		dataType: string
+		lineageTag: e9256c20-d564-4aac-b8a1-f1afb77194e4
+		summarizeBy: none
+		sourceColumn: hospital_type
+
+	column ownership
+		dataType: string
+		lineageTag: dc2e75f6-2940-4369-a506-015b2112245d
+		summarizeBy: none
+		sourceColumn: ownership
+
+	column has_emergency_services
+		dataType: boolean
+		lineageTag: a03501d9-458a-4df3-a759-597da087db59
+		summarizeBy: none
+		sourceColumn: has_emergency_services
+
+	partition 'Hospital year' = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "fct_hospital_year.parquet"))
+				in
+				    Source
+

@@ -1,0 +1,6 @@
+/// Folder with the Parquet files from `hri export powerbi` (ends with a backslash). Change it in Transform data > Edit parameters.
+expression DataFolder = "D:\healthcare-readmission-intelligence\data\powerbi\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 72fc0588-6760-49da-bee7-b6e88c16b9e9
+
+	annotation PBI_ResultType = Text
+

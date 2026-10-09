@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "dd6b3c970ebc29638a5d",
+  "position": {
+    "x": 10.291629675538953,
+    "y": 0,
+    "z": 1,
+    "height": 300,
+    "width": 300,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metric checks"
+                    }
+                  },
+                  "Property": "Check: mismatches"
+                }
+              },
+              "queryRef": "Metric checks.Check: mismatches",
+              "nativeQueryRef": "Check: mismatches"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Metric checks"
+                  }
+                },
+                "Property": "Check: mismatches"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "1ebb2e15ded0dd0879da",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Metric checks"
+              }
+            },
+            "Property": "Check: mismatches"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

@@ -268,6 +268,15 @@ Besides the five marts, the export holds:
 - `metric_checks`: every semantic-layer metric per year, as MetricFlow computes it, so the
   report can show that its DAX measures give the same numbers
 
+The Power BI project is in [`powerbi/`](powerbi/) (PBIP format: the model and the pages are text
+files, so they can be reviewed in git). `hri powerbi init` generates its semantic model: the 8
+tables, their relationships and one DAX measure per semantic-layer metric. Its **Checks** page
+compares every measure with MetricFlow for every fiscal year: **0 mismatches in 136
+metric-year pairs**.
+
+To open it: run `hri export powerbi`, then `hri powerbi init` (it points the model at your
+copy's `data/powerbi/` folder), open `powerbi/HRI.pbip` in Power BI Desktop and click Refresh.
+
 ## Planned architecture
 
 ```

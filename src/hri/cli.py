@@ -72,6 +72,10 @@ def main(argv: list[str] | None = None) -> int:
     export_cmd.add_argument("--no-model", action="store_true",
                             help="skip the model tables (when `hri model train` has not been run)")
 
+    pbi_cmd = commands.add_parser("powerbi", help="Power BI project (powerbi/)")
+    pbi_cmd.add_argument("action", choices=["init"],
+                         help="init: write tables, relationships and measures into the PBIP project")
+
     args = parser.parse_args(argv)
     if args.command == "dbt":
         return run_dbt(args.dbt_args)
@@ -92,6 +96,8 @@ def main(argv: list[str] | None = None) -> int:
         return _eval(args)
     if args.command == "export":
         return _export(args)
+    if args.command == "powerbi":
+        return _powerbi(args)
     return _status()
 
 
@@ -208,6 +214,20 @@ def _export(args: argparse.Namespace) -> int:
     print(f"Wrote {EXPORT_DIR}")
     for table, rows in manifest["rows"].items():
         print(f"  {table:20s} {rows:>8,} rows")
+    return 0
+
+
+def _powerbi(args: argparse.Namespace) -> int:
+    from hri.powerbi import PROJECT_ROOT, write_model
+
+    try:
+        written = write_model()
+    except FileNotFoundError as exc:
+        print(exc)
+        return 2
+    for path in written:
+        print(f"  wrote {path.relative_to(PROJECT_ROOT)}")
+    print("Open powerbi/HRI.pbip in Power BI Desktop and click Refresh.")
     return 0
 
 

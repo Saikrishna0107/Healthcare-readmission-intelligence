@@ -1,0 +1,90 @@
+/// FY2026 penalty-risk prediction of the chosen model (step 7) for each hospital.
+table 'Model risk'
+	lineageTag: b7cba5b4-5192-4f7d-96f3-a55070347557
+
+	/// Hospitals in the model's predicted top quarter of FY2026 penalties.
+	measure 'Hospitals flagged' = CALCULATE(COUNTROWS('Model risk'), KEEPFILTERS('Model risk'[is_flagged] = TRUE()))
+		formatString: #,0
+		displayFolder: Model
+		lineageTag: 89b0516d-f9ae-42d7-94bd-18d06c626bfb
+
+	/// Of the flagged hospitals, the share whose real FY2026 penalty was in the top quarter (about 0.50; 0.25 would be chance).
+	measure 'Flagged hospitals actually in the top quarter' = DIVIDE(CALCULATE(COUNTROWS('Model risk'), KEEPFILTERS('Model risk'[is_flagged] = TRUE()), KEEPFILTERS('Model risk'[is_actual_top_quarter] = TRUE())), [Hospitals flagged])
+		formatString: 0.0%
+		displayFolder: Model
+		lineageTag: 24a8e985-0579-4449-9e86-3e8b9445d6ff
+
+	/// Average predicted FY2026 payment reduction in %.
+	measure 'Predicted payment reduction' = AVERAGE('Model risk'[predicted_reduction_pct])
+		formatString: 0.00"%"
+		displayFolder: Model
+		lineageTag: 125bad86-282d-4486-a841-73aaa7307e5c
+
+	/// Average real FY2026 payment reduction in %, same hospitals.
+	measure 'Actual payment reduction (model rows)' = AVERAGE('Model risk'[actual_reduction_pct])
+		formatString: 0.00"%"
+		displayFolder: Model
+		lineageTag: 14a96e10-0ea2-4279-8be0-79cc8b893b17
+
+	column facility_id
+		dataType: string
+		lineageTag: 1b4033e6-d36f-46e1-8588-f72d5f0b03dd
+		summarizeBy: none
+		sourceColumn: facility_id
+
+	column fiscal_year
+		dataType: string
+		lineageTag: 5ad58d5b-7959-4ae1-b1ef-9a6ba166ba2d
+		summarizeBy: none
+		sourceColumn: fiscal_year
+
+	column model
+		dataType: string
+		lineageTag: cba02c94-3d6d-4883-a9ac-1e4eccce6784
+		summarizeBy: none
+		sourceColumn: model
+
+	column predicted_reduction_pct
+		dataType: double
+		lineageTag: 1f9a108d-ab84-4364-ab9f-b812cceefa3e
+		summarizeBy: none
+		sourceColumn: predicted_reduction_pct
+
+	column actual_reduction_pct
+		dataType: double
+		lineageTag: b3f5faff-a7b5-49d4-9c36-be6d1fbaf0de
+		summarizeBy: none
+		sourceColumn: actual_reduction_pct
+
+	column is_actual_top_quarter
+		dataType: boolean
+		lineageTag: ebf5f459-df26-4e75-be62-0fd43690c0fb
+		summarizeBy: none
+		sourceColumn: is_actual_top_quarter
+
+	column predicted_rank_pct
+		dataType: double
+		lineageTag: eb595d3c-3939-410d-9a0a-3f7c970ca63b
+		summarizeBy: none
+		sourceColumn: predicted_rank_pct
+
+	column model_base_pct
+		dataType: double
+		lineageTag: cf00e203-fee7-422f-a831-2e91c4c75342
+		summarizeBy: none
+		sourceColumn: model_base_pct
+
+	column is_flagged
+		dataType: boolean
+		lineageTag: 59bbeae6-4cf9-41f2-94a4-5fe685691088
+		summarizeBy: none
+		sourceColumn: is_flagged
+
+	partition 'Model risk' = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "model_risk.parquet"))
+				in
+				    Source
+

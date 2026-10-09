@@ -433,6 +433,22 @@ plans. Power BI can't host a chat interface, so the agent gets a small Streamlit
   prediction (SHAP's additivity).
 - **The Streamlit app for the agent is step 9d.**
 
+**Semantic model (step 9b).**
+- **The model is generated, not clicked together.** `hri powerbi init` writes the TMDL files
+  (8 tables, 10 relationships, 26 measures) into the project that Power BI Desktop created.
+  - Each measure carries the MetricFlow metric it mirrors (`annotation MetricFlowMetric`). A test
+    checks that every offered metric has exactly one measure, and that the Checks measure
+    covers each one.
+  - Alternative: build the model in Desktop by hand. Rejected because 17 metric definitions
+    typed twice drift apart, and nothing would catch it.
+- **One `DataFolder` parameter holds the path to the Parquet files.** Moving the project means
+  changing one value, not 8 queries.
+- **Auto date/time is off.** Fiscal year is the time axis; the hidden calendar tables Power BI
+  would add per date column only enlarge the model.
+- **Verified in Power BI Desktop.** All 136 metric-year pairs (17 metrics × 8 years) match
+  MetricFlow: the Checks page shows 0 mismatches. A blank and 0 count as equal, because years
+  without data are blank in one engine and missing in the other.
+
 ---
 
 ## D-012 · Python command-line runner instead of a Makefile · Accepted (step 3)

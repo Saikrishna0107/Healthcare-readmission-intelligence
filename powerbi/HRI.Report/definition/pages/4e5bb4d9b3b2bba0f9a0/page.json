@@ -1,0 +1,8 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "4e5bb4d9b3b2bba0f9a0",
+  "displayName": "Checks",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920
+}

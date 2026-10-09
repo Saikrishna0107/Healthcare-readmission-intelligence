@@ -1,0 +1,26 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_ProTooling = ["DevMode"]
+
+annotation PBI_QueryOrder = ["Fiscal year","Hospital","County","Hospital year","Readmission results","Model risk","Model drivers","Metric checks","DataFolder"]
+
+ref table 'Fiscal year'
+ref table Hospital
+ref table County
+ref table 'Hospital year'
+ref table 'Readmission results'
+ref table 'Model risk'
+ref table 'Model drivers'
+ref table 'Metric checks'
+
+ref cultureInfo en-US
+

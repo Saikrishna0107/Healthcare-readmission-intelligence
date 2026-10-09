@@ -1,0 +1,42 @@
+/// Why the model predicts what it does: each hospital's SHAP contribution per feature family, in percentage points.
+table 'Model drivers'
+	lineageTag: c11c2540-b23a-4459-abb5-245bc5d27f29
+
+	/// SHAP contribution in percentage points: how much a feature family raises (+) or lowers (-) the hospital's predicted reduction from the average.
+	measure 'Driver contribution' = SUM('Model drivers'[contribution_pp])
+		formatString: +0.00;-0.00;0.00
+		displayFolder: Model
+		lineageTag: 8cac86dc-c156-4c6a-92e9-ab83d28104fc
+
+	column facility_id
+		dataType: string
+		lineageTag: eb6766d3-358c-4678-a97e-d7cf6fd79d76
+		summarizeBy: none
+		sourceColumn: facility_id
+
+	column fiscal_year
+		dataType: string
+		lineageTag: 16b438a0-6199-48b4-8cb3-ce25c8746054
+		summarizeBy: none
+		sourceColumn: fiscal_year
+
+	column family
+		dataType: string
+		lineageTag: 7251304c-7b9c-4ae7-818a-82009ce164b5
+		summarizeBy: none
+		sourceColumn: family
+
+	column contribution_pp
+		dataType: double
+		lineageTag: 27ec0d49-15ca-433a-89e1-bf43f93041bf
+		summarizeBy: none
+		sourceColumn: contribution_pp
+
+	partition 'Model drivers' = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "model_drivers.parquet"))
+				in
+				    Source
+

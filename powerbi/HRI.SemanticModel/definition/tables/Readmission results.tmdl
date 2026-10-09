@@ -1,0 +1,183 @@
+/// One row per hospital, condition and fiscal year: Excess Readmission Ratio and whether it counted toward the penalty.
+table 'Readmission results'
+	lineageTag: 85fd9a73-cbd5-47a4-8f8c-38ba55aa467d
+
+	/// Hospital-condition results with a published Excess Readmission Ratio.
+	measure 'Scored results' = COUNT('Readmission results'[excess_readmission_ratio])
+		formatString: #,0
+		displayFolder: Readmissions
+		lineageTag: b6eea1cb-fbcb-4ce6-a1ae-488321ecda24
+
+		annotation MetricFlowMetric = scored_results
+
+	/// Simple average of published ratios; above 1.0 = more readmissions than expected.
+	measure 'Average Excess Readmission Ratio' = DIVIDE(SUM('Readmission results'[excess_readmission_ratio]), [Scored results])
+		formatString: 0.0000
+		displayFolder: Readmissions
+		lineageTag: f9145798-9baf-4d3b-808c-08b49dd365b1
+
+		annotation MetricFlowMetric = avg_excess_readmission_ratio
+
+	/// Results with an Excess Readmission Ratio above 1.0.
+	measure 'Results worse than expected' = CALCULATE(COUNTROWS('Readmission results'), KEEPFILTERS('Readmission results'[excess_readmission_ratio] > 1))
+		formatString: #,0
+		displayFolder: Readmissions
+		lineageTag: 757c4486-634c-4747-b97b-09706ceb842a
+
+		annotation MetricFlowMetric = results_worse_than_expected
+
+	/// Results above 1.0 / results with a published ratio.
+	measure 'Share of results worse than expected' = DIVIDE([Results worse than expected], [Scored results])
+		formatString: 0.0%
+		displayFolder: Readmissions
+		lineageTag: f6f496c0-e4cf-4c43-b4ff-a37d41e1d254
+
+		annotation MetricFlowMetric = share_results_worse_than_expected
+
+	/// Results above the peer group median with at least 25 eligible discharges.
+	measure 'Results counting toward the penalty' = CALCULATE(COUNTROWS('Readmission results'), KEEPFILTERS('Readmission results'[counts_toward_penalty] = TRUE()))
+		formatString: #,0
+		displayFolder: Readmissions
+		lineageTag: d96fcf71-67c0-40c8-8d3f-93e56e7d824a
+
+		annotation MetricFlowMetric = results_counting_toward_penalty
+
+	/// Medicare discharges eligible for the readmission measures (payment file).
+	measure 'Eligible discharges' = SUM('Readmission results'[eligible_discharges])
+		formatString: #,0
+		displayFolder: Readmissions
+		lineageTag: 5cd0572e-1a7e-43dc-82f9-58aead0b76df
+
+		annotation MetricFlowMetric = eligible_discharges
+
+	column fiscal_year
+		dataType: string
+		lineageTag: e3a0548e-f1bd-4574-8c08-476f5cff4434
+		summarizeBy: none
+		sourceColumn: fiscal_year
+
+	column fiscal_year_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 158d4df6-7f34-417e-ac80-d5e61ee8fc86
+		summarizeBy: none
+		sourceColumn: fiscal_year_start
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column facility_id
+		dataType: string
+		lineageTag: c496cce5-c961-409a-8f0c-88f494bfb52a
+		summarizeBy: none
+		sourceColumn: facility_id
+
+	column condition
+		dataType: string
+		lineageTag: cdfb19f7-e6af-4139-9d3e-7bcc0abe0672
+		summarizeBy: none
+		sourceColumn: condition
+
+	column in_public_file
+		dataType: boolean
+		lineageTag: e0885b87-242e-447f-a084-6f767df798fe
+		summarizeBy: none
+		sourceColumn: in_public_file
+
+	column in_payment_file
+		dataType: boolean
+		lineageTag: 91adaa60-91e2-4146-90ba-4336fb61d5da
+		summarizeBy: none
+		sourceColumn: in_payment_file
+
+	column discharges
+		dataType: int64
+		lineageTag: 544d87bb-a6a1-4ab0-a948-b1db90f0c454
+		summarizeBy: none
+		sourceColumn: discharges
+
+	column readmissions
+		dataType: int64
+		lineageTag: 5a25d73b-1ad6-4387-ba08-7877f5810f0c
+		summarizeBy: none
+		sourceColumn: readmissions
+
+	column readmissions_suppressed
+		dataType: boolean
+		lineageTag: a688001d-6b2c-4ad7-a77e-786776e0a9db
+		summarizeBy: none
+		sourceColumn: readmissions_suppressed
+
+	column predicted_readmission_rate
+		dataType: double
+		lineageTag: c17625a2-9dad-40db-b996-e6309ad67ca7
+		summarizeBy: none
+		sourceColumn: predicted_readmission_rate
+
+	column expected_readmission_rate
+		dataType: double
+		lineageTag: 11bc63cd-f8c8-4d72-854d-78a53c52cc97
+		summarizeBy: none
+		sourceColumn: expected_readmission_rate
+
+	column excess_readmission_ratio
+		dataType: double
+		lineageTag: 956a2dca-1980-4dfc-bf71-bd55d08fe024
+		summarizeBy: none
+		sourceColumn: excess_readmission_ratio
+
+	column score_status
+		dataType: string
+		lineageTag: bef61869-8a0d-4288-84f1-396961616da7
+		summarizeBy: none
+		sourceColumn: score_status
+
+	column footnote_code
+		dataType: string
+		lineageTag: 26b9779c-97e3-4ec5-b156-f0f3f06ef617
+		summarizeBy: none
+		sourceColumn: footnote_code
+
+	column eligible_discharges
+		dataType: int64
+		lineageTag: dfa53e8c-7186-4ca0-ac57-4ff099f31a0d
+		summarizeBy: none
+		sourceColumn: eligible_discharges
+
+	column payment_excess_readmission_ratio
+		dataType: double
+		lineageTag: 101f7bee-0a17-4102-a627-c18cf9d8a686
+		summarizeBy: none
+		sourceColumn: payment_excess_readmission_ratio
+
+	column peer_group_median_err
+		dataType: double
+		lineageTag: 278a21c8-3e93-4354-b6d1-088ee4e12459
+		summarizeBy: none
+		sourceColumn: peer_group_median_err
+
+	column counts_toward_penalty
+		dataType: boolean
+		lineageTag: a544f3c9-ceb7-454f-b44d-1c5cc616ac4a
+		summarizeBy: none
+		sourceColumn: counts_toward_penalty
+
+	column drg_payment_ratio
+		dataType: double
+		lineageTag: b5e8977d-9fba-4fcf-974e-edfa6bea466f
+		summarizeBy: none
+		sourceColumn: drg_payment_ratio
+
+	column penalty_contribution
+		dataType: double
+		lineageTag: 58f574e9-5f19-45ac-aa07-698a70929d7c
+		summarizeBy: none
+		sourceColumn: penalty_contribution
+
+	partition 'Readmission results' = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "fct_readmissions.parquet"))
+				in
+				    Source
+

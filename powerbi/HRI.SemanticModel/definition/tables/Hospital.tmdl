@@ -1,0 +1,147 @@
+/// One row per hospital in any CMS source, with its county link.
+table Hospital
+	lineageTag: 2af94207-ed54-45f4-955a-30cbe35b6989
+
+	column facility_id
+		dataType: string
+		lineageTag: 207f6f71-a3ea-43f2-beec-daf51ca99fc6
+		summarizeBy: none
+		sourceColumn: facility_id
+
+	column facility_name
+		dataType: string
+		lineageTag: f78286d2-995d-461b-8c5d-85fd1045e6fd
+		summarizeBy: none
+		sourceColumn: facility_name
+
+	column address
+		dataType: string
+		lineageTag: f56cc252-22f9-429c-a82f-1c04f13e50b4
+		summarizeBy: none
+		sourceColumn: address
+
+	column city
+		dataType: string
+		lineageTag: 8bc87558-3100-4bf6-8b3f-5d02772da690
+		summarizeBy: none
+		sourceColumn: city
+
+	column state
+		dataType: string
+		lineageTag: 6a921592-0ba7-4e0f-8d4d-ddbfb5618fa3
+		summarizeBy: none
+		sourceColumn: state
+
+	column zip_code
+		dataType: string
+		lineageTag: d6a69289-67f0-4f6a-8479-35a8444c9b34
+		summarizeBy: none
+		sourceColumn: zip_code
+
+	column cms_county_name
+		dataType: string
+		lineageTag: c272c144-341e-4281-ba9a-60ebb5ea3a80
+		summarizeBy: none
+		sourceColumn: cms_county_name
+
+	column county_fips
+		dataType: string
+		lineageTag: 9282df2d-5f61-4907-8f99-157f3cb26049
+		summarizeBy: none
+		sourceColumn: county_fips
+
+	column county_link_method
+		dataType: string
+		lineageTag: 794562b9-580d-482c-bfe4-d631eb169d81
+		summarizeBy: none
+		sourceColumn: county_link_method
+
+	column is_county_link_high_confidence
+		dataType: boolean
+		lineageTag: c2749979-5695-4850-a033-b858801698dd
+		summarizeBy: none
+		sourceColumn: is_county_link_high_confidence
+
+	column county_name_disagrees
+		dataType: boolean
+		lineageTag: 6ee01fbc-5808-4511-8a99-3bacf7114215
+		summarizeBy: none
+		sourceColumn: county_name_disagrees
+
+	column hospital_type
+		dataType: string
+		lineageTag: 8bbef25d-2e04-41b5-9505-409469f531c2
+		summarizeBy: none
+		sourceColumn: hospital_type
+
+	column ownership
+		dataType: string
+		lineageTag: 5094a2f6-2862-4a2e-afe0-98ad51fc4a5b
+		summarizeBy: none
+		sourceColumn: ownership
+
+	column has_emergency_services
+		dataType: boolean
+		lineageTag: 57bc2038-4e70-4628-a66f-b1e86f9115de
+		summarizeBy: none
+		sourceColumn: has_emergency_services
+
+	column is_birthing_friendly
+		dataType: boolean
+		lineageTag: 1ea09c1a-a0c1-4054-a99d-bf8bc6954544
+		summarizeBy: none
+		sourceColumn: is_birthing_friendly
+
+	column overall_star_rating
+		dataType: int64
+		lineageTag: 7311f643-0a38-4cf2-a9d8-fde3ca59bacb
+		summarizeBy: none
+		sourceColumn: overall_star_rating
+
+	column has_hospital_profile
+		dataType: boolean
+		lineageTag: 54076561-2324-492e-87e0-877a0bcf320f
+		summarizeBy: none
+		sourceColumn: has_hospital_profile
+
+	column profile_source
+		dataType: string
+		lineageTag: f60205f9-e719-4857-9883-903eca7ad9bf
+		summarizeBy: none
+		sourceColumn: profile_source
+
+	column is_active
+		dataType: boolean
+		lineageTag: c1ca02a5-b94b-402b-8eee-bffde7190175
+		summarizeBy: none
+		sourceColumn: is_active
+
+	column is_hrrp_hospital
+		dataType: boolean
+		lineageTag: 7a19c89e-3e03-473e-b0ba-9fe7b6750cd0
+		summarizeBy: none
+		sourceColumn: is_hrrp_hospital
+
+	column is_in_penalty_calculation
+		dataType: boolean
+		lineageTag: a2d8564f-33a4-45bf-bcb5-70aacd11edc7
+		summarizeBy: none
+		sourceColumn: is_in_penalty_calculation
+
+	column profile_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 8ffc0a97-ee07-4c11-bb7d-54d6c3f1a3dc
+		summarizeBy: none
+		sourceColumn: profile_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition Hospital = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "dim_hospital.parquet"))
+				in
+				    Source
+

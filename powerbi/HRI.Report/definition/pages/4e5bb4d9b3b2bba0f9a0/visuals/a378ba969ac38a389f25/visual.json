@@ -1,0 +1,200 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "a378ba969ac38a389f25",
+  "position": {
+    "x": 10.291629675538953,
+    "y": 298.45726059062963,
+    "z": 0,
+    "height": 782.16385534096048,
+    "width": 1910.1264677800298,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metric checks"
+                    }
+                  },
+                  "Property": "metric"
+                }
+              },
+              "queryRef": "Metric checks.metric",
+              "nativeQueryRef": "metric"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metric checks"
+                    }
+                  },
+                  "Property": "fiscal_year"
+                }
+              },
+              "queryRef": "Metric checks.fiscal_year",
+              "nativeQueryRef": "fiscal_year"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metric checks"
+                    }
+                  },
+                  "Property": "Check: MetricFlow value"
+                }
+              },
+              "queryRef": "Metric checks.Check: MetricFlow value",
+              "nativeQueryRef": "Check: MetricFlow value"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metric checks"
+                    }
+                  },
+                  "Property": "Check: Power BI value"
+                }
+              },
+              "queryRef": "Metric checks.Check: Power BI value",
+              "nativeQueryRef": "Check: Power BI value"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metric checks"
+                    }
+                  },
+                  "Property": "Check: difference"
+                }
+              },
+              "queryRef": "Metric checks.Check: difference",
+              "nativeQueryRef": "Check: difference"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Metric checks"
+                  }
+                },
+                "Property": "metric"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "a96a2b0133f171225e8f",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Metric checks"
+              }
+            },
+            "Property": "metric"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "ffa9c62c8dc46443f975",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Metric checks"
+              }
+            },
+            "Property": "fiscal_year"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "4d5ae70521fc36b3ebbf",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Metric checks"
+              }
+            },
+            "Property": "Check: MetricFlow value"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "b17f9c1823ae689930ba",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Metric checks"
+              }
+            },
+            "Property": "Check: Power BI value"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "cbc6b9d2e28fdcfed019",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Metric checks"
+              }
+            },
+            "Property": "Check: difference"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+/// One row per HRRP fiscal year (FY2019-FY2026) with its readmission and survey periods.
+table 'Fiscal year'
+	lineageTag: dcb4e6b6-5bc1-4cf6-913e-0c0583fee3d9
+
+	column fiscal_year
+		dataType: string
+		lineageTag: f6c80121-c471-4ac9-a5cc-6436ce8e40b5
+		summarizeBy: none
+		sourceColumn: fiscal_year
+
+	column fiscal_year_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: d1b51a31-2933-4e09-8a41-33077a754512
+		summarizeBy: none
+		sourceColumn: fiscal_year_start
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column fiscal_year_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 172d801f-a79f-451c-ac25-35f96674efb3
+		summarizeBy: none
+		sourceColumn: fiscal_year_end
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column readmission_period_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: ae39b215-886f-491f-b4cf-03e939853621
+		summarizeBy: none
+		sourceColumn: readmission_period_start
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column readmission_period_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 5c906539-6010-418f-934f-77415775d6f5
+		summarizeBy: none
+		sourceColumn: readmission_period_end
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column readmission_results_published
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 808f1486-216b-4ba1-b23b-1e7693f6508d
+		summarizeBy: none
+		sourceColumn: readmission_results_published
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column survey_period_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 92ccef2c-e7cd-43bc-8b13-00b360fa0d55
+		summarizeBy: none
+		sourceColumn: survey_period_start
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column survey_period_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 8ea2e5b2-9520-4417-a933-564392111964
+		summarizeBy: none
+		sourceColumn: survey_period_end
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column survey_period_months
+		dataType: int64
+		lineageTag: ee66e494-0ac9-4a2e-a83f-1340177f81a8
+		summarizeBy: none
+		sourceColumn: survey_period_months
+
+	column survey_ends_days_before_readmissions
+		dataType: int64
+		lineageTag: f908c482-e8e7-4366-bb43-6ad80eb91e4c
+		summarizeBy: none
+		sourceColumn: survey_ends_days_before_readmissions
+
+	column has_payment_file
+		dataType: boolean
+		lineageTag: 29fbba91-8d24-4abd-ba89-d837f560d4fb
+		summarizeBy: none
+		sourceColumn: has_payment_file
+
+	column is_latest_fiscal_year
+		dataType: boolean
+		lineageTag: 270a18fe-5977-4d61-8081-8045aa18e276
+		summarizeBy: none
+		sourceColumn: is_latest_fiscal_year
+
+	partition 'Fiscal year' = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "dim_fiscal_year.parquet"))
+				in
+				    Source
+

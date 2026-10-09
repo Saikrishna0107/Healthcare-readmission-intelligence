@@ -1,0 +1,40 @@
+relationship 0953bb23-30cc-567a-bd47-44d5846cfc6f
+	fromColumn: 'Hospital year'.facility_id
+	toColumn: Hospital.facility_id
+
+relationship 32bb70dc-9c0d-5b16-b8e9-8bc5af365e06
+	fromColumn: 'Hospital year'.fiscal_year
+	toColumn: 'Fiscal year'.fiscal_year
+
+relationship 793e6f54-4895-5577-9d10-d7d3cfb6f729
+	fromColumn: 'Readmission results'.facility_id
+	toColumn: Hospital.facility_id
+
+relationship 8e253ea4-0cf1-59d1-aa09-06a76736f40f
+	fromColumn: 'Readmission results'.fiscal_year
+	toColumn: 'Fiscal year'.fiscal_year
+
+relationship c7a1f75b-c321-59bc-8769-6c29919c9bbd
+	fromColumn: Hospital.county_fips
+	toColumn: County.county_fips
+
+relationship 6160687d-1c84-5151-9039-5ad5fda6e5d8
+	fromColumn: 'Model risk'.facility_id
+	toColumn: Hospital.facility_id
+
+relationship e34c399d-f4c7-5650-991b-0079190fede0
+	fromColumn: 'Model risk'.fiscal_year
+	toColumn: 'Fiscal year'.fiscal_year
+
+relationship 029b1697-af69-5457-a908-3823890286b7
+	fromColumn: 'Model drivers'.facility_id
+	toColumn: Hospital.facility_id
+
+relationship 6886f9e0-2216-5b41-a14d-fe76935113c0
+	fromColumn: 'Model drivers'.fiscal_year
+	toColumn: 'Fiscal year'.fiscal_year
+
+relationship 0a2f7c3b-14ba-5335-bf02-cd62eccb52c9
+	fromColumn: 'Metric checks'.fiscal_year
+	toColumn: 'Fiscal year'.fiscal_year
+

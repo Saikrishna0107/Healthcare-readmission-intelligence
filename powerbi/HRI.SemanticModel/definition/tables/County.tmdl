@@ -1,0 +1,192 @@
+/// One row per US county with CDC PLACES community health measures (age-adjusted %).
+table County
+	lineageTag: 16bf9b89-b082-4134-9894-761bb63310ad
+
+	column county_fips
+		dataType: string
+		lineageTag: e97a861b-13db-4ea3-964f-5fa6414f6046
+		summarizeBy: none
+		sourceColumn: county_fips
+
+	column county_name
+		dataType: string
+		lineageTag: 1d34ffeb-00b7-4032-a7e4-f3c24a54417c
+		summarizeBy: none
+		sourceColumn: county_name
+
+	column state
+		dataType: string
+		lineageTag: bde54496-d689-4f28-afdd-8668df4fa262
+		summarizeBy: none
+		sourceColumn: state
+
+	column state_name
+		dataType: string
+		lineageTag: 22bbb32f-e142-467e-b4d6-5e3ce294629c
+		summarizeBy: none
+		sourceColumn: state_name
+
+	column total_population
+		dataType: int64
+		lineageTag: b3aeda54-f136-4a5d-bc98-c688ae86d938
+		summarizeBy: none
+		sourceColumn: total_population
+
+	column adult_population
+		dataType: int64
+		lineageTag: 2449ec94-0bd8-437c-ba39-24aa34cc4ada
+		summarizeBy: none
+		sourceColumn: adult_population
+
+	column latitude
+		dataType: double
+		lineageTag: ea6c7460-f29a-4bc4-8133-fc37db5b841f
+		summarizeBy: none
+		sourceColumn: latitude
+
+	column longitude
+		dataType: double
+		lineageTag: bba82606-9056-4fec-82de-54f5799460e7
+		summarizeBy: none
+		sourceColumn: longitude
+
+	column diabetes_pct
+		dataType: double
+		lineageTag: 5a200157-8143-4e28-9800-ae02b1255c83
+		summarizeBy: none
+		sourceColumn: diabetes_pct
+
+	column obesity_pct
+		dataType: double
+		lineageTag: f14c192b-c16d-47cb-9702-01152b4a1961
+		summarizeBy: none
+		sourceColumn: obesity_pct
+
+	column copd_pct
+		dataType: double
+		lineageTag: ffa85150-f1ef-49d0-a317-e5fde23fcdaa
+		summarizeBy: none
+		sourceColumn: copd_pct
+
+	column heart_disease_pct
+		dataType: double
+		lineageTag: 7f9f4797-cbd1-428f-a676-bcebc0d1da9b
+		summarizeBy: none
+		sourceColumn: heart_disease_pct
+
+	column high_blood_pressure_pct
+		dataType: double
+		lineageTag: bc3e7818-95a6-4a83-a4aa-fe48d0165832
+		summarizeBy: none
+		sourceColumn: high_blood_pressure_pct
+
+	column stroke_pct
+		dataType: double
+		lineageTag: 20286d6c-0a36-42b6-b3c5-cc5db5147e9f
+		summarizeBy: none
+		sourceColumn: stroke_pct
+
+	column depression_pct
+		dataType: double
+		lineageTag: 4b3860b5-7e48-478f-90b6-e9bfb3a55143
+		summarizeBy: none
+		sourceColumn: depression_pct
+
+	column smoking_pct
+		dataType: double
+		lineageTag: df3f16d4-6203-4d9e-a6b0-f39fdfce781d
+		summarizeBy: none
+		sourceColumn: smoking_pct
+
+	column physical_inactivity_pct
+		dataType: double
+		lineageTag: 7c52fb4d-79a3-4ce8-a07e-3454246041ca
+		summarizeBy: none
+		sourceColumn: physical_inactivity_pct
+
+	column fair_poor_health_pct
+		dataType: double
+		lineageTag: 39e569f6-c225-47ff-ac6e-8a5070cb9ec9
+		summarizeBy: none
+		sourceColumn: fair_poor_health_pct
+
+	column disability_pct
+		dataType: double
+		lineageTag: a6c7f984-f8a4-40b7-b812-cf44d82e235a
+		summarizeBy: none
+		sourceColumn: disability_pct
+
+	column uninsured_18_64_pct
+		dataType: double
+		lineageTag: e8e48fee-c2b1-4e7f-b9f3-3d1db792ca76
+		summarizeBy: none
+		sourceColumn: uninsured_18_64_pct
+
+	column routine_checkup_pct
+		dataType: double
+		lineageTag: 510e26c3-2986-48f4-82c8-616b83088e96
+		summarizeBy: none
+		sourceColumn: routine_checkup_pct
+
+	column lack_transportation_pct
+		dataType: double
+		lineageTag: ec3e22d9-84de-4988-8eab-e6e534f656a0
+		summarizeBy: none
+		sourceColumn: lack_transportation_pct
+
+	column food_insecurity_pct
+		dataType: double
+		lineageTag: 23509a1f-c63f-48ae-9233-91fb2ea12ab9
+		summarizeBy: none
+		sourceColumn: food_insecurity_pct
+
+	column housing_insecurity_pct
+		dataType: double
+		lineageTag: efdb75fc-b393-4f86-af95-449b3b76eefa
+		summarizeBy: none
+		sourceColumn: housing_insecurity_pct
+
+	column loneliness_pct
+		dataType: double
+		lineageTag: 136a4174-54d6-46c8-a316-56da8b569db5
+		summarizeBy: none
+		sourceColumn: loneliness_pct
+
+	column chronic_data_year
+		dataType: int64
+		lineageTag: 8626da33-c3e3-434f-adf5-e79a458b2ef3
+		summarizeBy: none
+		sourceColumn: chronic_data_year
+
+	column social_data_year
+		dataType: int64
+		lineageTag: bb97b702-b07e-4247-9943-a7873c155439
+		summarizeBy: none
+		sourceColumn: social_data_year
+
+	column has_chronic_measures
+		dataType: boolean
+		lineageTag: f7150e6f-d0de-4ab9-b102-9fca01f66a99
+		summarizeBy: none
+		sourceColumn: has_chronic_measures
+
+	column has_social_measures
+		dataType: boolean
+		lineageTag: 864e5e1f-71ba-4ca1-8e00-20497f7f279a
+		summarizeBy: none
+		sourceColumn: has_social_measures
+
+	column source_release
+		dataType: string
+		lineageTag: 3a0ca0d5-84f6-4339-9844-64be682da3c5
+		summarizeBy: none
+		sourceColumn: source_release
+
+	partition County = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "dim_county.parquet"))
+				in
+				    Source
+
