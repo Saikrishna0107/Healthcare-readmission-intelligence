@@ -293,6 +293,24 @@ copy is not in `D:\healthcare-readmission-intelligence`, set the `DataFolder` pa
 (`hri powerbi init` only creates the model in a new project; it would overwrite columns added
 in Desktop, such as `condition_name`.)
 
+### Asking questions in the browser (step 9d)
+
+Power BI can't host a chat, so the agent also has a small web page: `hri app` opens it at
+http://localhost:8501. It is the same agent as `hri ask` (local model, nothing leaves the
+computer), with more to check each answer by:
+- a table, and a chart when the answer has one breakdown (a line over years, bars otherwise)
+- under each answer: the metric's definition, the plan the model wrote and the SQL that ran
+- in the sidebar: the agent's score on the 42 test questions (83.3%) and example questions it
+  answered correctly in that test, including one it must decline
+
+Running the page against the real model found a bug in `hri ask` and in the test set's own
+answer key: one hospital in the payment file (420117) has no CMS profile and so no state, and
+"the 3 states with the lowest share penalized" ranked that blank first, at 0%. Rankings now
+leave out rows without a value for the breakdown and say so in a note; the gold SQL was fixed
+the same way. The published score is unchanged (the model and the key were wrong together).
+
+Tests run the page headless with a scripted model (`tests/test_app.py`), so they need no Ollama.
+
 ## Planned architecture
 
 ```
@@ -314,7 +332,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 6. Archived data to align time periods (prevents data leakage)
 - [x] 7. Validation design, baselines and a three-model comparison (ridge, LightGBM, EBM) explained with SHAP
 - [x] 8. LLM question-answering agent through a semantic layer, with an evaluation set
-- [ ] 9. Power BI dashboard
+- [x] 9. Power BI dashboard, and a web page for the agent
 - [ ] 10. CI and scheduled data refresh
 
 ## Running it yourself
@@ -339,6 +357,7 @@ This installs the project's own package (`src/hri`) plus the development tools (
 .venv/Scripts/hri sl list                  # the approved metrics of the semantic layer
 .venv/Scripts/hri sl query share_penalized --by hospital__state --where fiscal_year=FY2026 --order=-share_penalized --limit 10
 .venv/Scripts/hri ask "How many hospitals were penalized each year?"   # needs Ollama + granite4.1:3b
+.venv/Scripts/hri app                    # the agent as a web page, http://localhost:8501 (needs Ollama)
 .venv/Scripts/hri export powerbi         # Parquet files for the Power BI dashboard (data/powerbi)
 .venv/Scripts/hri eval                   # score the agent on 42 questions, 3 variants (about 30 minutes)
 .venv/Scripts/hri eval --replay          # rescore the saved replies, no model needed

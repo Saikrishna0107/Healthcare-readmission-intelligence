@@ -236,7 +236,8 @@
   sql: |
     select h.state as hospital__state,
            count(*) filter (where is_penalized) / count(*) filter (where in_payment_file) as value
-    from {hy} where fiscal_year = 'FY2026' group by all
+    from {hy} where fiscal_year = 'FY2026' and h.state is not null  -- a blank is not a state
+    group by all
     order by value asc nulls last limit 3
 
 - id: t02

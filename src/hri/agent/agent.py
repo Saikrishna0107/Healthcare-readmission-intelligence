@@ -402,8 +402,10 @@ class Agent:
                     return finish(Answer(question, "declined", DECLINES[reason] + " " + self._can_ask(),
                                          plan=plan))
                 plan, notes = self.prepare(plan)
+                ranked = bool(self._order(plan))
+                # A ranking is cut after the rows without a breakdown value are dropped (below).
                 result = self.layer.query(plan.metrics, plan.group_by, plan.filters, self._order(plan),
-                                          plan.limit)
+                                          MAX_ROWS if ranked else plan.limit)
                 break
             except (SemanticLayerError, ValueError, KeyError, TypeError) as exc:
                 error = str(exc)
@@ -416,9 +418,18 @@ class Agent:
         data = result.data
         for dimension, values in plan.keep.items():
             data = data[data[dimension].isin(values)].reset_index(drop=True)
+        if ranked:
+            # A blank is not a place: hospital 420117 is in the payment file without a CMS
+            # profile, so it has no state, and alone it would rank as the "state" with 0% penalized.
+            blank = data[plan.group_by].isna().any(axis=1)
+            if blank.any():
+                notes.append(f"Left out of the ranking: {blank.sum()} row(s) with no "
+                             f"{' or '.join(map(short_name, plan.group_by))} (e.g. a hospital "
+                             "without a CMS profile).")
+            data = data[~blank].head(plan.limit).reset_index(drop=True)
         labels = {m.name: m.label for m in result.metrics}
         text = render(plan, data, labels)
-        if len(result.data) == MAX_ROWS:
+        if len(result.data) == MAX_ROWS and not ranked:
             notes.append(f"Only the first {MAX_ROWS} rows are shown; narrow the question to see the rest.")
         if data[plan.metrics].isna().any().any():
             notes.append("n/a: nothing to compute from, e.g. no hospital in the payment file matches "

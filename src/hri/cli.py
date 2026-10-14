@@ -78,6 +78,8 @@ def main(argv: list[str] | None = None) -> int:
     pbi_cmd.add_argument("--force", action="store_true",
                          help="overwrite an existing model (drops changes made in Power BI Desktop)")
 
+    commands.add_parser("app", help="open the question-answering web page (needs Ollama running)")
+
     args = parser.parse_args(argv)
     if args.command == "dbt":
         return run_dbt(args.dbt_args)
@@ -100,6 +102,11 @@ def main(argv: list[str] | None = None) -> int:
         return _export(args)
     if args.command == "powerbi":
         return _powerbi(args)
+    if args.command == "app":
+        app = Path(__file__).with_name("app.py")
+        # No usage statistics sent to Streamlit, and no "Deploy" button: the page is local only.
+        return subprocess.call([sys.executable, "-m", "streamlit", "run", str(app),
+                                "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal"])
     return _status()
 
 

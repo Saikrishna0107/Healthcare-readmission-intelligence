@@ -29,6 +29,8 @@ dependencies = [
     # Semantic layer (step 8): MetricFlow, the dbt Semantic Layer engine, with its dbt connection.
     # Pinned to a minor version because it is tied to the dbt-core version (D-025).
     "dbt-metricflow[dbt-duckdb]>=0.15,<0.16",
+    # Web page for the question-answering agent (step 9d): `hri app`
+    "streamlit>=1.40",
 ]
 
 [project.optional-dependencies]

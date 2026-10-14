@@ -464,7 +464,22 @@ plans. Power BI can't host a chat interface, so the agent gets a small Streamlit
   are compressed (Milford Regional: predicted 0.86%, actual 2.97%), yet the hospital ranks in
   the 94th percentile and is flagged correctly. Precision of the flag (50.1% vs 25% random) is
   the honest headline.
-- **Still open:** the agent's Streamlit app (step 9d).
+
+**The agent's web page (step 9d).** `hri app` runs `src/hri/app.py` with Streamlit.
+- **Streamlit, not a web framework with a separate front end** (FastAPI + React, Flask). One
+  Python file, no JavaScript, and a chat interface built in. Alternative: Gradio, similar, but
+  Streamlit is more common in analyst job descriptions. Cost: Streamlit reruns the script on
+  every click, so the semantic layer is cached (`st.cache_resource`).
+- **A regular dependency, not an optional extra**: one install command for everything, like marimo.
+- **Local only.** No hosting: a hosted page would need a hosted model (an API key and sending
+  the questions out) or a server with Ollama, both against D-010. Streamlit's usage statistics
+  and its Deploy button are switched off by `hri app`.
+- **The page shows how far to trust it**: the measured accuracy, the metric definition, the
+  plan and the SQL under every answer. Example questions come from the test set, only ones
+  the model answered correctly, and say so.
+- **Rankings drop rows without a breakdown value.** Found by using the page: a hospital without
+  a profile (no state) ranked as the "state" with the lowest share penalized. The test set's
+  gold SQL had the same gap and was fixed; the published score did not change.
 
 ---
 

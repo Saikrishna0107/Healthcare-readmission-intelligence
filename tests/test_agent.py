@@ -189,3 +189,13 @@ def test_a_list_is_never_cut_by_the_models_default_limit(layer):
     llm = FakeLLM(plan(metrics=["hospitals_in_payment_file"], group_by=["hospital__state"], limit=50))
     answer = Agent(llm, layer).ask("Hospitals in the payment file per state")
     assert len(answer.data) > 50
+
+
+@needs_warehouse
+def test_a_ranking_leaves_out_rows_without_a_breakdown_value():
+    """Hospital 420117 has no state; it must not rank as the state with the fewest penalties."""
+    llm = FakeLLM(plan(metrics=["share_penalized"], group_by=["hospital__state"], sort="lowest_first",
+                       limit=3))
+    answer = Agent(llm).ask("Which 3 states had the lowest share of hospitals penalized?")
+    assert len(answer.data) == 3 and answer.data["hospital__state"].notna().all()
+    assert any("Left out of the ranking" in n for n in answer.notes)
