@@ -1,0 +1,133 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "28df03fd2100e250b1cf",
+  "position": {
+    "x": 0,
+    "y": 492.59259259259255,
+    "z": 4,
+    "height": 587.037037037037,
+    "width": 737.037037037037,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "fiscal_year"
+                }
+              },
+              "queryRef": "Readmission results.fiscal_year",
+              "nativeQueryRef": "fiscal_year"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "condition_name"
+                }
+              },
+              "queryRef": "Readmission results.condition_name",
+              "nativeQueryRef": "condition_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "excess_readmission_ratio"
+                }
+              },
+              "queryRef": "Readmission results.excess_readmission_ratio",
+              "nativeQueryRef": "excess_readmission_ratio"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "peer_group_median_err"
+                }
+              },
+              "queryRef": "Readmission results.peer_group_median_err",
+              "nativeQueryRef": "peer_group_median_err"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "counts_toward_penalty"
+                }
+              },
+              "queryRef": "Readmission results.counts_toward_penalty",
+              "nativeQueryRef": "counts_toward_penalty"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Readmission results"
+                  }
+                },
+                "Property": "fiscal_year"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Condition results: ratio vs peer-group median'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

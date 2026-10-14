@@ -2,6 +2,7 @@
 metric's name, and tables that read the exported files. Runs on the TMDL text in git, so it
 also checks the model after Power BI Desktop has rewritten it."""
 
+import json
 import re
 
 import pytest
@@ -48,3 +49,47 @@ def test_the_saved_model_reads_every_exported_table():
     for table, (file, _) in TABLES.items():
         text = (MODEL_DIR / "tables" / f"{table}.tmdl").read_text(encoding="utf-8")
         assert f'DataFolder & "{file}.parquet"' in text, table
+
+
+PAGES_DIR = MODEL_DIR.parents[1] / "HRI.Report" / "definition" / "pages"
+needs_report = pytest.mark.skipif(not PAGES_DIR.exists(), reason="no report pages yet")
+
+
+def report_pages() -> dict[str, dict]:
+    pages = {}
+    for path in PAGES_DIR.glob("*/page.json"):
+        page = json.loads(path.read_text(encoding="utf-8"))
+        files = path.parent.glob("visuals/*/visual.json")
+        visuals = [json.loads(v.read_text(encoding="utf-8")) for v in files]
+        pages[page["displayName"]] = {"page": page, "visuals": visuals,
+                                      "types": {v["name"]: v["visual"]["visualType"] for v in visuals}}
+    return pages
+
+
+@needs_report
+def test_the_report_has_its_pages_and_the_checks_card():
+    pages = report_pages()
+    assert {"Penalty Overview", "Conditions", "Hospital Detail", "Model Risk", "Checks"} <= set(pages)
+    checks = json.dumps(pages["Checks"]["visuals"])
+    assert '"Property": "Check: mismatches"' in checks
+
+
+@needs_report
+def test_hospital_detail_is_a_drill_through_on_the_hospital_id():
+    binding = report_pages()["Hospital Detail"]["page"]["pageBinding"]
+    assert binding["type"] == "Drillthrough"
+    assert binding["acceptsFilterContext"] == "None"  # every year, not only the slicer's
+    fields = [p["fieldExpr"]["Column"] for p in binding["parameters"]]
+    bound = [(f["Expression"]["SourceRef"]["Entity"], f["Property"]) for f in fields]
+    assert bound == [("Hospital", "facility_id")]
+
+
+@needs_report
+def test_trend_visuals_ignore_the_year_slicer():
+    """A trend over years filtered to one year shows a single dot."""
+    for name, target in (("Penalty Overview", "lineChart"), ("Conditions", "pivotTable")):
+        page = report_pages()[name]
+        types = page["types"]
+        ignored = {(types.get(i["source"]), types.get(i["target"]))
+                   for i in page["page"].get("visualInteractions", []) if i["type"] == "NoFilter"}
+        assert ("slicer", target) in ignored, name

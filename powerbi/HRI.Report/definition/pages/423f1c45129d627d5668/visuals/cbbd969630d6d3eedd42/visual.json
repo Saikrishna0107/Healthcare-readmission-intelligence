@@ -1,0 +1,227 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "cbbd969630d6d3eedd42",
+  "position": {
+    "x": 677.77777777777771,
+    "y": 0,
+    "z": 5000,
+    "height": 629.85074626865674,
+    "width": 623.88059701492534,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital"
+                    }
+                  },
+                  "Property": "facility_id"
+                }
+              },
+              "queryRef": "Hospital.facility_id",
+              "nativeQueryRef": "facility_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital"
+                    }
+                  },
+                  "Property": "facility_name"
+                }
+              },
+              "queryRef": "Hospital.facility_name",
+              "nativeQueryRef": "facility_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital"
+                    }
+                  },
+                  "Property": "state"
+                }
+              },
+              "queryRef": "Hospital.state",
+              "nativeQueryRef": "state"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital year"
+                    }
+                  },
+                  "Property": "Largest payment reduction"
+                }
+              },
+              "queryRef": "Hospital year.Largest payment reduction",
+              "nativeQueryRef": "Largest payment reduction"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "2878235c7a035fa65421",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital"
+              }
+            },
+            "Property": "facility_id"
+          }
+        },
+        "type": "TopN",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "subquery",
+              "Expression": {
+                "Subquery": {
+                  "Query": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "h",
+                        "Entity": "Hospital",
+                        "Type": 0
+                      },
+                      {
+                        "Name": "h1",
+                        "Entity": "Hospital year",
+                        "Type": 0
+                      }
+                    ],
+                    "Select": [
+                      {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "h"
+                            }
+                          },
+                          "Property": "facility_id"
+                        },
+                        "Name": "field"
+                      }
+                    ],
+                    "OrderBy": [
+                      {
+                        "Direction": 2,
+                        "Expression": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "h1"
+                              }
+                            },
+                            "Property": "Largest payment reduction"
+                          }
+                        }
+                      }
+                    ],
+                    "Top": 20
+                  }
+                }
+              },
+              "Type": 2
+            },
+            {
+              "Name": "h",
+              "Entity": "Hospital",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "h"
+                          }
+                        },
+                        "Property": "facility_id"
+                      }
+                    }
+                  ],
+                  "Table": {
+                    "SourceRef": {
+                      "Source": "subquery"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "e46d5384bcf455d33513",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital"
+              }
+            },
+            "Property": "facility_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "6bd636950faa59d4f763",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital"
+              }
+            },
+            "Property": "state"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "b5f1450841135b1c51ef",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital year"
+              }
+            },
+            "Property": "Largest payment reduction"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

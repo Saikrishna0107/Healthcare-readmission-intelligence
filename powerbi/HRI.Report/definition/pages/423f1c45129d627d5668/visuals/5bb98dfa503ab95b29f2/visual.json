@@ -1,0 +1,106 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "5bb98dfa503ab95b29f2",
+  "position": {
+    "x": 646.2962962962963,
+    "y": 635.18518518518511,
+    "z": 4000,
+    "height": 444.4444444444444,
+    "width": 685.18518518518511,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital"
+                    }
+                  },
+                  "Property": "state"
+                }
+              },
+              "queryRef": "Hospital.state",
+              "nativeQueryRef": "Count of state",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital year"
+                    }
+                  },
+                  "Property": "Share of hospitals penalized"
+                }
+              },
+              "queryRef": "Hospital year.Share of hospitals penalized",
+              "nativeQueryRef": "Share of hospitals penalized"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Hospital year"
+                  }
+                },
+                "Property": "Share of hospitals penalized"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "03982f774cbfe4b4a47d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital"
+              }
+            },
+            "Property": "state"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "63c09c819f8aaf215ae5",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital year"
+              }
+            },
+            "Property": "Share of hospitals penalized"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

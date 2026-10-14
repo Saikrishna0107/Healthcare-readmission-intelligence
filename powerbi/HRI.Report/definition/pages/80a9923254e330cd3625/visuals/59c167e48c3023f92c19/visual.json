@@ -1,0 +1,70 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "59c167e48c3023f92c19",
+  "position": {
+    "x": 0,
+    "y": 112.96296296296296,
+    "z": 1,
+    "height": 150,
+    "width": 1711,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model risk"
+                    }
+                  },
+                  "Property": "Hospitals flagged"
+                }
+              },
+              "queryRef": "Model risk.Hospitals flagged",
+              "nativeQueryRef": "Hospitals flagged"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model risk"
+                    }
+                  },
+                  "Property": "Flagged hospitals actually in the top quarter"
+                }
+              },
+              "queryRef": "Model risk.Flagged hospitals actually in the top quarter",
+              "nativeQueryRef": "Flagged hospitals actually in the top quarter"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Model risk"
+                  }
+                },
+                "Property": "Hospitals flagged"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

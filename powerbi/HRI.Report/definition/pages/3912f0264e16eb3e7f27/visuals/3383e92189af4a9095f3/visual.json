@@ -1,0 +1,92 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "3383e92189af4a9095f3",
+  "position": {
+    "x": 924.074074074074,
+    "y": 274.07407407407408,
+    "z": 6,
+    "height": 201.85185185185185,
+    "width": 648.14814814814815,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model risk"
+                    }
+                  },
+                  "Property": "Predicted payment reduction"
+                }
+              },
+              "queryRef": "Model risk.Predicted payment reduction",
+              "nativeQueryRef": "Predicted payment reduction"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model risk"
+                    }
+                  },
+                  "Property": "Actual payment reduction (model rows)"
+                }
+              },
+              "queryRef": "Model risk.Actual payment reduction (model rows)",
+              "nativeQueryRef": "Actual payment reduction (model rows)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Model risk"
+                  }
+                },
+                "Property": "Predicted payment reduction"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'FY2026 model: predicted vs actual (%)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

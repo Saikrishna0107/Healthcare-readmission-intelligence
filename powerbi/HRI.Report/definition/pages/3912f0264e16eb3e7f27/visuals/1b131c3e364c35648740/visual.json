@@ -1,0 +1,90 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "1b131c3e364c35648740",
+  "position": {
+    "x": 764.81481481481478,
+    "y": 492.59259259259255,
+    "z": 5,
+    "height": 587.037037037037,
+    "width": 927.77777777777771,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model drivers"
+                    }
+                  },
+                  "Property": "family"
+                }
+              },
+              "queryRef": "Model drivers.family",
+              "nativeQueryRef": "family",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model drivers"
+                    }
+                  },
+                  "Property": "Driver contribution"
+                }
+              },
+              "queryRef": "Model drivers.Driver contribution",
+              "nativeQueryRef": "Driver contribution"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Model drivers"
+                  }
+                },
+                "Property": "Driver contribution"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'What Moved the Prediction (Percentage Points)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

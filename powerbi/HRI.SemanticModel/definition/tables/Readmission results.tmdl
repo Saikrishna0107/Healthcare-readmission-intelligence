@@ -173,6 +173,16 @@ table 'Readmission results'
 		summarizeBy: none
 		sourceColumn: penalty_contribution
 
+	column condition_name =
+			SWITCH('Readmission results'[condition],
+			    "AMI", "Heart attack (AMI)", "HF", "Heart failure", "PN", "Pneumonia",
+			    "COPD", "COPD", "CABG", "Bypass surgery (CABG)", "HIP_KNEE", "Hip/knee replacement",
+			    'Readmission results'[condition])
+		lineageTag: 70536761-e848-4878-8ba7-17caa38db38f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
 	partition 'Readmission results' = m
 		mode: import
 		source =

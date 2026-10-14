@@ -4,10 +4,10 @@
   "position": {
     "x": 10.291629675538953,
     "y": 0,
-    "z": 1,
+    "z": 1000,
     "height": 300,
     "width": 300,
-    "tabOrder": 1
+    "tabOrder": 1000
   },
   "visual": {
     "visualType": "cardVisual",
@@ -52,23 +52,5 @@
       }
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "1ebb2e15ded0dd0879da",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "Metric checks"
-              }
-            },
-            "Property": "Check: mismatches"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "8f6a210cc2dcd9f085ae",
+  "position": {
+    "x": 0,
+    "y": 53.7037037037037,
+    "z": 2,
+    "height": 159.25925925925924,
+    "width": 1711.1111111111111,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Hospital"
+                        }
+                      },
+                      "Property": "facility_name"
+                    }
+                  },
+                  "Function": 3
+                }
+              },
+              "queryRef": "Min(Hospital.facility_name)",
+              "nativeQueryRef": "First facility_name"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Hospital"
+                        }
+                      },
+                      "Property": "city"
+                    }
+                  },
+                  "Function": 3
+                }
+              },
+              "queryRef": "Min(Hospital.city)",
+              "nativeQueryRef": "First city"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Hospital"
+                        }
+                      },
+                      "Property": "state"
+                    }
+                  },
+                  "Function": 3
+                }
+              },
+              "queryRef": "Min(Hospital.state)",
+              "nativeQueryRef": "First state"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Hospital"
+                        }
+                      },
+                      "Property": "hospital_type"
+                    }
+                  },
+                  "Function": 3
+                }
+              },
+              "queryRef": "Min(Hospital.hospital_type)",
+              "nativeQueryRef": "First hospital_type"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

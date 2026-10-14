@@ -75,6 +75,8 @@ def main(argv: list[str] | None = None) -> int:
     pbi_cmd = commands.add_parser("powerbi", help="Power BI project (powerbi/)")
     pbi_cmd.add_argument("action", choices=["init"],
                          help="init: write tables, relationships and measures into the PBIP project")
+    pbi_cmd.add_argument("--force", action="store_true",
+                         help="overwrite an existing model (drops changes made in Power BI Desktop)")
 
     args = parser.parse_args(argv)
     if args.command == "dbt":
@@ -218,8 +220,12 @@ def _export(args: argparse.Namespace) -> int:
 
 
 def _powerbi(args: argparse.Namespace) -> int:
-    from hri.powerbi import PROJECT_ROOT, write_model
+    from hri.powerbi import MODEL_DIR, PROJECT_ROOT, write_model
 
+    if (MODEL_DIR / "tables").exists() and not args.force:
+        print("The model already exists and may hold changes made in Power BI Desktop (such as "
+              "condition_name). Use --force to overwrite it.")
+        return 1
     try:
         written = write_model()
     except FileNotFoundError as exc:

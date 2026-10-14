@@ -1,0 +1,261 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "5024399478b4184f131f",
+  "position": {
+    "x": 855.55555555555554,
+    "y": 277.77777777777777,
+    "z": 3,
+    "height": 746.29629629629619,
+    "width": 931.48148148148141,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital"
+                    }
+                  },
+                  "Property": "facility_id"
+                }
+              },
+              "queryRef": "Hospital.facility_id",
+              "nativeQueryRef": "facility_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital"
+                    }
+                  },
+                  "Property": "facility_name"
+                }
+              },
+              "queryRef": "Hospital.facility_name",
+              "nativeQueryRef": "facility_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital"
+                    }
+                  },
+                  "Property": "state"
+                }
+              },
+              "queryRef": "Hospital.state",
+              "nativeQueryRef": "state"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model risk"
+                    }
+                  },
+                  "Property": "Predicted payment reduction"
+                }
+              },
+              "queryRef": "Model risk.Predicted payment reduction",
+              "nativeQueryRef": "Predicted payment reduction"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model risk"
+                    }
+                  },
+                  "Property": "Actual payment reduction (model rows)"
+                }
+              },
+              "queryRef": "Model risk.Actual payment reduction (model rows)",
+              "nativeQueryRef": "Actual payment reduction (model rows)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Model risk"
+                  }
+                },
+                "Property": "Predicted payment reduction"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Flagged hospitals (predicted top quarter)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "c3097c4056d95137d26e",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital"
+              }
+            },
+            "Property": "facility_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "7b59b26554f654afe067",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital"
+              }
+            },
+            "Property": "facility_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "7ebfeee19cf14d5084ce",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Hospital"
+              }
+            },
+            "Property": "state"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "f4ab39ebe717cbdddd0f",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Model risk"
+              }
+            },
+            "Property": "Predicted payment reduction"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "a03aa8f0acbff2a10e0e",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Model risk"
+              }
+            },
+            "Property": "Actual payment reduction (model rows)"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "25f4c6a5bdbaf26b3097",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Model risk"
+              }
+            },
+            "Property": "is_flagged"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "m",
+              "Entity": "Model risk",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "m"
+                          }
+                        },
+                        "Property": "is_flagged"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "true"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  }
+}

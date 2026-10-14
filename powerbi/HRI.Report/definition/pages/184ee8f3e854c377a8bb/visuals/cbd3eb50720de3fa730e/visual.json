@@ -1,0 +1,175 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "cbd3eb50720de3fa730e",
+  "position": {
+    "x": 760,
+    "y": 56,
+    "z": 4,
+    "height": 256,
+    "width": 750,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "Scored results"
+                }
+              },
+              "queryRef": "Readmission results.Scored results",
+              "nativeQueryRef": "Scored results"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "Results counting toward the penalty"
+                }
+              },
+              "queryRef": "Readmission results.Results counting toward the penalty",
+              "nativeQueryRef": "Results counting toward the penalty"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "Eligible discharges"
+                }
+              },
+              "queryRef": "Readmission results.Eligible discharges",
+              "nativeQueryRef": "Eligible discharges"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Readmission results"
+                  }
+                },
+                "Property": "Scored results"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "value": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "textWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ],
+      "label": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "d817026e4feb5fac44fa",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Readmission results"
+              }
+            },
+            "Property": "Scored results"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "b6dafab5316088a182a2",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Readmission results"
+              }
+            },
+            "Property": "Results counting toward the penalty"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "f33a7e6bce66ff51cac2",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Readmission results"
+              }
+            },
+            "Property": "Eligible discharges"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

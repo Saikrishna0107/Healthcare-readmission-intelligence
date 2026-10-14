@@ -1,0 +1,20 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "423f1c45129d627d5668",
+  "displayName": "Penalty Overview",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920,
+  "visualInteractions": [
+    {
+      "source": "5bb98dfa503ab95b29f2",
+      "target": "19f2e984e9523dd446af",
+      "type": "DataFilter"
+    },
+    {
+      "source": "568d1c2ca61baba874dc",
+      "target": "19f2e984e9523dd446af",
+      "type": "NoFilter"
+    }
+  ]
+}

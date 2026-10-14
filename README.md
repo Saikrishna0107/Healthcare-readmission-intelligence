@@ -253,11 +253,21 @@ score measure the tuning, not the agent; the fixes and a new question set are fo
 Every model reply is saved in [reports/agent](reports/agent/), and a test replays them to check the
 published scores without the model.
 
-## Power BI dashboard (step 9, in progress)
+## Power BI dashboard (step 9)
+
+Five pages, built in Power BI Desktop from [a written guide](docs/powerbi_guide.md):
+
+| Page | Question it answers |
+|---|---|
+| Penalty overview | How many hospitals are penalized, by how much, and where? FY2026: 78.2% of 2,945 hospitals, 0.44% average reduction, 15 at the 3% cap |
+| Conditions | Which conditions drive penalties? Pneumonia and heart failure (1,322 and 1,292 penalty-counting results in FY2026), bypass surgery least (438) |
+| Hospital detail | Drill-through from any hospital: its penalty by year, every condition result against the peer-group median, and what moved the model's prediction |
+| Model risk | The FY2026 risk model: 737 hospitals flagged, 50.1% of them really in the top quarter (random: 25%) |
+| Checks | Every DAX measure against MetricFlow, every year: 0 mismatches in 136 |
 
 The dashboard reads a **Parquet copy of the star schema**: `hri export powerbi` writes
 `data/powerbi/`. Power BI's built-in Parquet connector reads it, so no database driver is
-needed ([why](docs/decisions.md#d-011--power-bi-dashboard-streamlit-for-the-agent--proposed-step-9)).
+needed ([why](docs/decisions.md#d-011--power-bi-dashboard-streamlit-for-the-agent--accepted-step-9)).
 
 Besides the five marts, the export holds:
 - `model_risk`: the FY2026 penalty-risk prediction for every hospital, with its rank and
@@ -274,8 +284,14 @@ tables, their relationships and one DAX measure per semantic-layer metric. Its *
 compares every measure with MetricFlow for every fiscal year: **0 mismatches in 136
 metric-year pairs**.
 
-To open it: run `hri export powerbi`, then `hri powerbi init` (it points the model at your
-copy's `data/powerbi/` folder), open `powerbi/HRI.pbip` in Power BI Desktop and click Refresh.
+Tests read the saved project files: one measure per metric, the drill-through bound to the
+hospital ID, and trend visuals that ignore the year slicer.
+
+To open it: run `hri export powerbi`, open `powerbi/HRI.pbip` in Power BI Desktop, and if your
+copy is not in `D:\healthcare-readmission-intelligence`, set the `DataFolder` parameter
+(Transform data > Edit parameters) to your `data\powerbi\` folder. Then click Refresh.
+(`hri powerbi init` only creates the model in a new project; it would overwrite columns added
+in Desktop, such as `condition_name`.)
 
 ## Planned architecture
 

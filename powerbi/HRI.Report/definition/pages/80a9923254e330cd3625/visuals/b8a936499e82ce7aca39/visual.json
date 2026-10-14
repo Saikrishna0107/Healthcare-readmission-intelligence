@@ -1,0 +1,91 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "b8a936499e82ce7aca39",
+  "position": {
+    "x": 0,
+    "y": 277.77777777777777,
+    "z": 2,
+    "height": 746.29629629629619,
+    "width": 855.55555555555554,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Hospital"
+                    }
+                  },
+                  "Property": "facility_id"
+                }
+              },
+              "queryRef": "Hospital.facility_id",
+              "nativeQueryRef": "facility_id",
+              "active": true
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model risk"
+                    }
+                  },
+                  "Property": "Actual payment reduction (model rows)"
+                }
+              },
+              "queryRef": "Model risk.Actual payment reduction (model rows)",
+              "nativeQueryRef": "Actual payment reduction (model rows)",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Model risk"
+                    }
+                  },
+                  "Property": "Predicted payment reduction"
+                }
+              },
+              "queryRef": "Model risk.Predicted payment reduction",
+              "nativeQueryRef": "Predicted payment reduction"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Predicted VS Actual payment reduction, FY2026 (%)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

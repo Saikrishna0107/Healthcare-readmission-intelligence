@@ -404,7 +404,7 @@ results in `reports/agent/`.
 
 ---
 
-## D-011 · Power BI dashboard, Streamlit for the agent · Proposed (step 9)
+## D-011 · Power BI dashboard, Streamlit for the agent · Accepted (step 9)
 
 **Why.** Power BI appears in more healthcare job descriptions than Tableau, especially at health
 plans. Power BI can't host a chat interface, so the agent gets a small Streamlit app.
@@ -448,6 +448,23 @@ plans. Power BI can't host a chat interface, so the agent gets a small Streamlit
 - **Verified in Power BI Desktop.** All 136 metric-year pairs (17 metrics × 8 years) match
   MetricFlow: the Checks page shows 0 mismatches. A blank and 0 count as equal, because years
   without data are blank in one engine and missing in the other.
+
+**Report pages (step 9c).** Penalty overview, Conditions, Hospital detail, Model risk, Checks.
+- **Built by the owner in Desktop** from [docs/powerbi_guide.md](powerbi_guide.md), reviewed
+  from screenshots and the saved page files. Every number on the pages was checked against
+  the data.
+- **One year slicer, synced across the two summary pages.** Trend visuals (the penalty line,
+  the condition × year matrix) are set to ignore it with *Edit interactions*; a test reads the
+  saved interactions, because a trend filtered to one year silently shows one dot.
+- **Hospital detail is a drill-through page on `facility_id`, not the name.** Several hospitals
+  share a name (found in step 8). *Keep all filters* is off so the page shows every year.
+- **Condition names are a DAX calculated column** (`condition_name`) added in Desktop. Now that
+  the model holds hand-made changes, `hri powerbi init` is for new projects only.
+- **The Model risk page reports ranking quality, not error size.** The model's predicted levels
+  are compressed (Milford Regional: predicted 0.86%, actual 2.97%), yet the hospital ranks in
+  the 94th percentile and is flagged correctly. Precision of the flag (50.1% vs 25% random) is
+  the honest headline.
+- **Still open:** the agent's Streamlit app (step 9d).
 
 ---
 

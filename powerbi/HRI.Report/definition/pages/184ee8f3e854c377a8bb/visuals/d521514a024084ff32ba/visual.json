@@ -1,0 +1,90 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "d521514a024084ff32ba",
+  "position": {
+    "x": 0,
+    "y": 338.88888888888886,
+    "z": 2,
+    "height": 335.18518518518516,
+    "width": 750,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "condition_name"
+                }
+              },
+              "queryRef": "Readmission results.condition_name",
+              "nativeQueryRef": "condition_name",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Readmission results"
+                    }
+                  },
+                  "Property": "Results counting toward the penalty"
+                }
+              },
+              "queryRef": "Readmission results.Results counting toward the penalty",
+              "nativeQueryRef": "Results counting toward the penalty"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Readmission results"
+                  }
+                },
+                "Property": "Results counting toward the penalty"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Hospital Results Counting Toward the penalty , by condition'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
