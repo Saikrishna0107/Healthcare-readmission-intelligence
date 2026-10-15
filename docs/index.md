@@ -53,7 +53,16 @@ shortened in the recording, the real time is shown under the answer):
 Under each answer: the metric's definition, the plan the model wrote, and the SQL that ran
 ([full view](images/agent_how_answered.png)).
 
-<!-- dashboard -->
+**Power BI dashboard** (five pages, [how they were built](powerbi_guide.md)):
+
+| Penalties: who, how much, where | Conditions: which ones drive penalties |
+|---|---|
+| ![Penalty overview](images/dashboard_penalties.png) | ![Conditions](images/dashboard_conditions.png) |
+| **Hospital detail** (drill-through): every result vs its peer median, and what moved the model | **Model risk**: predicted vs actual penalty, and the flagged hospitals |
+| ![Hospital detail](images/dashboard_hospital_detail.png) | ![Model risk](images/dashboard_model_risk.png) |
+
+The fifth page, [Checks](images/dashboard_checks.png), compares every DAX measure with the semantic
+layer for every year (0 mismatches).
 
 ## Notebooks (with results)
 
