@@ -3,7 +3,7 @@
   "name": "19f2e984e9523dd446af",
   "position": {
     "x": 1.8518518518518516,
-    "y": 614.81481481481478,
+    "y": 614.8148148148148,
     "z": 3000,
     "height": 424.074074074074,
     "width": 624.074074074074,
@@ -69,6 +69,21 @@
         ]
       }
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "lineStyles": [
+        {
+          "properties": {
+            "lineChartType": {
+              "expr": {
+                "Literal": {
+                  "Value": "'linear'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "cbbd969630d6d3eedd42",
   "position": {
-    "x": 677.77777777777771,
+    "x": 677.7777777777777,
     "y": 0,
     "z": 5000,
-    "height": 629.85074626865674,
-    "width": 623.88059701492534,
+    "height": 629.8507462686567,
+    "width": 623.8805970149253,
     "tabOrder": 5000
   },
   "visual": {
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "Hospital.facility_id",
-              "nativeQueryRef": "facility_id"
+              "nativeQueryRef": "facility_id",
+              "displayName": "ID"
             },
             {
               "field": {
@@ -41,7 +42,8 @@
                 }
               },
               "queryRef": "Hospital.facility_name",
-              "nativeQueryRef": "facility_name"
+              "nativeQueryRef": "facility_name",
+              "displayName": "Hospital"
             },
             {
               "field": {
@@ -55,7 +57,8 @@
                 }
               },
               "queryRef": "Hospital.state",
-              "nativeQueryRef": "state"
+              "nativeQueryRef": "state",
+              "displayName": "State"
             },
             {
               "field": {
@@ -69,13 +72,68 @@
                 }
               },
               "queryRef": "Hospital year.Largest payment reduction",
-              "nativeQueryRef": "Largest payment reduction"
+              "nativeQueryRef": "Largest payment reduction",
+              "displayName": "Payment cut"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Hospital year"
+                  }
+                },
+                "Property": "Largest payment reduction"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
       }
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'20 largest payment cuts'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   },
   "filterConfig": {
     "filters": [

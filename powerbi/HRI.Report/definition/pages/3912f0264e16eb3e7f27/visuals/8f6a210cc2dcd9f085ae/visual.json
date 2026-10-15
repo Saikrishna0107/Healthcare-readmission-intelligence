@@ -6,7 +6,7 @@
     "y": 53.7037037037037,
     "z": 2,
     "height": 159.25925925925924,
-    "width": 1711.1111111111111,
+    "width": 1711.111111111111,
     "tabOrder": 2
   },
   "visual": {
@@ -32,7 +32,8 @@
                 }
               },
               "queryRef": "Min(Hospital.facility_name)",
-              "nativeQueryRef": "First facility_name"
+              "nativeQueryRef": "First facility_name",
+              "displayName": "Hospital"
             },
             {
               "field": {
@@ -51,7 +52,8 @@
                 }
               },
               "queryRef": "Min(Hospital.city)",
-              "nativeQueryRef": "First city"
+              "nativeQueryRef": "First city",
+              "displayName": "City"
             },
             {
               "field": {
@@ -70,7 +72,8 @@
                 }
               },
               "queryRef": "Min(Hospital.state)",
-              "nativeQueryRef": "First state"
+              "nativeQueryRef": "First state",
+              "displayName": "State"
             },
             {
               "field": {
@@ -89,12 +92,41 @@
                 }
               },
               "queryRef": "Min(Hospital.hospital_type)",
-              "nativeQueryRef": "First hospital_type"
+              "nativeQueryRef": "First hospital_type",
+              "displayName": "Hospital type"
             }
           ]
         }
       }
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "value": [
+        {
+          "properties": {
+            "textWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "label": [
+        {
+          "properties": {
+            "textWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

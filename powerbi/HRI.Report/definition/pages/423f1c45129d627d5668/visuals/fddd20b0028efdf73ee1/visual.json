@@ -3,7 +3,7 @@
   "name": "fddd20b0028efdf73ee1",
   "position": {
     "x": 0,
-    "y": 74.074074074074076,
+    "y": 74.07407407407408,
     "z": 2000,
     "height": 240.74074074074073,
     "width": 624.074074074074,
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "Hospital year.Hospitals at the 3% cap",
-              "nativeQueryRef": "Hospitals at the 3% cap"
+              "nativeQueryRef": "Hospitals at the 3% cap",
+              "displayName": "At 3% cap"
             },
             {
               "field": {
@@ -41,7 +42,8 @@
                 }
               },
               "queryRef": "Hospital year.Penalized hospitals",
-              "nativeQueryRef": "Penalized hospitals"
+              "nativeQueryRef": "Penalized hospitals",
+              "displayName": "Penalized"
             },
             {
               "field": {
@@ -55,7 +57,8 @@
                 }
               },
               "queryRef": "Hospital year.Share of hospitals penalized",
-              "nativeQueryRef": "Share of hospitals penalized"
+              "nativeQueryRef": "Share of hospitals penalized",
+              "displayName": "% penalized"
             },
             {
               "field": {
@@ -69,7 +72,8 @@
                 }
               },
               "queryRef": "Hospital year.Hospitals in the payment file",
-              "nativeQueryRef": "Hospitals in the payment file"
+              "nativeQueryRef": "Hospitals in the payment file",
+              "displayName": "Hospitals"
             },
             {
               "field": {
@@ -83,7 +87,8 @@
                 }
               },
               "queryRef": "Hospital year.Average payment reduction (penalized hospitals only)",
-              "nativeQueryRef": "Average payment reduction (penalized hospitals only)"
+              "nativeQueryRef": "Average payment reduction (penalized hospitals only)",
+              "displayName": "Avg cut"
             }
           ]
         }
@@ -115,6 +120,33 @@
               "expr": {
                 "Literal": {
                   "Value": "true"
+                }
+              }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "label": [
+        {
+          "properties": {
+            "textWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10D"
                 }
               }
             }

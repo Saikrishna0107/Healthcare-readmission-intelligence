@@ -24,6 +24,17 @@ Traps met while building the first version (each one gave a wrong number, not ju
   Categories, which draws one tile per hospital.
 - Large numbers show as 3K by default: Format visual > Callout value > Display units > None.
 
+Traps met while polishing it for screenshots:
+- **A title must match the filter.** The page 1 table is the top 20 by largest payment cut, so
+  it is "20 largest payment cuts", sorted by the cut. Titled "at the 3% cap", it listed 2.62%.
+- **Export to PDF prints the current selection.** A clicked bar or row cross-filters the page
+  (cards showed 1 hospital, 100% penalized). Click empty canvas before exporting.
+- **Card (new) labels are cut at about 9 characters** when five cards share one row. Shorter
+  labels (in the Data well, the field's menu > Rename for this visual) fixed it; a
+  3-column grid made the tiles overflow, and the export shrank the whole page to fit them.
+- **Smoothed lines draw values that don't exist** between years. Use straight lines
+  (Format visual > Lines > Interpolation type > Linear).
+
 ---
 
 ## Page 1 · Penalty overview

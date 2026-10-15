@@ -41,7 +41,8 @@
                 }
               },
               "queryRef": "Readmission results.Results counting toward the penalty",
-              "nativeQueryRef": "Results counting toward the penalty"
+              "nativeQueryRef": "Results counting toward the penalty",
+              "displayName": "Counting toward penalty"
             },
             {
               "field": {
@@ -89,6 +90,13 @@
                   "Value": "true"
                 }
               }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
             }
           }
         },
@@ -120,6 +128,17 @@
           },
           "selector": {
             "id": "default"
+          }
+        },
+        {
+          "properties": {
+            "textWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
           }
         }
       ]
