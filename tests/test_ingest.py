@@ -419,3 +419,15 @@ def test_project_sources_config_is_valid():
     supplemental = sources["hrrp_supplemental"].releases
     assert [r.release for r in supplemental] == [f"FY{y}" for y in range(2020, 2027)]
     assert all(r.title for r in supplemental)
+
+
+def test_the_ci_summary_lists_new_and_failed_releases_only():
+    from hri.cli import ingest_summary
+    from hri.ingest.run import Result
+
+    text = ingest_summary([Result("hrrp", "ingested", "2026-10-01", 18_000),
+                           Result("places", "failed", error="HTTP 503 | try later"),
+                           Result("hospitals", "skipped", "2026-07-01")])
+    assert "**1 new release(s)**, 1 failed source(s), 1 already known." in text
+    assert "| hrrp | ingested | 2026-10-01 | 18,000 |" in text
+    assert "HTTP 503 / try later" in text and "hospitals" not in text  # a | would break the table

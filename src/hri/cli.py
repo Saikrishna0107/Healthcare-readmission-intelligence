@@ -21,6 +21,8 @@ def main(argv: list[str] | None = None) -> int:
     ingest_cmd = commands.add_parser("ingest", help="download new releases of the raw sources")
     ingest_cmd.add_argument("--only", nargs="+", metavar="SOURCE", help="ingest only these sources")
     ingest_cmd.add_argument("--force", action="store_true", help="download even if the release is stored")
+    ingest_cmd.add_argument("--summary", type=Path, metavar="FILE",
+                            help="append a Markdown table of the results (e.g. $GITHUB_STEP_SUMMARY)")
 
     commands.add_parser("status", help="show the stored releases of each source")
 
@@ -271,8 +273,26 @@ def _ingest(args: argparse.Namespace) -> int:
     for r in results:
         detail = f"{r.rows:,} rows" if r.rows else (r.error or "")
         print(f"  {r.status:9s} {r.source:22s} {r.release or '-':12s} {detail}")
+    if args.summary:
+        with args.summary.open("a", encoding="utf-8") as out:
+            out.write(ingest_summary(results))
     failed = [r for r in results if r.status == "failed"]
     return 1 if failed else 0
+
+
+def ingest_summary(results) -> str:
+    """Markdown for a CI run page: new releases first, then failures; skipped ones only counted."""
+    new = [r for r in results if r.status == "ingested"]
+    failed = [r for r in results if r.status == "failed"]
+    lines = ["## Data refresh: ingest", "",
+             f"**{len(new)} new release(s)**, {len(failed)} failed source(s), "
+             f"{sum(r.status in ('skipped', 'absent') for r in results)} already known.", ""]
+    if new or failed:
+        lines += ["| Source | Result | Release | Rows or error |", "|---|---|---|---|"]
+        for r in new + failed:
+            detail = f"{r.rows:,}" if r.rows else (r.error or "").replace("|", "/")[:200]
+            lines.append(f"| {r.source} | {r.status} | {r.release or '-'} | {detail} |")
+    return "\n".join(lines) + "\n\n"
 
 
 def run_dbt(dbt_args: list[str]) -> int:

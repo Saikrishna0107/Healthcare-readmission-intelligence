@@ -1,0 +1,91 @@
+# Rebuilds everything from the public CMS and CDC sources and runs every check (step 10, D-013).
+#
+# Twice a week and on demand (Actions tab > Data refresh > Run workflow). It proves the project
+# can be rebuilt from nothing and catches source changes: a renamed column or a new file format
+# fails ingestion or the 211 dbt checks. Nothing is committed back: data stays out of git and
+# the model is not retrained automatically; a person looks at a new release first.
+#
+# The raw files are kept in the Actions cache between runs. That cache is the memory of which
+# releases were already seen, so a run can report what is new. GitHub drops a cache unused for
+# 7 days, hence two runs a week. With no cache (first run, or after a drop) everything is
+# downloaded again and nothing is reported as new.
+
+name: Data refresh
+
+on:
+  schedule:
+    - cron: "0 6 * * 1,4"  # Monday and Thursday, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write  # to open an issue when new data is released
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      - name: Restore the raw files seen before
+        id: raw
+        uses: actions/cache/restore@v4
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}
+          restore-keys: raw-
+
+      - name: Ingest new releases
+        id: ingest
+        run: |
+          hri ingest --summary ingest_summary.md
+          cat ingest_summary.md >> "$GITHUB_STEP_SUMMARY"
+          echo "new=$(grep -c '| ingested |' ingest_summary.md || true)" >> "$GITHUB_OUTPUT"
+
+      - name: Remember the raw files
+        if: always() && steps.ingest.outcome != 'skipped'
+        uses: actions/cache/save@v4
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}
+
+      - name: Build the warehouse and run its checks
+        run: hri dbt build
+
+      - name: Tests with data
+        run: pytest -q -rs
+
+      - name: Export for Power BI
+        run: |
+          hri export powerbi --no-model
+          echo "## Warehouse" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          hri status >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open an issue for new data
+        # Only when the cache existed: after a cold start every release looks new.
+        if: steps.raw.outputs.cache-matched-key != '' && steps.ingest.outputs.new != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            cat ingest_summary.md
+            echo "The warehouse rebuilt and every check passed with the new data:"
+            echo "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo
+            echo 'Next, locally: `hri ingest`, `hri dbt build`, `hri model train`, `hri export powerbi`,'
+            echo 'then Refresh in Power BI.'
+          } > issue.md
+          gh issue create --title "New CMS/CDC data released ($(date -u +%Y-%m-%d))" --body-file issue.md

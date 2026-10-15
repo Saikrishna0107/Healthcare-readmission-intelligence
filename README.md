@@ -1,7 +1,12 @@
 # Hospital Readmission Intelligence
 
-> **Status: work in progress.** The project is built in public, step by step. Every important
-> decision is committed separately and explained in [docs/decisions.md](docs/decisions.md).
+[![CI](https://github.com/Saikrishna0107/Healthcare-readmission-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/Saikrishna0107/Healthcare-readmission-intelligence/actions/workflows/ci.yml)
+[![Data refresh](https://github.com/Saikrishna0107/Healthcare-readmission-intelligence/actions/workflows/refresh.yml/badge.svg)](https://github.com/Saikrishna0107/Healthcare-readmission-intelligence/actions/workflows/refresh.yml)
+
+> **Status: all ten roadmap steps built.** The project was built in public, step by step. Every
+> important decision is committed separately and explained in [docs/decisions.md](docs/decisions.md).
+> **CI** checks the code on every push; **Data refresh** rebuilds everything from the public
+> sources twice a week ([how](docs/decisions.md#d-013--github-actions-for-ci-and-scheduled-refresh--accepted-step-10)).
 
 ## The problem
 
@@ -333,7 +338,7 @@ CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + 
 - [x] 7. Validation design, baselines and a three-model comparison (ridge, LightGBM, EBM) explained with SHAP
 - [x] 8. LLM question-answering agent through a semantic layer, with an evaluation set
 - [x] 9. Power BI dashboard, and a web page for the agent
-- [ ] 10. CI and scheduled data refresh
+- [x] 10. CI and scheduled data refresh
 
 ## Running it yourself
 

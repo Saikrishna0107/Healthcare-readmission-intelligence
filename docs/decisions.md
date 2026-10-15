@@ -490,10 +490,29 @@ runs the same way on Windows, macOS and in CI.
 
 ---
 
-## D-013 · GitHub Actions for CI and scheduled refresh · Proposed (step 10)
+## D-013 · GitHub Actions for CI and scheduled refresh · Accepted (step 10)
 
 **Why.** One free tool runs the tests on every push and refreshes the data on a schedule.
 Airflow would be too heavy for a one-person project.
+
+**Two workflows (step 10).**
+- **`ci.yml`, every push and pull request: the code.** Lint, the tests, and a dbt parse. A fresh
+  checkout has no data, so tests that need the warehouse, the model or Ollama skip themselves
+  and say why (`pytest -rs`). Fast and the same result every time.
+- **`refresh.yml`, twice a week and on demand: the data.** Downloads from CMS and CDC, builds the
+  warehouse with its 211 checks, runs the tests with data and exports for Power BI.
+  - **Rebuild and verify, don't publish.** Nothing is committed back. Alternatives:
+    - *Check for new releases only:* cheaper, but misses the real risk, a source changing
+      its columns or format, which only a rebuild shows.
+    - *Commit the rebuilt data or retrain automatically:* data stays out of git (D-005), and a
+      new release should be looked at before the model learns from it.
+  - **What is new is reported.** The raw files stay in the Actions cache between runs; that cache
+    is the memory of which releases were already seen. New ones go on the run page and open an
+    issue, which GitHub e-mails to the owner. GitHub drops a cache after 7 days without use,
+    hence two runs a week; after a drop, nothing is reported as new rather than everything.
+- **Ollama and Power BI stay local.** Neither runs on GitHub's Linux runners without a large
+  download (the model) or Windows (Power BI Desktop); their tests read saved files or use a
+  scripted model instead.
 
 ---
 

@@ -1,0 +1,38 @@
+# Checks the code on every push and pull request (step 10, D-013).
+#
+# A fresh checkout has no data (data/ is not in git), so the tests that need the warehouse,
+# the trained model or Ollama skip themselves; the rest check the code. The full pipeline with
+# real data runs in refresh.yml.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:  # a newer push cancels the run of an older one
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check src tests
+      - name: Tests (no data)
+        run: pytest -q -rs
+      - name: dbt project parses
+        run: hri dbt parse
