@@ -3,23 +3,94 @@
 [![CI](https://github.com/Saikrishna0107/Healthcare-readmission-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/Saikrishna0107/Healthcare-readmission-intelligence/actions/workflows/ci.yml)
 [![Data refresh](https://github.com/Saikrishna0107/Healthcare-readmission-intelligence/actions/workflows/refresh.yml/badge.svg)](https://github.com/Saikrishna0107/Healthcare-readmission-intelligence/actions/workflows/refresh.yml)
 
-> **Status: all ten roadmap steps built.** The project was built in public, step by step. Every
-> important decision is committed separately and explained in [docs/decisions.md](docs/decisions.md).
-> **CI** checks the code on every push; **Data refresh** rebuilds everything from the public
-> sources twice a week ([how](docs/decisions.md#d-013--github-actions-for-ci-and-scheduled-refresh--accepted-step-10)).
+Which US hospitals will Medicare penalize for readmissions, why, and can you trust the answer?
+A tested data pipeline, a penalty-risk model, a Power BI dashboard and an AI assistant, all on
+**real public CMS, CDC and Census data** for about 3,000 hospitals (no patient-level data).
+
+**[Project site](https://saikrishna0107.github.io/Healthcare-readmission-intelligence/)** ·
+[Decision log](docs/decisions.md) · [Model card](docs/model_card.md) ·
+[How it was built](#how-it-was-built-step-by-step)
 
 ## The problem
 
 Medicare's **Hospital Readmissions Reduction Program (HRRP)** cuts up to **3% of a hospital's
 Medicare base payments** when too many patients come back within 30 days of discharge for
-heart attack, heart failure, pneumonia, COPD, hip/knee replacement or bypass surgery.
+heart attack, heart failure, pneumonia, COPD, hip/knee replacement or bypass surgery. In
+FY2026, 78% of the hospitals in the program were penalized.
 
-This project uses **real, public CMS and CDC data** on about 3,000 US hospitals to answer
-three questions a hospital or health plan would pay for:
+The project answers three questions a hospital or health plan analyst gets asked:
 
-1. **Which hospitals are at risk** of a readmission penalty?
-2. **Why?** Which drivers (patient experience, hospital profile, community health) explain the risk?
-3. **What is it worth?** How many Medicare dollars are at stake, and what would improvement save?
+1. **Who is penalized, and by how much?** Every hospital's cut, recomputed from CMS's own inputs.
+2. **Why?** Which drivers (patient experience, hospital profile, community health) go with
+   higher penalties.
+3. **Who is at risk next?** A model that ranks hospitals by expected penalty, tested on a year
+   it never saw.
+
+## Headline findings
+
+- **The penalty formula is reproduced exactly.** All 21,263 hospital-years from FY2020 to FY2026
+  match CMS's published payment reduction within 0.01 percentage points. FY2026: 2,304 of 2,945
+  hospitals penalized (78%), 15 at the 3% cap.
+- **Discharge planning goes with fewer readmissions, every year.** Hospitals in the lowest
+  quarter of "care transition" survey scores average a heart-failure excess readmission ratio
+  of 1.020-1.032; the top quarter 0.979-0.985, in each year from FY2020 to FY2026
+  (association, not causation).
+- **Poverty barely moves the penalty** (rank correlation -0.03), because CMS compares each
+  hospital only with peers serving a similar share of low-income patients.
+- **The risk model finds twice as many top-quarter penalties as chance.** LightGBM reaches an
+  AUC of 0.745 on FY2026; half of the hospitals it flags really land in the top quarter. A
+  random train/test split would have reported 0.776, because neighbouring years share patients.
+- **The AI assistant is right 83% of the time on 42 test questions, and shows its work.** A
+  local model writes a query plan; the numbers come from a governed semantic layer, never from
+  the model. Wrong metric choice is its most common error, and it is reported, not hidden.
+- **The dashboard checks itself.** Every Power BI DAX measure is compared with the semantic
+  layer for every year: 0 mismatches in 136.
+
+## See it
+
+**Ask the data in plain English** (`hri app`, local model, nothing leaves the computer;
+the wait is shortened in the recording, the real time is shown under the answer):
+
+![The AI assistant answering a question](docs/images/agent_demo.gif)
+
+Under each answer: the metric's definition, the plan the model wrote, and the SQL that ran
+([full view](docs/images/agent_how_answered.png)).
+
+<!-- dashboard -->
+
+## Architecture
+
+```
+CMS · CDC · Census ──► Python ingestion ──► raw Parquet ──► dbt + DuckDB: staging ► star schema
+(11 public sources)    (checked, versioned)                 (211 data tests)
+                                                                     │
+          ┌──────────────────────────┬───────────────────────────────┼──────────────────────┐
+          ▼                          ▼                               ▼                      ▼
+  Penalty-risk model        Semantic layer (dbt MetricFlow)   Parquet export ──► Power BI dashboard
+  ridge · EBM · LightGBM    17 metrics, one definition each                      (5 pages, DAX
+  + SHAP drivers                     │                                            checked vs layer)
+                                     ▼
+                     AI assistant: local LLM (Ollama) writes a plan,
+                     code checks it, MetricFlow writes the SQL
+                     ► CLI (hri ask) and web page (Streamlit)
+
+GitHub Actions: lint + tests on every push; a full rebuild from the sources twice a week
+```
+
+| Layer | Tools |
+|---|---|
+| Ingestion and warehouse | Python 3.12, DuckDB, dbt (211 tests), Parquet |
+| Analysis | marimo notebooks, pandas |
+| Model | scikit-learn, LightGBM, Explainable Boosting Machine, SHAP |
+| AI assistant | Ollama (`granite4.1:3b`, local), dbt MetricFlow, Streamlit, a 42-question evaluation |
+| Dashboard | Power BI Desktop (PBIP project in git, TMDL model, DAX) |
+| Engineering | pytest (84 tests), ruff, GitHub Actions (CI and scheduled refresh) |
+
+## How it was built, step by step
+
+The project was built in public in ten steps; each important decision is committed separately
+and explained in the [decision log](docs/decisions.md). The rest of this page follows that
+order: the data, what it shows, the model, the assistant and the dashboard, then how to run it.
 
 ## Data (all public, no patient-level data)
 
@@ -31,13 +102,12 @@ three questions a hospital or health plan would pay for:
 | [CMS Hospital General Information](https://data.cms.gov/provider-data/dataset/xubh-q36u) | hospital | Hospital profile: type, ownership, county, star rating |
 | [CDC PLACES – County Data](https://data.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-County-Data-20/swc5-untb) | county × health measure | Community context: chronic disease, insurance, transportation |
 | [Census ZCTA–county relationship files](https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.html) (2020, plus Connecticut 2022) | ZIP area × county | Links each hospital's ZIP code to the county code PLACES uses ([why](docs/decisions.md#d-022--link-hospitals-to-counties-by-zip-code-checked-against-the-county-name--accepted-step-5)) |
-
 | [CMS hospital data archive](https://data.cms.gov/provider-data/archived-data/hospitals) (quarterly snapshots since 2019) | snapshot × the rows above | Past releases of HRRP, the patient survey and hospital profiles, to line up time periods ([why](docs/decisions.md#d-023--historical-releases-from-the-cms-archive-matched-by-period--accepted-step-6)) |
 
-More sources (Medicare inpatient payments, complications, spending per beneficiary) are added
-when the project reaches the step that needs them.
+Not used: Medicare payment amounts, so penalties are shown as a percentage of base payments,
+not in dollars.
 
-## What the data shows so far
+## What the data shows
 
 From the data exploration notebook
 ([read it with results](https://saikrishna0107.github.io/Healthcare-readmission-intelligence/notebooks/01_data_exploration.html)
@@ -315,17 +385,6 @@ leave out rows without a value for the breakdown and say so in a note; the gold 
 the same way. The published score is unchanged (the model and the key were wrong together).
 
 Tests run the page headless with a scripted model (`tests/test_app.py`), so they need no Ollama.
-
-## Planned architecture
-
-```
-CMS / CDC APIs ──► Python ingestion ──► raw Parquet ──► dbt + DuckDB (staging ► marts, tested)
-                                                               │
-                        ┌──────────────────────────────────────┼─────────────────────┐
-                        ▼                                      ▼                     ▼
-             ML: penalty-risk model               LLM agent: questions in       Power BI
-             (3-model comparison + SHAP)          plain English ► governed SQL   dashboard
-```
 
 ## Roadmap
 
