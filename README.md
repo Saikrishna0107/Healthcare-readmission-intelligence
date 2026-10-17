@@ -8,7 +8,7 @@ A tested data pipeline, a penalty-risk model, a Power BI dashboard and an AI ass
 **real public CMS, CDC and Census data** for about 3,000 hospitals (no patient-level data).
 
 **[Project site](https://saikrishna0107.github.io/Healthcare-readmission-intelligence/)** ·
-[Decision log](docs/decisions.md) · [Model card](docs/model_card.md) ·
+[Case study](docs/case_study.md) · [Decision log](docs/decisions.md) · [Model card](docs/model_card.md) ·
 [How it was built](#how-it-was-built-step-by-step)
 
 ## The problem
