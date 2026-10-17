@@ -32,3 +32,6 @@ Thumbs.db
 
 # marimo session cache (regenerated on every run)
 __marimo__/
+
+# Personal notes (resume, interview prep): never pushed or published
+docs/private/
